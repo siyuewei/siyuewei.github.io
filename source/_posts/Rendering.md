@@ -1,7 +1,8 @@
 ---
 title: Rendering
 date: 2025-09-03 03:21:11
-tags:
+tags: Rendering
+categories: Rendering
 ---
 
 # 常用软件
