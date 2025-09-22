@@ -1,20 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Rendering ToolTips</title>
-    <url>/2025/09/03/Rendering/</url>
-    <content><![CDATA[<h1 id="常用软件"><a href="#常用软件" class="headerlink" title="常用软件"></a>常用软件</h1><ul>
-<li>renderDoc：支持对应用截帧分析</li>
-</ul>
-]]></content>
-      <categories>
-        <category>Rendering</category>
-      </categories>
-      <tags>
-        <tag>Rendering</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Hexo</title>
     <url>/2025/09/04/Hexo/</url>
     <content><![CDATA[<h1 id="Hexo-静态博客框架使用指南"><a href="#Hexo-静态博客框架使用指南" class="headerlink" title="Hexo 静态博客框架使用指南"></a>Hexo 静态博客框架使用指南</h1><p>Hexo 是一个快速、简洁且高效的博客框架，基于 Node.js 构建。它可以将 Markdown 文件渲染成静态网页，支持多种主题和插件。</p>
@@ -152,7 +138,7 @@
 <h2 id="全局光照"><a href="#全局光照" class="headerlink" title="全局光照"></a>全局光照</h2><p>不仅仅只考虑打到光源的光线，如果光线打到某个物体上，则把这个物体也当作一个起点，发散$N$条光线，看是否接触到光源，或是别的物体。</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">shade(p,w0)</span><br><span class="line">    Lo = Le(p,wo)  // 自发光项</span><br><span class="line">    Randomly sample N directions wi (i=1 to N) based on the pdf</span><br><span class="line">    For each wi</span><br><span class="line">        Trace a ray r(p,wi)</span><br><span class="line">        if ray hit a light</span><br><span class="line">            Lo += (1/N) * fr(p,wi,wo) * Li(p,wi) * cos(θi) / pdf(wi)</span><br><span class="line">        else if ray hit an object at q</span><br><span class="line">            Lo += (1/N) * shade(q, -wi) * f_r * cos(θi) / pdf(wi)</span><br><span class="line">    return Lo</span><br></pre></td></tr></table></figure>
 
-<p><img src="/2025/09/22/RayTracing/_posts/RayTracing/RayTracingForGlobal.png" alt="考虑全局光照的光追"></p>
+<p><img src="/source/_posts/RayTracing/RayTracingForGlobal.png" alt="考虑全局光照的光追"></p>
 <p>光线的传播如下图所示，性能爆炸：</p>
 <!-- ![光线传播](/source/Images/RayTracing/LightTrace.png) -->
 
@@ -193,6 +179,20 @@
 
 <p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
 ]]></content>
+  </entry>
+  <entry>
+    <title>Rendering ToolTips</title>
+    <url>/2025/09/03/Rendering/</url>
+    <content><![CDATA[<h1 id="常用软件"><a href="#常用软件" class="headerlink" title="常用软件"></a>常用软件</h1><ul>
+<li>renderDoc：支持对应用截帧分析</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Rendering</category>
+      </categories>
+      <tags>
+        <tag>Rendering</tag>
+      </tags>
   </entry>
   <entry>
     <title>Tools</title>
