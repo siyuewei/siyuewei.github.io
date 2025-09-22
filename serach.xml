@@ -49,15 +49,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Tools</title>
-    <url>/2025/09/04/Tools/</url>
-    <content><![CDATA[<h1 id="妙妙工具合集"><a href="#妙妙工具合集" class="headerlink" title="妙妙工具合集"></a>妙妙工具合集</h1><p><a href="https://realfavicongenerator.net/">https://realfavicongenerator.net/</a> 上传一张图片，生成浏览器图片所需的图片格式</p>
-]]></content>
-      <tags>
-        <tag>Tools</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>RayTracing</title>
     <url>/2025/09/22/RayTracing/</url>
     <content><![CDATA[<h1 id="RayTracing概述"><a href="#RayTracing概述" class="headerlink" title="RayTracing概述"></a>RayTracing概述</h1><h2 id="渲染方程"><a href="#渲染方程" class="headerlink" title="渲染方程"></a>渲染方程</h2><p>每个点的Radiance &#x3D; 该点的自发光Radiance + 该点反射出的 来自其他光源的Radiance。</p>
@@ -181,6 +172,15 @@
       </categories>
       <tags>
         <tag>Rendering</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Tools</title>
+    <url>/2025/09/04/Tools/</url>
+    <content><![CDATA[<h1 id="妙妙工具合集"><a href="#妙妙工具合集" class="headerlink" title="妙妙工具合集"></a>妙妙工具合集</h1><p><a href="https://realfavicongenerator.net/">https://realfavicongenerator.net/</a> 上传一张图片，生成浏览器图片所需的图片格式</p>
+]]></content>
+      <tags>
+        <tag>Tools</tag>
       </tags>
   </entry>
   <entry>
