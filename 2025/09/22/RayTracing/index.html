@@ -27,13 +27,14 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="RayTracing概述渲染方程每个点的Radiance &#x3D; 该点的自发光Radiance + 该点反射出的 来自其他光源的Radiance。 $$L_o(p,\omega_o) &#x3D; L_e(p,\omega_o) + \int_{\Omega} f_r(p,\omega_i,\omega_o) L_i(p,\omega_i) \cos\theta_i d\omega_i$$">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://siyuewei.github.io/RayTracingForGlobal.png">
+<meta property="og:image" content="https://siyuewei.github.io/RayTracing/RayTracingForGlobal.png">
+<meta property="og:image" content="https://siyuewei.github.io/RayTracing/LightTrace.png">
 <meta property="article:published_time" content="2025-09-22T03:03:32.000Z">
-<meta property="article:modified_time" content="2025-09-22T06:17:15.513Z">
+<meta property="article:modified_time" content="2025-09-22T06:20:45.851Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="Rendering">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://siyuewei.github.io/RayTracingForGlobal.png">
+<meta name="twitter:image" content="https://siyuewei.github.io/RayTracing/RayTracingForGlobal.png">
 
 <link rel="canonical" href="https://siyuewei.github.io/2025/09/22/RayTracing/">
 
@@ -190,7 +191,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2025-09-22 11:03:32 / Modified: 14:17:15" itemprop="dateCreated datePublished" datetime="2025-09-22T11:03:32+08:00">2025-09-22</time>
+              <time title="Created: 2025-09-22 11:03:32 / Modified: 14:20:45" itemprop="dateCreated datePublished" datetime="2025-09-22T11:03:32+08:00">2025-09-22</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -300,10 +301,8 @@
 <h2 id="全局光照"><a href="#全局光照" class="headerlink" title="全局光照"></a>全局光照</h2><p>不仅仅只考虑打到光源的光线，如果光线打到某个物体上，则把这个物体也当作一个起点，发散$N$条光线，看是否接触到光源，或是别的物体。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">shade(p,w0)</span><br><span class="line">    Lo = Le(p,wo)  // 自发光项</span><br><span class="line">    Randomly sample N directions wi (i=1 to N) based on the pdf</span><br><span class="line">    For each wi</span><br><span class="line">        Trace a ray r(p,wi)</span><br><span class="line">        if ray hit a light</span><br><span class="line">            Lo += (1/N) * fr(p,wi,wo) * Li(p,wi) * cos(θi) / pdf(wi)</span><br><span class="line">        else if ray hit an object at q</span><br><span class="line">            Lo += (1/N) * shade(q, -wi) * f_r * cos(θi) / pdf(wi)</span><br><span class="line">    return Lo</span><br></pre></td></tr></table></figure>
 
-<p><img src="/RayTracingForGlobal.png" alt="考虑全局光照的光追"></p>
-<!-- 光线的传播如下图所示，性能爆炸：
-![光线传播](LightTrace.png) -->
-
+<p><img src="/./RayTracing/RayTracingForGlobal.png" alt="考虑全局光照的光追"></p>
+<p>光线的传播如下图所示，性能爆炸：<br><img src="/./RayTracing/LightTrace.png" alt="光线传播"></p>
 <h2 id="路径追踪"><a href="#路径追踪" class="headerlink" title="路径追踪"></a>路径追踪</h2><p>在全局光照中，如果取$N &#x3D; 1$，那么这个算法就被称为路径追踪</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">shade(p,w0)</span><br><span class="line">    Lo = Le(p,wo)  // 自发光项</span><br><span class="line">    Randomly choose ONE direction wi(i=1) base on pdf</span><br><span class="line">    Trace a ray r(p,wi)</span><br><span class="line">    if ray hit a light</span><br><span class="line">        Lo += fr(p,wi,wo) * Li(p,wi) * cos(θi) / pdf(wi)</span><br><span class="line">    else if ray hit an object at q</span><br><span class="line">        Lo += shade(q, -wi) * f_r * cos(θi) / pdf(wi)</span><br><span class="line">    return Lo</span><br></pre></td></tr></table></figure>
 
