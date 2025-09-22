@@ -49,6 +49,47 @@
       </tags>
   </entry>
   <entry>
+    <title>Rendering ToolTips</title>
+    <url>/2025/09/03/Rendering/</url>
+    <content><![CDATA[<h1 id="常用软件"><a href="#常用软件" class="headerlink" title="常用软件"></a>常用软件</h1><ul>
+<li>renderDoc：支持对应用截帧分析</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Rendering</category>
+      </categories>
+      <tags>
+        <tag>Rendering</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hello World</title>
+    <url>/2025/09/03/hello-world/</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+]]></content>
+  </entry>
+  <entry>
+    <title>Tools</title>
+    <url>/2025/09/04/Tools/</url>
+    <content><![CDATA[<h1 id="妙妙工具合集"><a href="#妙妙工具合集" class="headerlink" title="妙妙工具合集"></a>妙妙工具合集</h1><p><a href="https://realfavicongenerator.net/">https://realfavicongenerator.net/</a> 上传一张图片，生成浏览器图片所需的图片格式</p>
+]]></content>
+      <tags>
+        <tag>Tools</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>RayTracing</title>
     <url>/2025/09/22/RayTracing/</url>
     <content><![CDATA[<h1 id="RayTracing概述"><a href="#RayTracing概述" class="headerlink" title="RayTracing概述"></a>RayTracing概述</h1><h2 id="渲染方程"><a href="#渲染方程" class="headerlink" title="渲染方程"></a>渲染方程</h2><p>每个点的Radiance &#x3D; 该点的自发光Radiance + 该点反射出的 来自其他光源的Radiance。</p>
@@ -139,9 +180,7 @@
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">shade(p,w0)</span><br><span class="line">    Lo = Le(p,wo)  // 自发光项</span><br><span class="line">    Randomly sample N directions wi (i=1 to N) based on the pdf</span><br><span class="line">    For each wi</span><br><span class="line">        Trace a ray r(p,wi)</span><br><span class="line">        if ray hit a light</span><br><span class="line">            Lo += (1/N) * fr(p,wi,wo) * Li(p,wi) * cos(θi) / pdf(wi)</span><br><span class="line">        else if ray hit an object at q</span><br><span class="line">            Lo += (1/N) * shade(q, -wi) * f_r * cos(θi) / pdf(wi)</span><br><span class="line">    return Lo</span><br></pre></td></tr></table></figure>
 
 <p><img src="/RayTracingForGlobal.png" alt="考虑全局光照的光追"></p>
-<p>光线的传播如下图所示，性能爆炸：</p>
-<!-- ![光线传播](/source/Images/RayTracing/LightTrace.png) -->
-
+<p>光线的传播如下图所示，性能爆炸：<br><img src="/LightTrace.png" alt="光线传播"></p>
 <h2 id="路径追踪"><a href="#路径追踪" class="headerlink" title="路径追踪"></a>路径追踪</h2><p>在全局光照中，如果取$N &#x3D; 1$，那么这个算法就被称为路径追踪</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">shade(p,w0)</span><br><span class="line">    Lo = Le(p,wo)  // 自发光项</span><br><span class="line">    Randomly choose ONE direction wi(i=1) base on pdf</span><br><span class="line">    Trace a ray r(p,wi)</span><br><span class="line">    if ray hit a light</span><br><span class="line">        Lo += fr(p,wi,wo) * Li(p,wi) * cos(θi) / pdf(wi)</span><br><span class="line">    else if ray hit an object at q</span><br><span class="line">        Lo += shade(q, -wi) * f_r * cos(θi) / pdf(wi)</span><br><span class="line">    return Lo</span><br></pre></td></tr></table></figure>
 
@@ -161,46 +200,5 @@
       <tags>
         <tag>Rendering</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>Rendering ToolTips</title>
-    <url>/2025/09/03/Rendering/</url>
-    <content><![CDATA[<h1 id="常用软件"><a href="#常用软件" class="headerlink" title="常用软件"></a>常用软件</h1><ul>
-<li>renderDoc：支持对应用截帧分析</li>
-</ul>
-]]></content>
-      <categories>
-        <category>Rendering</category>
-      </categories>
-      <tags>
-        <tag>Rendering</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Tools</title>
-    <url>/2025/09/04/Tools/</url>
-    <content><![CDATA[<h1 id="妙妙工具合集"><a href="#妙妙工具合集" class="headerlink" title="妙妙工具合集"></a>妙妙工具合集</h1><p><a href="https://realfavicongenerator.net/">https://realfavicongenerator.net/</a> 上传一张图片，生成浏览器图片所需的图片格式</p>
-]]></content>
-      <tags>
-        <tag>Tools</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Hello World</title>
-    <url>/2025/09/03/hello-world/</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-]]></content>
   </entry>
 </search>

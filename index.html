@@ -183,7 +183,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2025-09-22 11:03:32 / Modified: 14:11:21" itemprop="dateCreated datePublished" datetime="2025-09-22T11:03:32+08:00">2025-09-22</time>
+              <time title="Created: 2025-09-22 11:03:32 / Modified: 14:14:33" itemprop="dateCreated datePublished" datetime="2025-09-22T11:03:32+08:00">2025-09-22</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -294,9 +294,7 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">shade(p,w0)</span><br><span class="line">    Lo = Le(p,wo)  // 自发光项</span><br><span class="line">    Randomly sample N directions wi (i=1 to N) based on the pdf</span><br><span class="line">    For each wi</span><br><span class="line">        Trace a ray r(p,wi)</span><br><span class="line">        if ray hit a light</span><br><span class="line">            Lo += (1/N) * fr(p,wi,wo) * Li(p,wi) * cos(θi) / pdf(wi)</span><br><span class="line">        else if ray hit an object at q</span><br><span class="line">            Lo += (1/N) * shade(q, -wi) * f_r * cos(θi) / pdf(wi)</span><br><span class="line">    return Lo</span><br></pre></td></tr></table></figure>
 
 <p><img src="/RayTracingForGlobal.png" alt="考虑全局光照的光追"></p>
-<p>光线的传播如下图所示，性能爆炸：</p>
-<!-- ![光线传播](/source/Images/RayTracing/LightTrace.png) -->
-
+<p>光线的传播如下图所示，性能爆炸：<br><img src="/LightTrace.png" alt="光线传播"></p>
 <h2 id="路径追踪"><a href="#路径追踪" class="headerlink" title="路径追踪"></a>路径追踪</h2><p>在全局光照中，如果取$N &#x3D; 1$，那么这个算法就被称为路径追踪</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">shade(p,w0)</span><br><span class="line">    Lo = Le(p,wo)  // 自发光项</span><br><span class="line">    Randomly choose ONE direction wi(i=1) base on pdf</span><br><span class="line">    Trace a ray r(p,wi)</span><br><span class="line">    if ray hit a light</span><br><span class="line">        Lo += fr(p,wi,wo) * Li(p,wi) * cos(θi) / pdf(wi)</span><br><span class="line">    else if ray hit an object at q</span><br><span class="line">        Lo += shade(q, -wi) * f_r * cos(θi) / pdf(wi)</span><br><span class="line">    return Lo</span><br></pre></td></tr></table></figure>
 
