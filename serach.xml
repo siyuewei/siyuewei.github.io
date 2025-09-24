@@ -3,7 +3,119 @@
   <entry>
     <title>BRDF</title>
     <url>/2025/09/24/BRDF/</url>
-    <content><![CDATA[<h1 id="BRDF"><a href="#BRDF" class="headerlink" title="BRDF"></a>BRDF</h1>]]></content>
+    <content><![CDATA[<h1 id="BRDF"><a href="#BRDF" class="headerlink" title="BRDF"></a>BRDF</h1><p>BRDF考虑了菲涅尔反射，微表面理论中的法线分布函数、遮蔽函数。</p>
+<h2 id="菲涅尔反射"><a href="#菲涅尔反射" class="headerlink" title="菲涅尔反射"></a>菲涅尔反射</h2><p>当一束光线打到平面后，会同时发生反射和折射，入射光的能量被分散到反射和折射上。</p>
+<p><img src="/../Image/BRDF/LightReflectionAndRefraction.png" alt="光的反射和折射"></p>
+<p>菲涅尔效应（Fresnel Effect）指的是反射随着掠射角(Glancing Angle, 入射光与表面的夹角) 的增大而减小。也即当入射光方向越垂直平面，折射越强；当入射光方向越平行平面，反射越强。</p>
+<p><img src="/../Image/BRDF/FresnelSchematic.png" alt="菲涅尔效应示意图"></p>
+<p>所以看物体在水面的倒影时，离我们远的物体更清楚，因为反射更强，离我们近的物体更模糊，因为反射更弱。</p>
+<h3 id="菲涅尔方程"><a href="#菲涅尔方程" class="headerlink" title="菲涅尔方程"></a>菲涅尔方程</h3><p>菲涅尔方程给出了不同偏振下的反射率。设入射介质折射率为 $n_1$，透射介质为 $n_2$，入射角为 $\theta_i$，折射角为 $\theta_t$，满足斯涅尔定律 $n_1\sin\theta_i &#x3D; n_2\sin\theta_t$。</p>
+<ul>
+<li><p>非导体（介电质，$\kappa&#x3D;0$）：<br>$$<br>R_s &#x3D; \left(\frac{n_1\cos\theta_i - n_2\cos\theta_t}{n_1\cos\theta_i + n_2\cos\theta_t}\right)^2,\quad<br>R_p &#x3D; \left(\frac{n_1\cos\theta_t - n_2\cos\theta_i}{n_1\cos\theta_t + n_2\cos\theta_i}\right)^2<br>$$<br>未偏振光的反射率为 $ R &#x3D; (R_s + R_p)&#x2F;2 $。当 $n_1&gt;n_2$ 且 $\sin\theta_i &gt; n_2&#x2F;n_1$ 时发生全反射：$R&#x3D;1$。</p>
+</li>
+<li><p>导体（复折射率 $\tilde{n}&#x3D;\eta + i\kappa$）：令 $c&#x3D;\cos\theta_i$，则<br>$$<br>R_s &#x3D; \frac{(\eta^2+\kappa^2) - 2\eta c + c^2}{(\eta^2+\kappa^2) + 2\eta c + c^2},\quad<br>R_p &#x3D; \frac{(\eta^2+\kappa^2)c^2 - 2\eta c + 1}{(\eta^2+\kappa^2)c^2 + 2\eta c + 1}<br>$$<br>同样取 $ R &#x3D; (R_s + R_p)&#x2F;2 $。</p>
+</li>
+</ul>
+<p>为实际渲染常用的近似：</p>
+<ul>
+<li><p>Schlick 近似（介电质）：<br>$$<br>R(\theta_i) &#x3D; R_0 + (1-R_0)(1-\cos\theta_i)^5,\quad<br>R_0 &#x3D; \left(\frac{n_1-n_2}{n_1+n_2}\right)^2<br>$$</p>
+</li>
+<li><p>Schlick 近似（导体，按通道）：<br>$$<br>R_0 &#x3D; \frac{(\eta-1)^2+\kappa^2}{(\eta+1)^2+\kappa^2}<br>$$</p>
+</li>
+</ul>
+<h2 id="微表面理论"><a href="#微表面理论" class="headerlink" title="微表面理论"></a>微表面理论</h2><p>微表面模型是把宏观上的一块平面，看成若干个微小有起伏的平面的组合。<br>如下图所示，dS层可以看作宏观上的平面，dA层则是微观上的若干个微表面。</p>
+<p><img src="/../Image/BRDF/MicrosurfaceSchematic.png" alt="微表面模型示意图"></p>
+<h3 id="法线分布函数（NDF，Normal-Distribution-Function）"><a href="#法线分布函数（NDF，Normal-Distribution-Function）" class="headerlink" title="法线分布函数（NDF，Normal Distribution Function）"></a>法线分布函数（NDF，Normal Distribution Function）</h3><p>对于每一个微表面，都有自己的微表面法线$m$，表面的宏观法线一般表示为$n$。法线分布函数是用来描述微表面法线的分布情况的函数$D(m)$。</p>
+<p>法线分布函数是对微表面法线在微观几何表面上的统计分布，即$D(m)$表示法线方向为$m$的微表面在微观几何中的密度。</p>
+<p>法线分布函数有如下性质：</p>
+<ul>
+<li>法线分布函数与微平面法线的积分为微表面面积。</li>
+</ul>
+<p><img src="/../Image/BRDF/%E6%80%A7%E8%B4%A81.png" alt="性质1"></p>
+<p>$$<br>A_{\text{micro}}<br>&#x3D; \int_{\Omega^+} D(m),\mathrm{d}\omega_m ;;\ge; 1<br>\quad (\text{以宏观单位面积为基准})<br>$$</p>
+<ul>
+<li>微平面法线投影到宏观表面上面积的积分为宏观表面面积(规定为1)。</li>
+</ul>
+<p><img src="/../Image/BRDF/MicrosurfaceSchematic.png" alt="性质2"></p>
+<p>$$<br>\int_{\Omega^+} D(m),\big(n\cdot m\big),\mathrm{d}\omega_m<br>&#x3D; 1<br>$$</p>
+<ul>
+<li>微表面法线投影到视角垂平面等效于宏观法线投影到视角垂平面。</li>
+</ul>
+<p><img src="/../Image/BRDF/%E6%80%A7%E8%B4%A83.png" alt="性质3"></p>
+<p>设视线方向为 $v$ 且 $n\cdot v&gt;0$，则有<br>$$<br>\int_{\Omega^+} D(m),\max!\big(0,,v\cdot m\big),\mathrm{d}\omega_m<br>&#x3D; n\cdot v<br>$$</p>
+<h4 id="常见的法线函数"><a href="#常见的法线函数" class="headerlink" title="常见的法线函数"></a>常见的法线函数</h4><p>设半程向量为 $h$，宏观法线为 $n$，$c&#x3D;n\cdot h&#x3D;\cos\theta_h$。</p>
+<ul>
+<li><p>Phong（经典各向同性）：<br>$$<br>D_{\text{Phong}}(h) &#x3D; \frac{n_p+2}{2\pi},c^{,n_p}\quad (c&gt;0)<br>$$</p>
+</li>
+<li><p>Beckmann（高斯斜率）：<br>$$<br>D_{\text{Beck}}(h) &#x3D; \frac{\exp!\left(-\tan^2!\theta_h&#x2F;\alpha^2\right)}{\pi,\alpha^2,c^{4}}<br>$$</p>
+</li>
+<li><p>GGX &#x2F; Trowbridge–Reitz：<br>$$<br>D_{\text{GGX}}(h) &#x3D; \frac{\alpha^2}{\pi,\big[(\alpha^2-1),c^2 + 1\big]^2}<br>$$</p>
+</li>
+<li><p>各向异性 GGX（切线空间粗糙度 $\alpha_x,\alpha_y$）：<br>$$<br>D_{\text{GGX-aniso}}(h) &#x3D; \frac{1}{\pi,\alpha_x\alpha_y,\Big[\big(h_x&#x2F;\alpha_x\big)^2 + \big(h_y&#x2F;\alpha_y\big)^2 + h_z^2\Big]^2}<br>$$</p>
+</li>
+</ul>
+<p>参数与粗糙度的常用近似关系（经验）：<br>$$<br>\alpha \approx \text{roughness}^2,\qquad n_p \approx \frac{2}{\alpha^2}-2<br>$$<br>其中 $\text{roughness}\in[0,1]$ 为艺术参数，$n_p$ 为 Phong 指数。</p>
+<h3 id="联合遮蔽-阴影函数-joint-masking-shadowing-function"><a href="#联合遮蔽-阴影函数-joint-masking-shadowing-function" class="headerlink" title="联合遮蔽-阴影函数(joint masking-shadowing function)"></a>联合遮蔽-阴影函数(joint masking-shadowing function)</h3><p>在微表面模型中，光线在微表面上的弹射会导致遮挡，有 $Shadowing$ 和 $Masking$ 两种情况。$Shadowing$ 是入射光被微表面遮挡，$Masking$ 是反射光被微表面遮挡。一般用 $G_1(v,m)$ 表示 Masking。</p>
+<p><img src="/../Image/BRDF/%E5%85%89%E5%9C%A8%E5%BE%AE%E8%A1%A8%E9%9D%A2%E7%9A%84%E5%BC%B9%E5%B0%84.png" alt="光在微表面的弹射"></p>
+<p>同时考虑 $Shadowing$ 和 $Masking$ 两种情况的函数被称为联合遮蔽-阴影函数 $G_2(l,v,m)$，也被称为几何函数。</p>
+<p>实际应用中，常用 $The Smith Shadow-Masking G2$ 函数，它将$Shadowing$和$Masking$分开考虑。由于光路的可逆性，我们可以认为两种情况是近似等效的，因为用 $G_1(v,m)$ 表示$ Masking$，则用$G_1(l,m)$ 表示 $Shadowing$。</p>
+<p>$$<br>G_2(l,v,m) &#x3D; G_1(v,m),G_1(l,m)<br>$$</p>
+<p>它建立在Shadowing和Masking不相关的基础上，但实际上它们是相关的。使用这个G2会导致BRDFs结果偏暗。</p>
+<h2 id="宏观BRDF"><a href="#宏观BRDF" class="headerlink" title="宏观BRDF"></a>宏观BRDF</h2><p>基于微表面理论，给出微BRDF $f_{u}(l,v,m)$，法线分布函数$D(m)$，联合遮蔽-阴影函数$G_2(l,v,m)$，可以推出宏观BRDF</p>
+<p>$$<br>f(l,v) &#x3D; \int_{m \in \Omega^+} f_{u}(l,v,m),D(m),G_2(l,v,m),\frac{\max(0,,m\cdot l)}{|n\cdot l|},\frac{\max(0,,m\cdot v)}{|n\cdot v|},\mathrm{d}\omega_m<br>$$</p>
+<p>$\frac{\max(0,,m\cdot l)}{|n\cdot l|}$,$\frac{\max(0,,m\cdot v)}{|n\cdot v|}$是为了归一化。</p>
+<h2 id="镜面反射BRDF"><a href="#镜面反射BRDF" class="headerlink" title="镜面反射BRDF"></a>镜面反射BRDF</h2><p>在镜面微面元模型下，每个微平面都是一个完美的菲涅尔镜(Fresnel mirror)。只有当微平面的法线 $m$ 与 $l$ 和 $v$ 的半程向量 $h &#x3D; \frac{l+v}{\lVert l+v\rVert}$ 一致时，该微面元才把能量反射进视线方向。</p>
+<p><img src="/../Image/BRDF/%E8%8F%B2%E6%B6%85%E5%B0%94%E9%95%9C.png" alt="菲涅尔镜"></p>
+<p>$$<br>h &#x3D; \frac{l+v}{\lVert l+v\rVert},\quad m &#x3D; h,\quad n\cdot l&gt;0,; n\cdot v&gt;0,; l\cdot m&gt;0,; v\cdot m&gt;0<br>$$<br>等价的反射约束写法为：<br>$$<br>v &#x3D; 2,(m\cdot l),m - l<br>$$</p>
+<h1 id="一种常用的BRDF——Cook-Torrance-BRDF"><a href="#一种常用的BRDF——Cook-Torrance-BRDF" class="headerlink" title="一种常用的BRDF——Cook Torrance BRDF"></a>一种常用的BRDF——Cook Torrance BRDF</h1><p>Cook-Torrance BRDF兼有漫反射和镜面反射两个部分：</p>
+<p>$$<br>f_{r} &#x3D; k_{d}f_{lambert} + k_{s}f_{cook-torrance}<br>$$</p>
+<ul>
+<li>$k_{d}$表示入射光线中，被折射部分能量的比率</li>
+<li>$k_{s}$表示反射光线中，被反射部分的比率</li>
+<li>$k_{d}$ 和 $k_{s}$一般由艺术家设置，不同的材质，这两个参数的值不同</li>
+</ul>
+<h2 id="漫反射"><a href="#漫反射" class="headerlink" title="漫反射"></a>漫反射</h2><p>$$<br>f_{lambert} &#x3D; \frac{c}{\pi}<br>$$</p>
+<ul>
+<li>$c$表示表面颜色</li>
+<li>$\pi$ 是为了对漫反射光标准化，因为前面含有BRDF的积分方程是受 $\pi$ 影响的</li>
+</ul>
+<p>Lambertian漫反射模型已经足够应付大多数实时渲染的用途了</p>
+<h2 id="镜面反射"><a href="#镜面反射" class="headerlink" title="镜面反射"></a>镜面反射</h2><p>对于Cook Torrance BRDF，<br>半程向量 $h&#x3D;\dfrac{l+v}{\lVert l+v\rVert}$，取理想镜面微 BRDF 为<br>$$<br>f_u(l,v,m)&#x3D;<br>\begin{cases}<br>\dfrac{F(v,m)}{4,|v\cdot m|,|l\cdot m|}, &amp; m &#x3D; h \<br>0, &amp; m \ne h<br>\end{cases}<br>$$<br>代入宏观BRDF积分<br>$$<br>f(l,v) &#x3D; \int_{m \in \Omega^+} f_{u}(l,v,m),D(m),G_2(l,v,m),\frac{\max(0,,m\cdot l)}{|n\cdot l|},\frac{\max(0,,m\cdot v)}{|n\cdot v|},\mathrm{d}\omega_m<br>$$<br>可得<br>$$<br>f_{cook-torrance}(l,v) &#x3D; \frac{D(h),G_2(l,v,h),F(v,h)}{4,|n\cdot l|,|n\cdot v|}<br>$$</p>
+<h2 id="最终公式"><a href="#最终公式" class="headerlink" title="最终公式"></a>最终公式</h2><p>$$<br>f_{r} &#x3D; k_{d}\frac{c}{\pi} + k_{s}\frac{D(h),G_2(l,v,h),F(v,h)}{4,|n\cdot l|,|n\cdot v|}<br>$$</p>
+<p>一般而言，</p>
+<ul>
+<li><p>D公式选用Trowbridge-Reitz GGX函数近似<br>$$<br>D_{\text{GGX}}(h) &#x3D; \frac{\alpha^2}{\pi,\big[(\alpha^2-1),c^2 + 1\big]^2}<br>$$<br>$\alpha$为粗糙度。</p>
+</li>
+<li><p>F项选用schilick近似<br>$$<br>F_{schilick}(v,h,F_0) &#x3D; F_0 + (1-F_0),\big(1- v\cdot h\big)^5<br>$$</p>
+</li>
+<li><p>G的公式选用schlick-GGX近似<br>$$<br>G_{ggx}(n,v,k) &#x3D; \frac{n \cdot v}{(n \cdot v)(1-k) + k}<br>$$</p>
+</li>
+</ul>
+<p>$k$ 是一个和粗糙度roughness有关的常数。 一个完整的G函数由两部分组成:</p>
+<p>$$</p>
+<p>G(n, v, l, k) \approx G_{ggx}(n,v,k) G_{ggx}(n,l,k)</p>
+<p>$$</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">vec3 evaluateSpecular(...)</span><br><span class="line">&#123;</span><br><span class="line">    //计算光线达到点p处的能量</span><br><span class="line">    float radiance = evaluateRadiance(light, pixel); </span><br><span class="line"></span><br><span class="line">    float NDF = evaluateDistributionGGX(...);  //法线方程  </span><br><span class="line">    float G   = evaluateGeometrySmith(...);    //几何函数</span><br><span class="line">    vec3 F    = evaluateFresnelSchlick(...);   //菲涅尔函数</span><br><span class="line"></span><br><span class="line">    float denominator = ...;  //根据一些参数计算出一个常量</span><br><span class="line">    vec3 specular = NDF * G * F / denominator;</span><br><span class="line"></span><br><span class="line">    return specular;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li>知乎专栏合集：BRDF&#x2F;渲染相关 <a href="https://zhuanlan.zhihu.com/c_1647165706373316609">链接</a></li>
+<li>知识库&#x2F;计算机图形学&#x2F;Cook Torrance BRDF <a href="https://geodoer.github.io/A-%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E5%BD%A2%E5%AD%A6/2-%E6%B8%B2%E6%9F%93%E6%A6%82%E8%BF%B0/%E5%85%89%E7%85%A7%E4%B8%8E%E6%9D%90%E8%B4%A8/PBR/PBR%E5%8E%9F%E7%90%86/BRDF/Cook-Torrance%20BRDF/">链接</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Rendering</category>
+      </categories>
+      <tags>
+        <tag>Rendering</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Rendering ToolTips</title>
+    <url>/2025/09/03/Rendering/</url>
+    <content><![CDATA[<h1 id="常用软件"><a href="#常用软件" class="headerlink" title="常用软件"></a>常用软件</h1><ul>
+<li>renderDoc：支持对应用截帧分析</li>
+</ul>
+]]></content>
       <categories>
         <category>Rendering</category>
       </categories>
@@ -57,47 +169,6 @@
         <tag>博客</tag>
         <tag>静态网站</tag>
         <tag>教程</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Rendering ToolTips</title>
-    <url>/2025/09/03/Rendering/</url>
-    <content><![CDATA[<h1 id="常用软件"><a href="#常用软件" class="headerlink" title="常用软件"></a>常用软件</h1><ul>
-<li>renderDoc：支持对应用截帧分析</li>
-</ul>
-]]></content>
-      <categories>
-        <category>Rendering</category>
-      </categories>
-      <tags>
-        <tag>Rendering</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Hello World</title>
-    <url>/2025/09/03/hello-world/</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-]]></content>
-  </entry>
-  <entry>
-    <title>Tools</title>
-    <url>/2025/09/04/Tools/</url>
-    <content><![CDATA[<h1 id="妙妙工具合集"><a href="#妙妙工具合集" class="headerlink" title="妙妙工具合集"></a>妙妙工具合集</h1><p><a href="https://realfavicongenerator.net/">https://realfavicongenerator.net/</a> 上传一张图片，生成浏览器图片所需的图片格式</p>
-]]></content>
-      <tags>
-        <tag>Tools</tag>
       </tags>
   </entry>
   <entry>
@@ -211,5 +282,32 @@
       <tags>
         <tag>Rendering</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>Tools</title>
+    <url>/2025/09/04/Tools/</url>
+    <content><![CDATA[<h1 id="妙妙工具合集"><a href="#妙妙工具合集" class="headerlink" title="妙妙工具合集"></a>妙妙工具合集</h1><p><a href="https://realfavicongenerator.net/">https://realfavicongenerator.net/</a> 上传一张图片，生成浏览器图片所需的图片格式</p>
+]]></content>
+      <tags>
+        <tag>Tools</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hello World</title>
+    <url>/2025/09/03/hello-world/</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+]]></content>
   </entry>
 </search>
