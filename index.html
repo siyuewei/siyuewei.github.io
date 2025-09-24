@@ -183,7 +183,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2025-09-24 15:21:00 / Modified: 17:21:23" itemprop="dateCreated datePublished" datetime="2025-09-24T15:21:00+08:00">2025-09-24</time>
+              <time title="Created: 2025-09-24 15:21:00 / Modified: 17:23:10" itemprop="dateCreated datePublished" datetime="2025-09-24T15:21:00+08:00">2025-09-24</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -295,14 +295,13 @@
 </li>
 </ul>
 <p>$k$ 是一个和粗糙度roughness有关的常数。 一个完整的G函数由两部分组成:</p>
-<p>$$</p>
-<p>G(n, v, l, k) \approx G_{ggx}(n,v,k) G_{ggx}(n,l,k)</p>
-<p>$$</p>
+<p>$$<br>G(n, v, l, k) \approx G_{ggx}(n,v,k) G_{ggx}(n,l,k)<br>$$</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">vec3 evaluateSpecular(...)</span><br><span class="line">&#123;</span><br><span class="line">    //计算光线达到点p处的能量</span><br><span class="line">    float radiance = evaluateRadiance(light, pixel); </span><br><span class="line"></span><br><span class="line">    float NDF = evaluateDistributionGGX(...);  //法线方程  </span><br><span class="line">    float G   = evaluateGeometrySmith(...);    //几何函数</span><br><span class="line">    vec3 F    = evaluateFresnelSchlick(...);   //菲涅尔函数</span><br><span class="line"></span><br><span class="line">    float denominator = ...;  //根据一些参数计算出一个常量</span><br><span class="line">    vec3 specular = NDF * G * F / denominator;</span><br><span class="line"></span><br><span class="line">    return specular;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
 <li>知乎专栏合集：BRDF&#x2F;渲染相关 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/c_1647165706373316609">链接</a></li>
 <li>知识库&#x2F;计算机图形学&#x2F;Cook Torrance BRDF <a target="_blank" rel="noopener" href="https://geodoer.github.io/A-%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E5%BD%A2%E5%AD%A6/2-%E6%B8%B2%E6%9F%93%E6%A6%82%E8%BF%B0/%E5%85%89%E7%85%A7%E4%B8%8E%E6%9D%90%E8%B4%A8/PBR/PBR%E5%8E%9F%E7%90%86/BRDF/Cook-Torrance%20BRDF/">链接</a></li>
+<li>PBR渲染: Cook-Torrance的实现与补充<a target="_blank" rel="noopener" href="https://www.blurredcode.com/2021/05/dec701b2/#%e5%87%a0%e4%bd%95%e9%81%ae%e8%94%bd%e9%a1%b9g">链接</a></li>
 </ul>
 
       
