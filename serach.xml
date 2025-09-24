@@ -146,7 +146,7 @@
 <h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
 <li>知乎专栏合集：BRDF&#x2F;渲染相关 <a href="https://zhuanlan.zhihu.com/c_1647165706373316609">链接</a></li>
 <li>知识库&#x2F;计算机图形学&#x2F;Cook Torrance BRDF <a href="https://geodoer.github.io/A-%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E5%BD%A2%E5%AD%A6/2-%E6%B8%B2%E6%9F%93%E6%A6%82%E8%BF%B0/%E5%85%89%E7%85%A7%E4%B8%8E%E6%9D%90%E8%B4%A8/PBR/PBR%E5%8E%9F%E7%90%86/BRDF/Cook-Torrance%20BRDF/">链接</a></li>
-<li>PBR渲染: Cook-Torrance的实现与补充<a href="https://www.blurredcode.com/2021/05/dec701b2/#%e5%87%a0%e4%bd%95%e9%81%ae%e8%94%bd%e9%a1%b9g">链接</a></li>
+<li>PBR渲染: Cook-Torrance的实现与补充 <a href="https://www.blurredcode.com/2021/05/dec701b2/#%e5%87%a0%e4%bd%95%e9%81%ae%e8%94%bd%e9%a1%b9g">链接</a></li>
 </ul>
 ]]></content>
       <categories>
@@ -157,31 +157,18 @@
       </tags>
   </entry>
   <entry>
-    <title>Tools</title>
-    <url>/2025/09/04/Tools/</url>
-    <content><![CDATA[<h1 id="妙妙工具合集"><a href="#妙妙工具合集" class="headerlink" title="妙妙工具合集"></a>妙妙工具合集</h1><p><a href="https://realfavicongenerator.net/">https://realfavicongenerator.net/</a> 上传一张图片，生成浏览器图片所需的图片格式</p>
+    <title>Rendering ToolTips</title>
+    <url>/2025/09/03/Rendering/</url>
+    <content><![CDATA[<h1 id="常用软件"><a href="#常用软件" class="headerlink" title="常用软件"></a>常用软件</h1><ul>
+<li>renderDoc：支持对应用截帧分析</li>
+</ul>
 ]]></content>
+      <categories>
+        <category>Rendering</category>
+      </categories>
       <tags>
-        <tag>Tools</tag>
+        <tag>Rendering</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>Hello World</title>
-    <url>/2025/09/03/hello-world/</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-]]></content>
   </entry>
   <entry>
     <title>RayTracing</title>
@@ -296,17 +283,30 @@
       </tags>
   </entry>
   <entry>
-    <title>Rendering ToolTips</title>
-    <url>/2025/09/03/Rendering/</url>
-    <content><![CDATA[<h1 id="常用软件"><a href="#常用软件" class="headerlink" title="常用软件"></a>常用软件</h1><ul>
-<li>renderDoc：支持对应用截帧分析</li>
-</ul>
+    <title>Hello World</title>
+    <url>/2025/09/03/hello-world/</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
 ]]></content>
-      <categories>
-        <category>Rendering</category>
-      </categories>
+  </entry>
+  <entry>
+    <title>Tools</title>
+    <url>/2025/09/04/Tools/</url>
+    <content><![CDATA[<h1 id="妙妙工具合集"><a href="#妙妙工具合集" class="headerlink" title="妙妙工具合集"></a>妙妙工具合集</h1><p><a href="https://realfavicongenerator.net/">https://realfavicongenerator.net/</a> 上传一张图片，生成浏览器图片所需的图片格式</p>
+]]></content>
       <tags>
-        <tag>Rendering</tag>
+        <tag>Tools</tag>
       </tags>
   </entry>
 </search>
