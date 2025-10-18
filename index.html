@@ -172,7 +172,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2025/10/18/c-%E5%8F%8D%E5%B0%84/" class="post-title-link" itemprop="url">c#反射</a>
+            <a href="/2025/10/18/c-%E5%8F%8D%E5%B0%84/" class="post-title-link" itemprop="url">C#反射</a>
         </h2>
 
         <div class="post-meta">
@@ -183,7 +183,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2025-10-18 23:05:12 / Modified: 23:05:24" itemprop="dateCreated datePublished" datetime="2025-10-18T23:05:12+08:00">2025-10-18</time>
+              <time title="Created: 2025-10-18 23:05:12 / Modified: 23:18:34" itemprop="dateCreated datePublished" datetime="2025-10-18T23:05:12+08:00">2025-10-18</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -191,7 +191,7 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
+                  <a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C#</span></a>
                 </span>
             </span>
 
@@ -206,7 +206,57 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          
+          <h1 id="C-反射"><a href="#C-反射" class="headerlink" title="C#反射"></a>C#反射</h1><h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>反射（Reflection）是C#中一种强大的机制，它允许程序在运行时检查和操作类型的元数据信息。通过反射，可以在运行时动态地获取类型信息、创建对象实例、调用方法、访问属性和字段等。</p>
+<p>反射的核心是<code>System.Reflection</code>命名空间，其中<code>Type</code>类是反射的基础。</p>
+<h2 id="个人理解"><a href="#个人理解" class="headerlink" title="个人理解"></a>个人理解</h2><p>本质就是可以通过<code>Type</code>，在程序运行时去动态获取当前类里面的信息。运行前可能不知道类的具体信息，运行中可以直接获取。这使得程序具有更高的灵活性和动态性。</p>
+<h2 id="主要功能"><a href="#主要功能" class="headerlink" title="主要功能"></a>主要功能</h2><p>反射可以实现以下功能：</p>
+<ol>
+<li><strong>获取类型信息</strong>：获取类、接口、结构体等的元数据</li>
+<li><strong>动态创建对象</strong>：在运行时创建类型的实例</li>
+<li><strong>动态调用方法</strong>：在运行时调用对象的方法</li>
+<li><strong>访问成员</strong>：读取或设置字段、属性的值</li>
+<li><strong>查看特性（Attribute）</strong>：获取类型上标注的特性信息</li>
+<li><strong>遍历程序集</strong>：查看程序集中包含的所有类型</li>
+</ol>
+<h2 id="常用API"><a href="#常用API" class="headerlink" title="常用API"></a>常用API</h2><h3 id="获取Type对象的方式"><a href="#获取Type对象的方式" class="headerlink" title="获取Type对象的方式"></a>获取Type对象的方式</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 使用 typeof 关键字</span></span><br><span class="line">Type type1 = <span class="keyword">typeof</span>(MyClass);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 使用 GetType() 方法</span></span><br><span class="line">MyClass obj = <span class="keyword">new</span> MyClass();</span><br><span class="line">Type type2 = obj.GetType();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 使用 Type.GetType() 方法</span></span><br><span class="line">Type type3 = Type.GetType(<span class="string">&quot;命名空间.MyClass&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="常用反射方法"><a href="#常用反射方法" class="headerlink" title="常用反射方法"></a>常用反射方法</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取所有公共方法</span></span><br><span class="line">MethodInfo[] methods = type.GetMethods();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取所有公共属性</span></span><br><span class="line">PropertyInfo[] properties = type.GetProperties();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取所有公共字段</span></span><br><span class="line">FieldInfo[] fields = type.GetFields();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取所有构造函数</span></span><br><span class="line">ConstructorInfo[] constructors = type.GetConstructors();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建实例</span></span><br><span class="line"><span class="built_in">object</span> instance = Activator.CreateInstance(type);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用方法</span></span><br><span class="line">MethodInfo method = type.GetMethod(<span class="string">&quot;MethodName&quot;</span>);</span><br><span class="line">method.Invoke(instance, <span class="keyword">new</span> <span class="built_in">object</span>[] &#123; param1, param2 &#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取/设置属性值</span></span><br><span class="line">PropertyInfo property = type.GetProperty(<span class="string">&quot;PropertyName&quot;</span>);</span><br><span class="line"><span class="built_in">object</span> <span class="keyword">value</span> = property.GetValue(instance);</span><br><span class="line">property.SetValue(instance, newValue);</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><ol>
+<li><strong>插件系统</strong>：动态加载和使用外部程序集中的类型</li>
+<li><strong>依赖注入（DI）容器</strong>：如ASP.NET Core的依赖注入框架</li>
+<li><strong>序列化&#x2F;反序列化</strong>：JSON、XML等序列化库</li>
+<li><strong>ORM框架</strong>：如Entity Framework，动态映射对象和数据库</li>
+<li><strong>单元测试框架</strong>：如NUnit、xUnit，动态发现和执行测试方法</li>
+<li><strong>自动化工具</strong>：根据配置文件动态创建和调用对象</li>
+<li><strong>代码生成工具</strong>：分析现有类型生成代码</li>
+<li><strong>特性处理</strong>：处理自定义特性标记的类和方法</li>
+</ol>
+<h2 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Reflection;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Person</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">string</span> Name &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> Age &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">SayHello</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;你好，我是<span class="subst">&#123;Name&#125;</span>，<span class="subst">&#123;Age&#125;</span>岁。&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">string</span> <span class="title">GetInfo</span>(<span class="params"><span class="built_in">string</span> prefix</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">$&quot;<span class="subst">&#123;prefix&#125;</span>: <span class="subst">&#123;Name&#125;</span>, <span class="subst">&#123;Age&#125;</span>岁&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 获取Type对象</span></span><br><span class="line">        Type type = <span class="keyword">typeof</span>(Person);</span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;类型名称: <span class="subst">&#123;type.Name&#125;</span>&quot;</span>);</span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;完整名称: <span class="subst">&#123;type.FullName&#125;</span>&quot;</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 创建实例</span></span><br><span class="line">        <span class="built_in">object</span> personObj = Activator.CreateInstance(type);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 设置属性值</span></span><br><span class="line">        PropertyInfo nameProp = type.GetProperty(<span class="string">&quot;Name&quot;</span>);</span><br><span class="line">        PropertyInfo ageProp = type.GetProperty(<span class="string">&quot;Age&quot;</span>);</span><br><span class="line">        nameProp.SetValue(personObj, <span class="string">&quot;张三&quot;</span>);</span><br><span class="line">        ageProp.SetValue(personObj, <span class="number">25</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 获取属性值</span></span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;姓名: <span class="subst">&#123;nameProp.GetValue(personObj)&#125;</span>&quot;</span>);</span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;年龄: <span class="subst">&#123;ageProp.GetValue(personObj)&#125;</span>&quot;</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 调用无参方法</span></span><br><span class="line">        MethodInfo sayHelloMethod = type.GetMethod(<span class="string">&quot;SayHello&quot;</span>);</span><br><span class="line">        sayHelloMethod.Invoke(personObj, <span class="literal">null</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 调用有参方法</span></span><br><span class="line">        MethodInfo getInfoMethod = type.GetMethod(<span class="string">&quot;GetInfo&quot;</span>);</span><br><span class="line">        <span class="built_in">object</span> result = getInfoMethod.Invoke(personObj, <span class="keyword">new</span> <span class="built_in">object</span>[] &#123; <span class="string">&quot;个人信息&quot;</span> &#125;);</span><br><span class="line">        Console.WriteLine(result);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 列出所有公共属性</span></span><br><span class="line">        Console.WriteLine(<span class="string">&quot;\n所有公共属性:&quot;</span>);</span><br><span class="line">        <span class="keyword">foreach</span> (PropertyInfo prop <span class="keyword">in</span> type.GetProperties())</span><br><span class="line">        &#123;</span><br><span class="line">            Console.WriteLine(<span class="string">$&quot;- <span class="subst">&#123;prop.Name&#125;</span> (<span class="subst">&#123;prop.PropertyType.Name&#125;</span>)&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 列出所有公共方法</span></span><br><span class="line">        Console.WriteLine(<span class="string">&quot;\n所有公共方法:&quot;</span>);</span><br><span class="line">        <span class="keyword">foreach</span> (MethodInfo method <span class="keyword">in</span> type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))</span><br><span class="line">        &#123;</span><br><span class="line">            Console.WriteLine(<span class="string">$&quot;- <span class="subst">&#123;method.Name&#125;</span>&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ol>
+<li><strong>动态性</strong>：可以在运行时处理编译时未知的类型</li>
+<li><strong>灵活性</strong>：适合构建通用框架和工具</li>
+<li><strong>解耦</strong>：降低模块间的直接依赖</li>
+<li><strong>可扩展性</strong>：便于实现插件机制</li>
+</ol>
+<h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2><ol>
+<li><strong>性能开销</strong>：反射操作比直接调用慢很多（通常慢10-100倍）</li>
+<li><strong>类型安全性降低</strong>：编译时无法检查类型错误</li>
+<li><strong>代码可读性差</strong>：反射代码通常比直接调用难理解</li>
+<li><strong>安全问题</strong>：可以访问私有成员，可能破坏封装性</li>
+<li><strong>调试困难</strong>：反射调用的错误在运行时才能发现</li>
+</ol>
+<h2 id="性能优化建议"><a href="#性能优化建议" class="headerlink" title="性能优化建议"></a>性能优化建议</h2><ol>
+<li><strong>缓存Type和MemberInfo对象</strong>：避免重复获取</li>
+<li><strong>使用表达式树（Expression Trees）</strong>：比反射快，但仍比直接调用慢</li>
+<li><strong>考虑使用IL Emit</strong>：动态生成IL代码，性能接近原生</li>
+<li><strong>谨慎使用</strong>：仅在必要时使用反射，能用泛型就用泛型</li>
+</ol>
+<h2 id="BindingFlags-常用标志"><a href="#BindingFlags-常用标志" class="headerlink" title="BindingFlags 常用标志"></a>BindingFlags 常用标志</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 公共成员</span></span><br><span class="line">BindingFlags.Public</span><br><span class="line"></span><br><span class="line"><span class="comment">// 非公共成员（private, protected, internal）</span></span><br><span class="line">BindingFlags.NonPublic</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实例成员</span></span><br><span class="line">BindingFlags.Instance</span><br><span class="line"></span><br><span class="line"><span class="comment">// 静态成员</span></span><br><span class="line">BindingFlags.Static</span><br><span class="line"></span><br><span class="line"><span class="comment">// 仅包含当前类声明的成员（不包括继承的）</span></span><br><span class="line">BindingFlags.DeclaredOnly</span><br><span class="line"></span><br><span class="line"><span class="comment">// 组合使用示例</span></span><br><span class="line">type.GetMethods(BindingFlags.Public | BindingFlags.Instance)</span><br><span class="line">type.GetFields(BindingFlags.NonPublic | BindingFlags.Static)</span><br></pre></td></tr></table></figure>
+
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>反射是C#中非常强大的特性，它让程序具有了自省和动态操作的能力。虽然存在性能开销，但在很多场景下（如框架开发、插件系统），反射带来的灵活性是无可替代的。关键是要在灵活性和性能之间找到合适的平衡点。</p>
+
       
     </div>
 
@@ -1073,13 +1123,13 @@
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">3</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">8</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
