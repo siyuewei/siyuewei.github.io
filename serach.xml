@@ -1,13 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Hello World</title>
+    <url>/2025/09/03/hello-world/</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+]]></content>
+  </entry>
+  <entry>
     <title>BRDF</title>
-    <url>/2025/09/24/BRDF/</url>
+    <url>/2025/09/24/Rendering/BRDF/</url>
     <content><![CDATA[<h1 id="BRDF"><a href="#BRDF" class="headerlink" title="BRDF"></a>BRDF</h1><p>BRDF考虑了菲涅尔反射，微表面理论中的法线分布函数、遮蔽函数。</p>
 <h2 id="菲涅尔反射"><a href="#菲涅尔反射" class="headerlink" title="菲涅尔反射"></a>菲涅尔反射</h2><p>当一束光线打到平面后，会同时发生反射和折射，入射光的能量被分散到反射和折射上。</p>
-<p><img src="/../Image/BRDF/LightReflectionAndRefraction.png" alt="光的反射和折射"></p>
+<p><img src="/../../Image/BRDF/LightReflectionAndRefraction.png" alt="光的反射和折射"></p>
 <p>菲涅尔效应（Fresnel Effect）指的是反射随着掠射角(Glancing Angle, 入射光与表面的夹角) 的增大而减小。也即当入射光方向越垂直平面，折射越强；当入射光方向越平行平面，反射越强。</p>
-<p><img src="/../Image/BRDF/FresnelSchematic.png" alt="菲涅尔效应示意图"></p>
+<p><img src="/../../Image/BRDF/FresnelSchematic.png" alt="菲涅尔效应示意图"></p>
 <p>所以看物体在水面的倒影时，离我们远的物体更清楚，因为反射更强，离我们近的物体更模糊，因为反射更弱。</p>
 <h3 id="菲涅尔方程"><a href="#菲涅尔方程" class="headerlink" title="菲涅尔方程"></a>菲涅尔方程</h3><p>菲涅尔方程给出了不同偏振下的反射率。设入射介质折射率为 $n_1$，透射介质为 $n_2$，入射角为 $\theta_i$，折射角为 $\theta_t$，满足斯涅尔定律 $n_1\sin\theta_i &#x3D; n_2\sin\theta_t$。</p>
 <ul>
@@ -24,24 +42,24 @@
 </li>
 </ul>
 <h2 id="微表面理论"><a href="#微表面理论" class="headerlink" title="微表面理论"></a>微表面理论</h2><p>微表面模型是把宏观上的一块平面，看成若干个微小有起伏的平面的组合。<br>如下图所示，dS层可以看作宏观上的平面，dA层则是微观上的若干个微表面。</p>
-<p><img src="/../Image/BRDF/MicrosurfaceSchematic.png" alt="微表面模型示意图"></p>
+<p><img src="/../../Image/BRDF/MicrosurfaceSchematic.png" alt="微表面模型示意图"></p>
 <h3 id="法线分布函数（NDF，Normal-Distribution-Function）"><a href="#法线分布函数（NDF，Normal-Distribution-Function）" class="headerlink" title="法线分布函数（NDF，Normal Distribution Function）"></a>法线分布函数（NDF，Normal Distribution Function）</h3><p>对于每一个微表面，都有自己的微表面法线$m$，表面的宏观法线一般表示为$n$。法线分布函数是用来描述微表面法线的分布情况的函数$D(m)$。</p>
 <p>法线分布函数是对微表面法线在微观几何表面上的统计分布，即$D(m)$表示法线方向为$m$的微表面在微观几何中的密度。</p>
 <p>法线分布函数有如下性质：</p>
 <ul>
 <li>法线分布函数与微平面法线的积分为微表面面积。</li>
 </ul>
-<p><img src="/../Image/BRDF/%E6%80%A7%E8%B4%A81.png" alt="性质1"></p>
+<p><img src="/../../Image/BRDF/%E6%80%A7%E8%B4%A81.png" alt="性质1"></p>
 <p>$$<br>A_{\text{micro}}<br>&#x3D; \int_{\Omega^+} D(m),\mathrm{d}\omega_m ;;\ge; 1<br>\quad (\text{以宏观单位面积为基准})<br>$$</p>
 <ul>
 <li>微平面法线投影到宏观表面上面积的积分为宏观表面面积(规定为1)。</li>
 </ul>
-<p><img src="/../Image/BRDF/MicrosurfaceSchematic.png" alt="性质2"></p>
+<p><img src="/../../Image/BRDF/MicrosurfaceSchematic.png" alt="性质2"></p>
 <p>$$<br>\int_{\Omega^+} D(m),\big(n\cdot m\big),\mathrm{d}\omega_m<br>&#x3D; 1<br>$$</p>
 <ul>
 <li>微表面法线投影到视角垂平面等效于宏观法线投影到视角垂平面。</li>
 </ul>
-<p><img src="/../Image/BRDF/%E6%80%A7%E8%B4%A83.png" alt="性质3"></p>
+<p><img src="/../../Image/BRDF/%E6%80%A7%E8%B4%A83.png" alt="性质3"></p>
 <p>设视线方向为 $v$ 且 $n\cdot v&gt;0$，则有<br>$$<br>\int_{\Omega^+} D(m),\max!\big(0,,v\cdot m\big),\mathrm{d}\omega_m<br>&#x3D; n\cdot v<br>$$</p>
 <h4 id="常见的法线函数"><a href="#常见的法线函数" class="headerlink" title="常见的法线函数"></a>常见的法线函数</h4><p>设半程向量为 $h$，宏观法线为 $n$，$c&#x3D;n\cdot h&#x3D;\cos\theta_h$。</p>
 <ul>
@@ -56,7 +74,7 @@
 </ul>
 <p>参数与粗糙度的常用近似关系（经验）：<br>$$<br>\alpha \approx \text{roughness}^2,\qquad n_p \approx \frac{2}{\alpha^2}-2<br>$$<br>其中 $\text{roughness}\in[0,1]$ 为艺术参数，$n_p$ 为 Phong 指数。</p>
 <h3 id="联合遮蔽-阴影函数-joint-masking-shadowing-function"><a href="#联合遮蔽-阴影函数-joint-masking-shadowing-function" class="headerlink" title="联合遮蔽-阴影函数(joint masking-shadowing function)"></a>联合遮蔽-阴影函数(joint masking-shadowing function)</h3><p>在微表面模型中，光线在微表面上的弹射会导致遮挡，有 $Shadowing$ 和 $Masking$ 两种情况。$Shadowing$ 是入射光被微表面遮挡，$Masking$ 是反射光被微表面遮挡。一般用 $G_1(v,m)$ 表示 Masking。</p>
-<p><img src="/../Image/BRDF/%E5%85%89%E5%9C%A8%E5%BE%AE%E8%A1%A8%E9%9D%A2%E7%9A%84%E5%BC%B9%E5%B0%84.png" alt="光在微表面的弹射"></p>
+<p><img src="/../../Image/BRDF/%E5%85%89%E5%9C%A8%E5%BE%AE%E8%A1%A8%E9%9D%A2%E7%9A%84%E5%BC%B9%E5%B0%84.png" alt="光在微表面的弹射"></p>
 <p>同时考虑 $Shadowing$ 和 $Masking$ 两种情况的函数被称为联合遮蔽-阴影函数 $G_2(l,v,m)$，也被称为几何函数。</p>
 <p>实际应用中，常用 $The Smith Shadow-Masking G2$ 函数，它将$Shadowing$和$Masking$分开考虑。由于光路的可逆性，我们可以认为两种情况是近似等效的，因为用 $G_1(v,m)$ 表示$ Masking$，则用$G_1(l,m)$ 表示 $Shadowing$。</p>
 <p>$$<br>G_2(l,v,m) &#x3D; G_1(v,m),G_1(l,m)<br>$$</p>
@@ -65,7 +83,7 @@
 <p>$$<br>f(l,v) &#x3D; \int_{m \in \Omega^+} f_{u}(l,v,m),D(m),G_2(l,v,m),\frac{\max(0,,m\cdot l)}{|n\cdot l|},\frac{\max(0,,m\cdot v)}{|n\cdot v|},\mathrm{d}\omega_m<br>$$</p>
 <p>$\frac{\max(0,,m\cdot l)}{|n\cdot l|}$,$\frac{\max(0,,m\cdot v)}{|n\cdot v|}$是为了归一化。</p>
 <h2 id="镜面反射BRDF"><a href="#镜面反射BRDF" class="headerlink" title="镜面反射BRDF"></a>镜面反射BRDF</h2><p>在镜面微面元模型下，每个微平面都是一个完美的菲涅尔镜(Fresnel mirror)。只有当微平面的法线 $m$ 与 $l$ 和 $v$ 的半程向量 $h &#x3D; \frac{l+v}{\lVert l+v\rVert}$ 一致时，该微面元才把能量反射进视线方向。</p>
-<p><img src="/../Image/BRDF/%E8%8F%B2%E6%B6%85%E5%B0%94%E9%95%9C.png" alt="菲涅尔镜"></p>
+<p><img src="/../../Image/BRDF/%E8%8F%B2%E6%B6%85%E5%B0%94%E9%95%9C.png" alt="菲涅尔镜"></p>
 <p>$$<br>h &#x3D; \frac{l+v}{\lVert l+v\rVert},\quad m &#x3D; h,\quad n\cdot l&gt;0,; n\cdot v&gt;0,; l\cdot m&gt;0,; v\cdot m&gt;0<br>$$<br>等价的反射约束写法为：<br>$$<br>v &#x3D; 2,(m\cdot l),m - l<br>$$</p>
 <h1 id="一种常用的BRDF——Cook-Torrance-BRDF"><a href="#一种常用的BRDF——Cook-Torrance-BRDF" class="headerlink" title="一种常用的BRDF——Cook Torrance BRDF"></a>一种常用的BRDF——Cook Torrance BRDF</h1><p>Cook-Torrance BRDF兼有漫反射和镜面反射两个部分：</p>
 <p>$$<br>f_{r} &#x3D; k_{d}f_{lambert} + k_{s}f_{cook-torrance}<br>$$</p>
@@ -109,70 +127,26 @@
       </tags>
   </entry>
   <entry>
-    <title>Hexo</title>
-    <url>/2025/09/04/Hexo/</url>
-    <content><![CDATA[<h1 id="Hexo-静态博客框架使用指南"><a href="#Hexo-静态博客框架使用指南" class="headerlink" title="Hexo 静态博客框架使用指南"></a>Hexo 静态博客框架使用指南</h1><p>Hexo 是一个快速、简洁且高效的博客框架，基于 Node.js 构建。它可以将 Markdown 文件渲染成静态网页，支持多种主题和插件。</p>
-<h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><h3 id="基础命令"><a href="#基础命令" class="headerlink" title="基础命令"></a>基础命令</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建新文章</span></span><br><span class="line">hexo new <span class="string">&quot;文章标题&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建新页面</span></span><br><span class="line">hexo new page <span class="string">&quot;页面名称&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建草稿</span></span><br><span class="line">hexo new draft <span class="string">&quot;草稿标题&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成静态文件</span></span><br><span class="line">hexo generate</span><br><span class="line"><span class="comment"># 或简写</span></span><br><span class="line">hexo g</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动本地服务器</span></span><br><span class="line">hexo server</span><br><span class="line"><span class="comment"># 或简写</span></span><br><span class="line">hexo s</span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署到服务器</span></span><br><span class="line">hexo deploy</span><br><span class="line"><span class="comment"># 或简写</span></span><br><span class="line">hexo d</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理缓存和生成的文件</span></span><br><span class="line">hexo clean</span><br><span class="line"></span><br><span class="line"><span class="comment"># 一键生成并部署</span></span><br><span class="line">hexo g -d</span><br></pre></td></tr></table></figure>
-
-<h3 id="草稿相关命令"><a href="#草稿相关命令" class="headerlink" title="草稿相关命令"></a>草稿相关命令</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 发布草稿</span></span><br><span class="line">hexo publish <span class="string">&quot;草稿文件名&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 预览草稿</span></span><br><span class="line">hexo server --draft</span><br></pre></td></tr></table></figure>
-
-<h3 id="主题管理"><a href="#主题管理" class="headerlink" title="主题管理"></a>主题管理</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装主题</span></span><br><span class="line">git <span class="built_in">clone</span> &lt;theme-repository-url&gt; themes/&lt;theme-name&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新主题</span></span><br><span class="line"><span class="built_in">cd</span> themes/&lt;theme-name&gt;</span><br><span class="line">git pull</span><br></pre></td></tr></table></figure>
-
-<h2 id="配置文件说明"><a href="#配置文件说明" class="headerlink" title="配置文件说明"></a>配置文件说明</h2><h3 id="config-yml-主要配置项"><a href="#config-yml-主要配置项" class="headerlink" title="_config.yml 主要配置项"></a>_config.yml 主要配置项</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 网站基本信息</span></span><br><span class="line"><span class="attr">title:</span> <span class="string">网站标题</span></span><br><span class="line"><span class="attr">subtitle:</span> <span class="string">网站副标题</span></span><br><span class="line"><span class="attr">description:</span> <span class="string">网站描述</span></span><br><span class="line"><span class="attr">keywords:</span> <span class="string">关键词</span></span><br><span class="line"><span class="attr">author:</span> <span class="string">作者名</span></span><br><span class="line"><span class="attr">language:</span> <span class="string">zh-CN</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># URL 设置</span></span><br><span class="line"><span class="attr">url:</span> <span class="string">https://your-domain.com</span></span><br><span class="line"><span class="attr">permalink:</span> <span class="string">:year/:month/:day/:title/</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 目录设置</span></span><br><span class="line"><span class="attr">source_dir:</span> <span class="string">source</span></span><br><span class="line"><span class="attr">public_dir:</span> <span class="string">public</span></span><br><span class="line"><span class="attr">skip_render:</span> []</span><br><span class="line"></span><br><span class="line"><span class="comment"># 写作设置</span></span><br><span class="line"><span class="attr">new_post_name:</span> <span class="string">:title.md</span></span><br><span class="line"><span class="attr">default_layout:</span> <span class="string">post</span></span><br><span class="line"><span class="attr">auto_spacing:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">titlecase:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 分类和标签</span></span><br><span class="line"><span class="attr">default_category:</span> <span class="string">uncategorized</span></span><br><span class="line"><span class="attr">category_map:</span></span><br><span class="line"><span class="attr">tag_map:</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 日期格式</span></span><br><span class="line"><span class="attr">date_format:</span> <span class="string">YYYY-MM-DD</span></span><br><span class="line"><span class="attr">time_format:</span> <span class="string">HH:mm:ss</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 分页设置</span></span><br><span class="line"><span class="attr">per_page:</span> <span class="number">10</span></span><br><span class="line"><span class="attr">pagination_dir:</span> <span class="string">page</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 主题设置</span></span><br><span class="line"><span class="attr">theme:</span> <span class="string">next</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署设置</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repo:</span> <span class="string">&lt;repository-url&gt;</span></span><br><span class="line">  <span class="attr">branch:</span> <span class="string">main</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="文章写作"><a href="#文章写作" class="headerlink" title="文章写作"></a>文章写作</h2><h3 id="Front-matter-格式"><a href="#Front-matter-格式" class="headerlink" title="Front-matter 格式"></a>Front-matter 格式</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">title:</span> <span class="string">文章标题</span></span><br><span class="line"><span class="attr">date:</span> <span class="number">2025-09-04 00:35:50</span></span><br><span class="line"><span class="attr">updated:</span> <span class="number">2025-09-04 00:35:50</span></span><br><span class="line"><span class="attr">tags:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">标签1</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">标签2</span></span><br><span class="line"><span class="attr">categories:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">分类1</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">分类2</span></span><br><span class="line"><span class="attr">comments:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">toc:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">toc_number:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">toc_style_simple:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">mathjax:</span> <span class="literal">true</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="string">文章内容...</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="常用标签语法"><a href="#常用标签语法" class="headerlink" title="常用标签语法"></a>常用标签语法</h3><figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line"><span class="section"># 图片</span></span><br><span class="line">![<span class="string">图片描述</span>](<span class="link">图片链接</span>)</span><br><span class="line"></span><br><span class="line"><span class="section"># 链接</span></span><br><span class="line">[<span class="string">链接文字</span>](<span class="link">链接地址</span>)</span><br><span class="line"></span><br><span class="line"><span class="section"># 代码块</span></span><br><span class="line"><span class="code">```javascript</span></span><br><span class="line"><span class="code">console.log(&#x27;Hello World&#x27;);</span></span><br></pre></td></tr></table></figure>
-
-<!-- # 引用
-> 引用内容
-
-# 表格
-| 列1 | 列2 | 列3 |
-|-----|-----|-----|
-| 内容1 | 内容2 | 内容3 | -->
-
-
-<h2 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h2><h3 id="Next-主题常用配置"><a href="#Next-主题常用配置" class="headerlink" title="Next 主题常用配置"></a>Next 主题常用配置</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 主题设置</span></span><br><span class="line"><span class="attr">theme:</span> <span class="string">next</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 菜单设置</span></span><br><span class="line"><span class="attr">menu:</span></span><br><span class="line">  <span class="attr">home:</span> <span class="string">/</span> <span class="string">||</span> <span class="string">home</span></span><br><span class="line">  <span class="attr">archives:</span> <span class="string">/archives/</span> <span class="string">||</span> <span class="string">archive</span></span><br><span class="line">  <span class="attr">categories:</span> <span class="string">/categories/</span> <span class="string">||</span> <span class="string">th</span></span><br><span class="line">  <span class="attr">tags:</span> <span class="string">/tags/</span> <span class="string">||</span> <span class="string">tags</span></span><br><span class="line">  <span class="attr">about:</span> <span class="string">/about/</span> <span class="string">||</span> <span class="string">about</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 侧边栏设置</span></span><br><span class="line"><span class="attr">sidebar:</span></span><br><span class="line">  <span class="attr">position:</span> <span class="string">left</span></span><br><span class="line">  <span class="attr">display:</span> <span class="string">always</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 社交链接</span></span><br><span class="line"><span class="attr">social:</span></span><br><span class="line">  <span class="attr">github:</span> <span class="string">https://github.com/yourname</span></span><br><span class="line">  <span class="attr">twitter:</span> <span class="string">https://twitter.com/yourname</span></span><br><span class="line">  <span class="attr">email:</span> <span class="string">your-email@example.com</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 评论系统</span></span><br><span class="line"><span class="attr">comments:</span></span><br><span class="line">  <span class="attr">active:</span> <span class="string">disqus</span></span><br><span class="line">  <span class="attr">shortname:</span> <span class="string">your-disqus-shortname</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="部署配置"><a href="#部署配置" class="headerlink" title="部署配置"></a>部署配置</h2><h3 id="GitHub-Pages-部署"><a href="#GitHub-Pages-部署" class="headerlink" title="GitHub Pages 部署"></a>GitHub Pages 部署</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repo:</span> <span class="string">https://github.com/username/username.github.io.git</span></span><br><span class="line">  <span class="attr">branch:</span> <span class="string">main</span></span><br><span class="line">  <span class="attr">message:</span> <span class="string">&quot;Site updated: <span class="template-variable">&#123;&#123; now(&#x27;YYYY-MM-DD HH:mm:ss&#x27;) &#125;&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="其他部署方式"><a href="#其他部署方式" class="headerlink" title="其他部署方式"></a>其他部署方式</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 部署到服务器</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">rsync</span></span><br><span class="line">  <span class="attr">host:</span> <span class="string">your-server.com</span></span><br><span class="line">  <span class="attr">user:</span> <span class="string">username</span></span><br><span class="line">  <span class="attr">root:</span> <span class="string">/var/www/</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">blog/</span></span><br><span class="line">  <span class="attr">delete:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署到腾讯云 COS</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">cos</span></span><br><span class="line">  <span class="attr">bucket:</span> <span class="string">your-bucket-name</span></span><br><span class="line">  <span class="attr">region:</span> <span class="string">ap-beijing</span></span><br><span class="line">  <span class="attr">secretId:</span> <span class="string">your-secret-id</span></span><br><span class="line">  <span class="attr">secretKey:</span> <span class="string">your-secret-key</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="插件推荐"><a href="#插件推荐" class="headerlink" title="插件推荐"></a>插件推荐</h2><h3 id="常用插件"><a href="#常用插件" class="headerlink" title="常用插件"></a>常用插件</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 搜索插件</span></span><br><span class="line">npm install hexo-generator-search --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 站点地图</span></span><br><span class="line">npm install hexo-generator-sitemap --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># RSS 订阅</span></span><br><span class="line">npm install hexo-generator-feed --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 文章阅读时间统计</span></span><br><span class="line">npm install hexo-reading-time --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 图片懒加载</span></span><br><span class="line">npm install hexo-lazyload-image --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 代码高亮</span></span><br><span class="line">npm install hexo-prism-plugin --save</span><br></pre></td></tr></table></figure>
-
-<h2 id="性能优化"><a href="#性能优化" class="headerlink" title="性能优化"></a>性能优化</h2><h3 id="图片优化"><a href="#图片优化" class="headerlink" title="图片优化"></a>图片优化</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装图片压缩插件</span></span><br><span class="line">npm install hexo-image-min --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置图片懒加载</span></span><br><span class="line">lazyload:</span><br><span class="line">  <span class="built_in">enable</span>: <span class="literal">true</span></span><br><span class="line">  onlypost: <span class="literal">false</span></span><br><span class="line">  loadingImg: /images/loading.gif</span><br></pre></td></tr></table></figure>
-
-<h3 id="代码压缩"><a href="#代码压缩" class="headerlink" title="代码压缩"></a>代码压缩</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装压缩插件</span></span><br><span class="line">npm install hexo-html-minifier --save</span><br><span class="line">npm install hexo-clean-css --save</span><br><span class="line">npm install hexo-uglify --save</span><br></pre></td></tr></table></figure>
-
-
-<hr>
-<!-- *本文档会持续更新，如有问题欢迎交流讨论。* -->
-]]></content>
-      <tags>
-        <tag>Hexo</tag>
-        <tag>博客</tag>
-        <tag>静态网站</tag>
-        <tag>教程</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Rendering ToolTips</title>
-    <url>/2025/09/03/Rendering/</url>
-    <content><![CDATA[<h1 id="常用软件"><a href="#常用软件" class="headerlink" title="常用软件"></a>常用软件</h1><ul>
-<li>renderDoc：支持对应用截帧分析</li>
+    <title>SSHLink</title>
+    <url>/2025/10/24/Tools/SSHLink/</url>
+    <content><![CDATA[<h1 id="SSH-Link"><a href="#SSH-Link" class="headerlink" title="SSH Link"></a>SSH Link</h1><p>在用vscode连接远端服务器，账号之前删除过，现在重现创建后连不上了。很可能是以前连的本地密钥没删，重装后连不上了。</p>
+<p>当你用 VS Code (或其他任何 SSH 客户端) 连接服务器时，主要涉及两个地方的”信任”：</p>
+<ul>
+<li><p>服务器信任你（你的电脑）：通过authorized_keys文件。</p>
+</li>
+<li><p>你（你的电脑）信任服务器：通过known_hosts文件。</p>
+</li>
 </ul>
+<p>情况一一般报错Permission denied (publickey)，需要在服务器上重新添加自己的公钥</p>
+<p>情况二一般报错REMOTE HOST IDENTIFICATION HAS CHANGED 或 OFFENDING_KEY_IN_KNOWN_HOSTS，需要修改自己本地的~&#x2F;.ssh&#x2F;known_hosts 文件</p>
 ]]></content>
-      <categories>
-        <category>Rendering</category>
-      </categories>
       <tags>
-        <tag>Rendering</tag>
+        <tag>Tips</tag>
       </tags>
   </entry>
   <entry>
     <title>RayTracing</title>
-    <url>/2025/09/22/RayTracing/</url>
+    <url>/2025/09/22/Rendering/RayTracing/</url>
     <content><![CDATA[<h1 id="RayTracing概述"><a href="#RayTracing概述" class="headerlink" title="RayTracing概述"></a>RayTracing概述</h1><h2 id="渲染方程"><a href="#渲染方程" class="headerlink" title="渲染方程"></a>渲染方程</h2><p>每个点的Radiance &#x3D; 该点的自发光Radiance + 该点反射出的 来自其他光源的Radiance。</p>
 <p>$$L_o(p,\omega_o) &#x3D; L_e(p,\omega_o) + \int_{\Omega} f_r(p,\omega_i,\omega_o) L_i(p,\omega_i) \cos\theta_i d\omega_i$$ </p>
 <p>其中：</p>
@@ -260,8 +234,8 @@
 <h2 id="全局光照"><a href="#全局光照" class="headerlink" title="全局光照"></a>全局光照</h2><p>不仅仅只考虑打到光源的光线，如果光线打到某个物体上，则把这个物体也当作一个起点，发散$N$条光线，看是否接触到光源，或是别的物体。</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">shade(p,w0)</span><br><span class="line">    Lo = Le(p,wo)  // 自发光项</span><br><span class="line">    Randomly sample N directions wi (i=1 to N) based on the pdf</span><br><span class="line">    For each wi</span><br><span class="line">        Trace a ray r(p,wi)</span><br><span class="line">        if ray hit a light</span><br><span class="line">            Lo += (1/N) * fr(p,wi,wo) * Li(p,wi) * cos(θi) / pdf(wi)</span><br><span class="line">        else if ray hit an object at q</span><br><span class="line">            Lo += (1/N) * shade(q, -wi) * f_r * cos(θi) / pdf(wi)</span><br><span class="line">    return Lo</span><br></pre></td></tr></table></figure>
 
-<p><img src="/../Image/RayTracing/RayTracingForGlobal.png" alt="考虑全局光照的光追"></p>
-<p>光线的传播如下图所示，性能爆炸：<br><img src="/../Image/RayTracing/LightTrace.png" alt="光线传播"></p>
+<p><img src="/../../Image/RayTracing/RayTracingForGlobal.png" alt="考虑全局光照的光追"></p>
+<p>光线的传播如下图所示，性能爆炸：<br><img src="/../../Image/RayTracing/LightTrace.png" alt="光线传播"></p>
 <h2 id="路径追踪（一个具体的光追算法）"><a href="#路径追踪（一个具体的光追算法）" class="headerlink" title="路径追踪（一个具体的光追算法）"></a>路径追踪（一个具体的光追算法）</h2><p>在全局光照中，如果取$N &#x3D; 1$，那么这个算法就被称为路径追踪</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">shade(p,w0)</span><br><span class="line">    Lo = Le(p,wo)  // 自发光项</span><br><span class="line">    Randomly choose ONE direction wi(i=1) base on pdf</span><br><span class="line">    Trace a ray r(p,wi)</span><br><span class="line">    if ray hit a light</span><br><span class="line">        Lo += fr(p,wi,wo) * Li(p,wi) * cos(θi) / pdf(wi)</span><br><span class="line">    else if ray hit an object at q</span><br><span class="line">        Lo += shade(q, -wi) * f_r * cos(θi) / pdf(wi)</span><br><span class="line">    return Lo</span><br></pre></td></tr></table></figure>
 
@@ -274,6 +248,7 @@
 </ul>
 <h2 id="算法停止"><a href="#算法停止" class="headerlink" title="算法停止"></a>算法停止</h2><h3 id="俄罗斯轮盘赌（Russian-Roulette）"><a href="#俄罗斯轮盘赌（Russian-Roulette）" class="headerlink" title="俄罗斯轮盘赌（Russian Roulette）"></a>俄罗斯轮盘赌（Russian Roulette）</h3><p>在光线追踪中，递归可能无限进行下去，需要一种机制来停止算法。俄罗斯轮盘赌是一种概率终止方法：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">shade(p, wo, depth) </span><br><span class="line">    // 俄罗斯轮盘赌：设定一个概率值continue_probability，随机取一个[0,1]的random()值</span><br><span class="line">    if random() &gt; continue_probability:</span><br><span class="line">        return 0.0;  // 终止递归</span><br><span class="line">    </span><br><span class="line">    Lo = Le(p, wo)  // 自发光项</span><br><span class="line">    Randomly sample ONE direction wi based on pdf</span><br><span class="line">    Trace a ray r(p, wi)</span><br><span class="line">    if ray hit a light:</span><br><span class="line">        Lo += fr(p,wi,wo) * Li(p,wi) * cos(θi) / pdf(wi)</span><br><span class="line">    else if ray hit an object at q:</span><br><span class="line">        Lo += shade(q, -wi, depth+1) * fr(p,wi,wo) * cos(θi) / pdf(wi)</span><br><span class="line">    </span><br><span class="line">    // 补偿能量：除以继续概率</span><br><span class="line">    return Lo / continue_probability</span><br></pre></td></tr></table></figure>
+
 ]]></content>
       <categories>
         <category>Rendering</category>
@@ -283,8 +258,31 @@
       </tags>
   </entry>
   <entry>
+    <title>Rendering ToolTips</title>
+    <url>/2025/09/03/Rendering/Rendering/</url>
+    <content><![CDATA[<h1 id="常用软件"><a href="#常用软件" class="headerlink" title="常用软件"></a>常用软件</h1><ul>
+<li>renderDoc：支持对应用截帧分析</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Rendering</category>
+      </categories>
+      <tags>
+        <tag>Rendering</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Tools</title>
+    <url>/2025/09/04/Tools/Tools/</url>
+    <content><![CDATA[<h1 id="妙妙工具合集"><a href="#妙妙工具合集" class="headerlink" title="妙妙工具合集"></a>妙妙工具合集</h1><p><a href="https://realfavicongenerator.net/">https://realfavicongenerator.net/</a> 上传一张图片，生成浏览器图片所需的图片格式</p>
+]]></content>
+      <tags>
+        <tag>Tools</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>C#反射</title>
-    <url>/2025/10/18/c-%E5%8F%8D%E5%B0%84/</url>
+    <url>/2025/10/18/C/c-%E5%8F%8D%E5%B0%84/</url>
     <content><![CDATA[<h1 id="C-反射"><a href="#C-反射" class="headerlink" title="C#反射"></a>C#反射</h1><h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>反射（Reflection）是C#中一种强大的机制，它允许程序在运行时检查和操作类型的元数据信息。通过反射，可以在运行时动态地获取类型信息、创建对象实例、调用方法、访问属性和字段等。</p>
 <p>反射的核心是<code>System.Reflection</code>命名空间，其中<code>Type</code>类是反射的基础。</p>
 <h2 id="个人理解"><a href="#个人理解" class="headerlink" title="个人理解"></a>个人理解</h2><p>本质就是可以通过<code>Type</code>，在程序运行时去动态获取当前类里面的信息。运行前可能不知道类的具体信息，运行中可以直接获取。</p>
@@ -371,35 +369,8 @@
       </tags>
   </entry>
   <entry>
-    <title>Tools</title>
-    <url>/2025/09/04/Tools/</url>
-    <content><![CDATA[<h1 id="妙妙工具合集"><a href="#妙妙工具合集" class="headerlink" title="妙妙工具合集"></a>妙妙工具合集</h1><p><a href="https://realfavicongenerator.net/">https://realfavicongenerator.net/</a> 上传一张图片，生成浏览器图片所需的图片格式</p>
-]]></content>
-      <tags>
-        <tag>Tools</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Hello World</title>
-    <url>/2025/09/03/hello-world/</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-]]></content>
-  </entry>
-  <entry>
     <title>虚函数和CRTP</title>
-    <url>/2025/10/18/%E8%99%9A%E5%87%BD%E6%95%B0%E5%92%8CCRTP/</url>
+    <url>/2025/10/18/C/%E8%99%9A%E5%87%BD%E6%95%B0%E5%92%8CCRTP/</url>
     <content><![CDATA[<h1 id="虚函数"><a href="#虚函数" class="headerlink" title="虚函数"></a>虚函数</h1><h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>虚函数是C++实现运行时多态的核心机制。通过在基类中使用<code>virtual</code>关键字声明函数，可以让派生类重写（override）该函数，从而在运行时根据对象的实际类型调用相应的函数实现。</p>
 <h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><ul>
 <li><strong>动态绑定</strong>：函数调用在运行时根据对象的实际类型确定，而不是编译时的静态类型</li>
@@ -486,6 +457,55 @@
       </categories>
       <tags>
         <tag>C++</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hexo</title>
+    <url>/2025/09/04/Tools/Hexo/</url>
+    <content><![CDATA[<h1 id="Hexo-静态博客框架使用指南"><a href="#Hexo-静态博客框架使用指南" class="headerlink" title="Hexo 静态博客框架使用指南"></a>Hexo 静态博客框架使用指南</h1><p>Hexo 是一个快速、简洁且高效的博客框架，基于 Node.js 构建。它可以将 Markdown 文件渲染成静态网页，支持多种主题和插件。</p>
+<h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><h3 id="基础命令"><a href="#基础命令" class="headerlink" title="基础命令"></a>基础命令</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建新文章</span></span><br><span class="line">hexo new <span class="string">&quot;文章标题&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建新页面</span></span><br><span class="line">hexo new page <span class="string">&quot;页面名称&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建草稿</span></span><br><span class="line">hexo new draft <span class="string">&quot;草稿标题&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成静态文件</span></span><br><span class="line">hexo generate</span><br><span class="line"><span class="comment"># 或简写</span></span><br><span class="line">hexo g</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动本地服务器</span></span><br><span class="line">hexo server</span><br><span class="line"><span class="comment"># 或简写</span></span><br><span class="line">hexo s</span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署到服务器</span></span><br><span class="line">hexo deploy</span><br><span class="line"><span class="comment"># 或简写</span></span><br><span class="line">hexo d</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理缓存和生成的文件</span></span><br><span class="line">hexo clean</span><br><span class="line"></span><br><span class="line"><span class="comment"># 一键生成并部署</span></span><br><span class="line">hexo g -d</span><br></pre></td></tr></table></figure>
+
+<h3 id="草稿相关命令"><a href="#草稿相关命令" class="headerlink" title="草稿相关命令"></a>草稿相关命令</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 发布草稿</span></span><br><span class="line">hexo publish <span class="string">&quot;草稿文件名&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 预览草稿</span></span><br><span class="line">hexo server --draft</span><br></pre></td></tr></table></figure>
+
+<h3 id="主题管理"><a href="#主题管理" class="headerlink" title="主题管理"></a>主题管理</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装主题</span></span><br><span class="line">git <span class="built_in">clone</span> &lt;theme-repository-url&gt; themes/&lt;theme-name&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新主题</span></span><br><span class="line"><span class="built_in">cd</span> themes/&lt;theme-name&gt;</span><br><span class="line">git pull</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置文件说明"><a href="#配置文件说明" class="headerlink" title="配置文件说明"></a>配置文件说明</h2><h3 id="config-yml-主要配置项"><a href="#config-yml-主要配置项" class="headerlink" title="_config.yml 主要配置项"></a>_config.yml 主要配置项</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 网站基本信息</span></span><br><span class="line"><span class="attr">title:</span> <span class="string">网站标题</span></span><br><span class="line"><span class="attr">subtitle:</span> <span class="string">网站副标题</span></span><br><span class="line"><span class="attr">description:</span> <span class="string">网站描述</span></span><br><span class="line"><span class="attr">keywords:</span> <span class="string">关键词</span></span><br><span class="line"><span class="attr">author:</span> <span class="string">作者名</span></span><br><span class="line"><span class="attr">language:</span> <span class="string">zh-CN</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># URL 设置</span></span><br><span class="line"><span class="attr">url:</span> <span class="string">https://your-domain.com</span></span><br><span class="line"><span class="attr">permalink:</span> <span class="string">:year/:month/:day/:title/</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 目录设置</span></span><br><span class="line"><span class="attr">source_dir:</span> <span class="string">source</span></span><br><span class="line"><span class="attr">public_dir:</span> <span class="string">public</span></span><br><span class="line"><span class="attr">skip_render:</span> []</span><br><span class="line"></span><br><span class="line"><span class="comment"># 写作设置</span></span><br><span class="line"><span class="attr">new_post_name:</span> <span class="string">:title.md</span></span><br><span class="line"><span class="attr">default_layout:</span> <span class="string">post</span></span><br><span class="line"><span class="attr">auto_spacing:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">titlecase:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 分类和标签</span></span><br><span class="line"><span class="attr">default_category:</span> <span class="string">uncategorized</span></span><br><span class="line"><span class="attr">category_map:</span></span><br><span class="line"><span class="attr">tag_map:</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 日期格式</span></span><br><span class="line"><span class="attr">date_format:</span> <span class="string">YYYY-MM-DD</span></span><br><span class="line"><span class="attr">time_format:</span> <span class="string">HH:mm:ss</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 分页设置</span></span><br><span class="line"><span class="attr">per_page:</span> <span class="number">10</span></span><br><span class="line"><span class="attr">pagination_dir:</span> <span class="string">page</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 主题设置</span></span><br><span class="line"><span class="attr">theme:</span> <span class="string">next</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署设置</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repo:</span> <span class="string">&lt;repository-url&gt;</span></span><br><span class="line">  <span class="attr">branch:</span> <span class="string">main</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="文章写作"><a href="#文章写作" class="headerlink" title="文章写作"></a>文章写作</h2><h3 id="Front-matter-格式"><a href="#Front-matter-格式" class="headerlink" title="Front-matter 格式"></a>Front-matter 格式</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">title:</span> <span class="string">文章标题</span></span><br><span class="line"><span class="attr">date:</span> <span class="number">2025-09-04 00:35:50</span></span><br><span class="line"><span class="attr">updated:</span> <span class="number">2025-09-04 00:35:50</span></span><br><span class="line"><span class="attr">tags:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">标签1</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">标签2</span></span><br><span class="line"><span class="attr">categories:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">分类1</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">分类2</span></span><br><span class="line"><span class="attr">comments:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">toc:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">toc_number:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">toc_style_simple:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">mathjax:</span> <span class="literal">true</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="string">文章内容...</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="常用标签语法"><a href="#常用标签语法" class="headerlink" title="常用标签语法"></a>常用标签语法</h3><figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line"><span class="section"># 图片</span></span><br><span class="line">![<span class="string">图片描述</span>](<span class="link">图片链接</span>)</span><br><span class="line"></span><br><span class="line"><span class="section"># 链接</span></span><br><span class="line">[<span class="string">链接文字</span>](<span class="link">链接地址</span>)</span><br><span class="line"></span><br><span class="line"><span class="section"># 代码块</span></span><br><span class="line"><span class="code">```javascript</span></span><br><span class="line"><span class="code">console.log(&#x27;Hello World&#x27;);</span></span><br></pre></td></tr></table></figure>
+
+<!-- # 引用
+> 引用内容
+
+# 表格
+| 列1 | 列2 | 列3 |
+|-----|-----|-----|
+| 内容1 | 内容2 | 内容3 | -->
+
+
+<h2 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h2><h3 id="Next-主题常用配置"><a href="#Next-主题常用配置" class="headerlink" title="Next 主题常用配置"></a>Next 主题常用配置</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 主题设置</span></span><br><span class="line"><span class="attr">theme:</span> <span class="string">next</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 菜单设置</span></span><br><span class="line"><span class="attr">menu:</span></span><br><span class="line">  <span class="attr">home:</span> <span class="string">/</span> <span class="string">||</span> <span class="string">home</span></span><br><span class="line">  <span class="attr">archives:</span> <span class="string">/archives/</span> <span class="string">||</span> <span class="string">archive</span></span><br><span class="line">  <span class="attr">categories:</span> <span class="string">/categories/</span> <span class="string">||</span> <span class="string">th</span></span><br><span class="line">  <span class="attr">tags:</span> <span class="string">/tags/</span> <span class="string">||</span> <span class="string">tags</span></span><br><span class="line">  <span class="attr">about:</span> <span class="string">/about/</span> <span class="string">||</span> <span class="string">about</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 侧边栏设置</span></span><br><span class="line"><span class="attr">sidebar:</span></span><br><span class="line">  <span class="attr">position:</span> <span class="string">left</span></span><br><span class="line">  <span class="attr">display:</span> <span class="string">always</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 社交链接</span></span><br><span class="line"><span class="attr">social:</span></span><br><span class="line">  <span class="attr">github:</span> <span class="string">https://github.com/yourname</span></span><br><span class="line">  <span class="attr">twitter:</span> <span class="string">https://twitter.com/yourname</span></span><br><span class="line">  <span class="attr">email:</span> <span class="string">your-email@example.com</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 评论系统</span></span><br><span class="line"><span class="attr">comments:</span></span><br><span class="line">  <span class="attr">active:</span> <span class="string">disqus</span></span><br><span class="line">  <span class="attr">shortname:</span> <span class="string">your-disqus-shortname</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="部署配置"><a href="#部署配置" class="headerlink" title="部署配置"></a>部署配置</h2><h3 id="GitHub-Pages-部署"><a href="#GitHub-Pages-部署" class="headerlink" title="GitHub Pages 部署"></a>GitHub Pages 部署</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repo:</span> <span class="string">https://github.com/username/username.github.io.git</span></span><br><span class="line">  <span class="attr">branch:</span> <span class="string">main</span></span><br><span class="line">  <span class="attr">message:</span> <span class="string">&quot;Site updated: <span class="template-variable">&#123;&#123; now(&#x27;YYYY-MM-DD HH:mm:ss&#x27;) &#125;&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="其他部署方式"><a href="#其他部署方式" class="headerlink" title="其他部署方式"></a>其他部署方式</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 部署到服务器</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">rsync</span></span><br><span class="line">  <span class="attr">host:</span> <span class="string">your-server.com</span></span><br><span class="line">  <span class="attr">user:</span> <span class="string">username</span></span><br><span class="line">  <span class="attr">root:</span> <span class="string">/var/www/</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">blog/</span></span><br><span class="line">  <span class="attr">delete:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署到腾讯云 COS</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">cos</span></span><br><span class="line">  <span class="attr">bucket:</span> <span class="string">your-bucket-name</span></span><br><span class="line">  <span class="attr">region:</span> <span class="string">ap-beijing</span></span><br><span class="line">  <span class="attr">secretId:</span> <span class="string">your-secret-id</span></span><br><span class="line">  <span class="attr">secretKey:</span> <span class="string">your-secret-key</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="插件推荐"><a href="#插件推荐" class="headerlink" title="插件推荐"></a>插件推荐</h2><h3 id="常用插件"><a href="#常用插件" class="headerlink" title="常用插件"></a>常用插件</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 搜索插件</span></span><br><span class="line">npm install hexo-generator-search --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 站点地图</span></span><br><span class="line">npm install hexo-generator-sitemap --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># RSS 订阅</span></span><br><span class="line">npm install hexo-generator-feed --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 文章阅读时间统计</span></span><br><span class="line">npm install hexo-reading-time --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 图片懒加载</span></span><br><span class="line">npm install hexo-lazyload-image --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 代码高亮</span></span><br><span class="line">npm install hexo-prism-plugin --save</span><br></pre></td></tr></table></figure>
+
+<h2 id="性能优化"><a href="#性能优化" class="headerlink" title="性能优化"></a>性能优化</h2><h3 id="图片优化"><a href="#图片优化" class="headerlink" title="图片优化"></a>图片优化</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装图片压缩插件</span></span><br><span class="line">npm install hexo-image-min --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置图片懒加载</span></span><br><span class="line">lazyload:</span><br><span class="line">  <span class="built_in">enable</span>: <span class="literal">true</span></span><br><span class="line">  onlypost: <span class="literal">false</span></span><br><span class="line">  loadingImg: /images/loading.gif</span><br></pre></td></tr></table></figure>
+
+<h3 id="代码压缩"><a href="#代码压缩" class="headerlink" title="代码压缩"></a>代码压缩</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装压缩插件</span></span><br><span class="line">npm install hexo-html-minifier --save</span><br><span class="line">npm install hexo-clean-css --save</span><br><span class="line">npm install hexo-uglify --save</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<!-- *本文档会持续更新，如有问题欢迎交流讨论。* -->
+
+]]></content>
+      <tags>
+        <tag>Hexo</tag>
+        <tag>博客</tag>
+        <tag>静态网站</tag>
+        <tag>教程</tag>
       </tags>
   </entry>
 </search>
