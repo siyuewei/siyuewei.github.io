@@ -444,7 +444,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2025-10-29 16:16:51 / Modified: 21:52:41" itemprop="dateCreated datePublished" datetime="2025-10-29T16:16:51+08:00">2025-10-29</time>
+              <time title="Created: 2025-10-29 16:16:51 / Modified: 21:55:31" itemprop="dateCreated datePublished" datetime="2025-10-29T16:16:51+08:00">2025-10-29</time>
             </span>
 
           
@@ -518,11 +518,11 @@
 </li>
 </ul>
 <p><img src="/../../Image/Unite-%E5%B0%8F%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91/Metal%E5%B0%8F%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91Challenges.jpg" alt="Metal小游戏开发Challenges"></p>
-<h4 id="Shared-Buffer"><a href="#Shared-Buffer" class="headerlink" title="Shared Buffer"></a>Shared Buffer</h4><p>在 iPhone 和 iPad 上，CPU 和 GPU 共享同一块物理内存 (RAM)。</p>
+<h3 id="Shared-Buffer"><a href="#Shared-Buffer" class="headerlink" title="Shared Buffer"></a>Shared Buffer</h3><p>在 iPhone 和 iPad 上，CPU 和 GPU 共享同一块物理内存 (RAM)。</p>
 <p>上传数据： CPU 往这块内存里写入数据（比如更新粒子位置），然后通知 GPU：“你可以去读了”。GPU 不需要“拷贝”，直接就能读到 CPU 刚写的数据。</p>
 <p>GPU 回读： Compute Shader 把计算结果写回这块内存，然后通知 CPU：“我写完了”。CPU 不需要“下载”，直接就能读到 GPU 刚算出的结果。</p>
 <p>需要写入数据的游戏逻辑 (WASM) 运行在 WebKit 进程 (进程1) 中</p>
-<h4 id="为什么“XHR-指令流方案”做不到"><a href="#为什么“XHR-指令流方案”做不到" class="headerlink" title="为什么“XHR 指令流方案”做不到"></a>为什么“XHR 指令流方案”做不到</h4><p>这个方案横跨了两个独立的进程，这两个进程都运行在手机端，但是存在数据隔离：</p>
+<h3 id="为什么“XHR-指令流方案”做不到"><a href="#为什么“XHR-指令流方案”做不到" class="headerlink" title="为什么“XHR 指令流方案”做不到"></a>为什么“XHR 指令流方案”做不到</h3><p>这个方案横跨了两个独立的进程，这两个进程都运行在手机端，但是存在数据隔离：</p>
 <ul>
 <li><p>WebKit 进程： 运行游戏逻辑 (WASM)。</p>
 </li>
