@@ -20,20 +20,20 @@
     var CONFIG = {"hostname":"siyuewei.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":5,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"serach.xml"};
   </script>
 
-  <meta name="description" content="妙妙工具合集https:&#x2F;&#x2F;realfavicongenerator.net&#x2F; 上传一张图片，生成浏览器图片所需的图片格式">
+  <meta name="description" content="概念区分GPGPU (General-Purpose computing on Graphics Processing Units)：这是一个概念或领域。它指的是“使用 GPU 强大的并行处理能力来执行传统上由 CPU 负责的通用计算任务”（如图形渲染之外的科学计算、物理模拟、AI 训练等）。 Compute Shader (计算着色器)：这是一种具体的技术实现。它是一种程序（ HLSL, GLS">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Tools">
-<meta property="og:url" content="https://siyuewei.github.io/2025/09/04/Tools/Tools/index.html">
+<meta property="og:title" content="ComputerShader概念解析">
+<meta property="og:url" content="https://siyuewei.github.io/2025/10/29/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/ComputerShader%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="妙妙工具合集https:&#x2F;&#x2F;realfavicongenerator.net&#x2F; 上传一张图片，生成浏览器图片所需的图片格式">
+<meta property="og:description" content="概念区分GPGPU (General-Purpose computing on Graphics Processing Units)：这是一个概念或领域。它指的是“使用 GPU 强大的并行处理能力来执行传统上由 CPU 负责的通用计算任务”（如图形渲染之外的科学计算、物理模拟、AI 训练等）。 Compute Shader (计算着色器)：这是一种具体的技术实现。它是一种程序（ HLSL, GLS">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2025-09-03T16:33:45.000Z">
-<meta property="article:modified_time" content="2025-10-28T15:55:20.104Z">
+<meta property="article:published_time" content="2025-10-29T08:57:00.000Z">
+<meta property="article:modified_time" content="2025-10-29T09:09:16.841Z">
 <meta property="article:author" content="John Doe">
-<meta property="article:tag" content="Tools">
+<meta property="article:tag" content="Rendering, Computer Shader,Basic Concept">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://siyuewei.github.io/2025/09/04/Tools/Tools/">
+<link rel="canonical" href="https://siyuewei.github.io/2025/10/29/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/ComputerShader%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>Tools | Hexo</title>
+  <title>ComputerShader概念解析 | Hexo</title>
   
 
 
@@ -164,7 +164,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://siyuewei.github.io/2025/09/04/Tools/Tools/">
+    <link itemprop="mainEntityOfPage" href="https://siyuewei.github.io/2025/10/29/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/ComputerShader%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -177,7 +177,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Tools
+          ComputerShader概念解析
         </h1>
 
         <div class="post-meta">
@@ -186,16 +186,10 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
+              
 
-              <time title="Created: 2025-09-04 00:33:45" itemprop="dateCreated datePublished" datetime="2025-09-04T00:33:45+08:00">2025-09-04</time>
+              <time title="Created: 2025-10-29 16:57:00 / Modified: 17:09:16" itemprop="dateCreated datePublished" datetime="2025-10-29T16:57:00+08:00">2025-10-29</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-10-28 23:55:20" itemprop="dateModified" datetime="2025-10-28T23:55:20+08:00">2025-10-28</time>
-              </span>
 
           
 
@@ -208,7 +202,20 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="妙妙工具合集"><a href="#妙妙工具合集" class="headerlink" title="妙妙工具合集"></a>妙妙工具合集</h1><p><a target="_blank" rel="noopener" href="https://realfavicongenerator.net/">https://realfavicongenerator.net/</a> 上传一张图片，生成浏览器图片所需的图片格式</p>
+        <h1 id="概念区分"><a href="#概念区分" class="headerlink" title="概念区分"></a>概念区分</h1><p>GPGPU (General-Purpose computing on Graphics Processing Units)：这是一个概念或领域。它指的是“使用 GPU 强大的并行处理能力来执行传统上由 CPU 负责的通用计算任务”（如图形渲染之外的科学计算、物理模拟、AI 训练等）。</p>
+<p>Compute Shader (计算着色器)：这是一种具体的技术实现。它是一种程序（ HLSL, GLSL, MSL 等语言编写），它允许开发者在 GPU 上执行通用的计算。它最大的特点是它独立于传统的“渲染管线”（即独立于顶点着色器和片段着色器）。</p>
+<h1 id="为什么说“它独立于传统的渲染管线”"><a href="#为什么说“它独立于传统的渲染管线”" class="headerlink" title="为什么说“它独立于传统的渲染管线”"></a>为什么说“它独立于传统的渲染管线”</h1><p>Computer Shader与VS，FS都叫“着色器”(Shader)，都使用 HLSL 或 GLSL 这样的语言编写，并且都运行在 GPU 内部完全相同的“统一着色器核心”上。</p>
+<p>而“独立于顶点着色器和片段着色器”是在说：传统的渲染管线工序严格定义为顶点处理(VS) -&gt; 光栅化 -&gt; 像素处理(FS) -&gt; 输出图像，但是Computer Shader并不直接在这条管线里面工作，不关心什么顶点和像素，它的输入可以是任何数据，输出也可以是任何数据。在应用上，它的逻辑其实就类似在GPU上运行的代码，只不过是这一块代码是在GPU上运行的，并且由GPU统一管控。</p>
+<h1 id="使用例子"><a href="#使用例子" class="headerlink" title="使用例子"></a>使用例子</h1><p>举个例子，让一张 100 万像素的图片全部变亮。</p>
+<p>CPU 逻辑：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">for (int i = 0; i &lt; 1000000; ++i) &#123;</span><br><span class="line">    pixels[i] = pixels[i] * 1.1; // 串行执行 100 万次</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>GPGPU 逻辑 (伪代码)：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 只写这个函数，它只处理一个像素</span><br><span class="line">void BrightenKernel(int i) &#123;</span><br><span class="line">    pixels[i] = pixels[i] * 1.1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// (在 CPU 端) 调用：</span><br><span class="line">// “GPU，请在 100 万个核心上同时运行 BrightenKernel 函数”</span><br><span class="line">Dispatch(1000000);</span><br></pre></td></tr></table></figure>
+
+<h1 id="Compute-Shader如何助力渲染过程"><a href="#Compute-Shader如何助力渲染过程" class="headerlink" title="Compute Shader如何助力渲染过程"></a>Compute Shader如何助力渲染过程</h1><p>Compute Shader助力渲染过程不是直接插入渲染管线，而是使用多步骤，也即Pass。</p>
+<p>第一步，先运行一个 Compute Pass，让 Compute Shader 这个“通用车间”去完成所有繁重的计算（比如模拟成千上万个粒子的运动位置），并把计算结果存放到一块“仓库”（如 Buffer 或 Texture）里。</p>
+<p>第二步，再运行一个 Render Pass，启动那条“渲染管线”，此时你的 VS 和 FS 程序不再需要自己去苦苦计算，它们可以直接去“仓库”里读取 Compute Shader 算好的现成数据，然后轻松地把它们画在屏幕上。</p>
 
     </div>
 
@@ -218,7 +225,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Tools/" rel="tag"># Tools</a>
+              <a href="/tags/Rendering-Computer-Shader-Basic-Concept/" rel="tag"># Rendering, Computer Shader,Basic Concept</a>
           </div>
 
         
@@ -227,12 +234,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2025/09/03/Rendering/Rendering/" rel="prev" title="Rendering ToolTips">
-      <i class="fa fa-chevron-left"></i> Rendering ToolTips
+    <a href="/2025/10/29/Rendering/Unite-%E5%B0%8F%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91/" rel="prev" title="Unite_小游戏开发">
+      <i class="fa fa-chevron-left"></i> Unite_小游戏开发
     </a></div>
       <div class="post-nav-item">
-    <a href="/2025/09/04/Tools/Hexo/" rel="next" title="Hexo">
-      Hexo <i class="fa fa-chevron-right"></i>
+    <a href="/2025/10/29/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/SSBO%E6%A6%82%E5%BF%B5%E4%BB%8B%E7%BB%8D/" rel="next" title="SSBO概念介绍">
+      SSBO概念介绍 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -292,7 +299,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%99%E5%A6%99%E5%B7%A5%E5%85%B7%E5%90%88%E9%9B%86"><span class="nav-number">1.</span> <span class="nav-text">妙妙工具合集</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E5%BF%B5%E5%8C%BA%E5%88%86"><span class="nav-number">1.</span> <span class="nav-text">概念区分</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%AF%B4%E2%80%9C%E5%AE%83%E7%8B%AC%E7%AB%8B%E4%BA%8E%E4%BC%A0%E7%BB%9F%E7%9A%84%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E2%80%9D"><span class="nav-number">2.</span> <span class="nav-text">为什么说“它独立于传统的渲染管线”</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E4%BE%8B%E5%AD%90"><span class="nav-number">3.</span> <span class="nav-text">使用例子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Compute-Shader%E5%A6%82%E4%BD%95%E5%8A%A9%E5%8A%9B%E6%B8%B2%E6%9F%93%E8%BF%87%E7%A8%8B"><span class="nav-number">4.</span> <span class="nav-text">Compute Shader如何助力渲染过程</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

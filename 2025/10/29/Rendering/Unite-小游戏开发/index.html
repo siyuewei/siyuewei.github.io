@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/touxiang/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/touxiang/web-app-manifest-512x512.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/touxiang/web-app-manifest-192x192.png">
+  <link rel="mask-icon" href="/images/touxiang/favicon.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"siyuewei.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":5,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"serach.xml"};
+  </script>
+
+  <meta name="description" content="移动平台的图形引擎概述WebGL和 WebGPU 是用于网页浏览器的图形 API，Metal 和 Vulkan 是用于操作系统和硬件的“原生” (Native) 图形 API。 WebGL 和WebGPU是网页渲染的写法，但是真实渲染到电脑上，需要用电脑的渲染API，所以要翻译。而翻译这件事是浏览器在做的。 WebGLWebGL概述 定义：JavaScript API，用于在浏览器中渲染 2D 和">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Unite_小游戏开发">
+<meta property="og:url" content="https://siyuewei.github.io/2025/10/29/Rendering/Unite-%E5%B0%8F%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="移动平台的图形引擎概述WebGL和 WebGPU 是用于网页浏览器的图形 API，Metal 和 Vulkan 是用于操作系统和硬件的“原生” (Native) 图形 API。 WebGL 和WebGPU是网页渲染的写法，但是真实渲染到电脑上，需要用电脑的渲染API，所以要翻译。而翻译这件事是浏览器在做的。 WebGLWebGL概述 定义：JavaScript API，用于在浏览器中渲染 2D 和">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-10-29T08:16:51.000Z">
+<meta property="article:modified_time" content="2025-10-29T08:59:02.854Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://siyuewei.github.io/2025/10/29/Rendering/Unite-%E5%B0%8F%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Unite_小游戏开发 | Hexo</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Hexo</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://siyuewei.github.io/2025/10/29/Rendering/Unite-%E5%B0%8F%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Unite_小游戏开发
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2025-10-29 16:16:51 / Modified: 16:59:02" itemprop="dateCreated datePublished" datetime="2025-10-29T16:16:51+08:00">2025-10-29</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="移动平台的图形引擎"><a href="#移动平台的图形引擎" class="headerlink" title="移动平台的图形引擎"></a>移动平台的图形引擎</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>WebGL和 WebGPU 是用于网页浏览器的图形 API，Metal 和 Vulkan 是用于操作系统和硬件的“原生” (Native) 图形 API。</p>
+<p>WebGL 和WebGPU是网页渲染的写法，但是真实渲染到电脑上，需要用电脑的渲染API，所以要翻译。而翻译这件事是浏览器在做的。</p>
+<h2 id="WebGL"><a href="#WebGL" class="headerlink" title="WebGL"></a>WebGL</h2><h3 id="WebGL概述"><a href="#WebGL概述" class="headerlink" title="WebGL概述"></a>WebGL概述</h3><ul>
+<li><strong>定义</strong>：JavaScript API，用于在浏览器中渲染 2D 和 3D 图形，无需任何插件。</li>
+<li><strong>版本历史</strong>：<ul>
+<li>WebGL 1.0 基于 OpenGL ES 2.0</li>
+<li>WebGL 2.0（目前主流）基于 OpenGL ES 3.0（2012年发布）</li>
+</ul>
+</li>
+<li><strong>现状</strong>：已经过时，WebGL不会再有任何Major Feature Update。</li>
+<li><strong>主要限制</strong>：缺失现代图形API的常用特性：Compute Shader，SSBO，Indirect Draw</li>
+</ul>
+<h3 id="WebGL缺失的现代特性"><a href="#WebGL缺失的现代特性" class="headerlink" title="WebGL缺失的现代特性"></a>WebGL缺失的现代特性</h3><h4 id="2-SSBO（Shader-Storage-Buffer-Object，着色器存储缓冲对象）"><a href="#2-SSBO（Shader-Storage-Buffer-Object，着色器存储缓冲对象）" class="headerlink" title="2. SSBO（Shader Storage Buffer Object，着色器存储缓冲对象）"></a>2. SSBO（Shader Storage Buffer Object，着色器存储缓冲对象）</h4><p><strong>什么是SSBO？</strong></p>
+<ul>
+<li>一种GPU缓冲区类型，允许着色器读写大量结构化数据。</li>
+<li>是UBO（Uniform Buffer Object）的增强版本。</li>
+</ul>
+<p><strong>SSBO vs UBO对比：</strong></p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>UBO</th>
+<th>SSBO</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>访问权限</td>
+<td>只读</td>
+<td>可读写</td>
+</tr>
+<tr>
+<td>大小限制</td>
+<td>通常16KB-64KB</td>
+<td>可达GB级别</td>
+</tr>
+<tr>
+<td>数据对齐</td>
+<td>严格的std140布局</td>
+<td>更灵活的std430布局</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>读取快</td>
+<td>读写都支持</td>
+</tr>
+<tr>
+<td>用途</td>
+<td>传递常量数据</td>
+<td>动态数据、计算结果</td>
+</tr>
+</tbody></table>
+<p><strong>主要优势：</strong></p>
+<ul>
+<li><strong>可写性</strong>：着色器可以修改数据，实现GPU端的数据更新</li>
+<li><strong>大容量</strong>：可以存储海量数据（如百万级粒子）</li>
+<li><strong>灵活结构</strong>：支持动态数组、复杂数据结构</li>
+<li><strong>原子操作</strong>：支持原子计数器、原子交换等并发操作</li>
+</ul>
+<p><strong>典型应用场景：</strong></p>
+<ul>
+<li>GPU粒子系统（存储粒子状态）</li>
+<li>GPU Skinning（骨骼动画数据）</li>
+<li>Indirect Draw的参数缓冲</li>
+<li>光照计算的Tile数据</li>
+<li>自定义渲染管线的中间结果存储</li>
+</ul>
+<p><strong>示例代码（GLSL）：</strong></p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义SSBO</span></span><br><span class="line"><span class="keyword">layout</span>(<span class="keyword">std430</span>, <span class="keyword">binding</span> = <span class="number">0</span>) <span class="keyword">buffer</span> ObjectData &#123;</span><br><span class="line">    <span class="type">mat4</span> modelMatrices[];</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 原子操作示例</span></span><br><span class="line"><span class="keyword">layout</span>(<span class="keyword">std430</span>, <span class="keyword">binding</span> = <span class="number">1</span>) <span class="keyword">buffer</span> DrawCommands &#123;</span><br><span class="line">    <span class="type">uint</span> count;</span><br><span class="line">    DrawElementsIndirectCommand commands[];</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> main() &#123;</span><br><span class="line">    <span class="comment">// 可以写入数据</span></span><br><span class="line">    <span class="built_in">atomicAdd</span>(count, <span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-Indirect-Draw（间接绘制）"><a href="#3-Indirect-Draw（间接绘制）" class="headerlink" title="3. Indirect Draw（间接绘制）"></a>3. Indirect Draw（间接绘制）</h4><p><strong>什么是Indirect Draw？</strong></p>
+<ul>
+<li>一种绘制调用方式，允许GPU自己决定绘制参数，而不需要CPU每次都传递参数。</li>
+<li>绘制参数（顶点数量、实例数量等）存储在GPU缓冲区中。</li>
+</ul>
+<p><strong>传统Draw vs Indirect Draw：</strong></p>
+<p><strong>传统Draw Call：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// CPU侧代码，每次都要从CPU传参数</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">auto</span>&amp; object : objects) &#123;</span><br><span class="line">    <span class="built_in">glDrawElementsInstanced</span>(GL_TRIANGLES, object.indexCount, </span><br><span class="line">                           GL_UNSIGNED_INT, <span class="number">0</span>, object.instanceCount);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Indirect Draw：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// CPU侧只调用一次</span></span><br><span class="line"><span class="built_in">glMultiDrawElementsIndirect</span>(GL_TRIANGLES, GL_UNSIGNED_INT, </span><br><span class="line">                           indirectBuffer, drawCount, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// GPU侧从缓冲区读取绘制参数</span></span><br><span class="line"><span class="comment">// 参数结构：</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">DrawElementsIndirectCommand</span> &#123;</span><br><span class="line">    uint count;          <span class="comment">// 顶点数量</span></span><br><span class="line">    uint instanceCount;  <span class="comment">// 实例数量</span></span><br><span class="line">    uint firstIndex;     <span class="comment">// 起始索引</span></span><br><span class="line">    uint baseVertex;     <span class="comment">// 基础顶点</span></span><br><span class="line">    uint baseInstance;   <span class="comment">// 基础实例</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>主要优势：</strong></p>
+<ul>
+<li><strong>减少CPU-GPU同步</strong>：绘制参数在GPU侧生成，无需回读到CPU</li>
+<li><strong>GPU驱动渲染</strong>：结合Compute Shader可以实现完全GPU驱动的渲染管线</li>
+<li><strong>动态LOD</strong>：GPU可以根据距离动态调整细节级别</li>
+<li><strong>高效剔除</strong>：GPU剔除后直接修改绘制参数，不可见物体instanceCount设为0</li>
+</ul>
+<p><strong>典型应用场景：</strong></p>
+<ul>
+<li><strong>GPU Driven Rendering</strong>：整个渲染决策在GPU侧完成</li>
+<li><strong>大规模场景渲染</strong>：草地、树木、建筑的批量渲染</li>
+<li><strong>动态剔除</strong>：视锥剔除、遮挡剔除后动态调整绘制</li>
+<li><strong>粒子系统</strong>：GPU计算存活粒子数量并绘制</li>
+<li><strong>程序化实例化</strong>：GPU生成实例化参数</li>
+</ul>
+<p><strong>完整工作流程示例：</strong></p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. Compute Shader进行剔除</span></span><br><span class="line"><span class="keyword">layout</span>(<span class="keyword">local_size_x</span> = <span class="number">256</span>) <span class="keyword">in</span>;</span><br><span class="line"><span class="keyword">layout</span>(<span class="keyword">std430</span>, <span class="keyword">binding</span> = <span class="number">0</span>) <span class="keyword">buffer</span> Objects &#123;</span><br><span class="line">    ObjectData objects[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">layout</span>(<span class="keyword">std430</span>, <span class="keyword">binding</span> = <span class="number">1</span>) <span class="keyword">buffer</span> Commands &#123;</span><br><span class="line">    DrawElementsIndirectCommand drawCmds[];</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> main() &#123;</span><br><span class="line">    <span class="type">uint</span> idx = <span class="built_in">gl_GlobalInvocationID</span>.x;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 视锥剔除判断</span></span><br><span class="line">    <span class="keyword">if</span> (isVisible(objects[idx])) &#123;</span><br><span class="line">        drawCmds[idx].instanceCount = <span class="number">1</span>; <span class="comment">// 绘制</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        drawCmds[idx].instanceCount = <span class="number">0</span>; <span class="comment">// 不绘制</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. CPU侧发起间接绘制</span></span><br><span class="line">glMultiDrawElementsIndirect(...);</span><br></pre></td></tr></table></figure>
+
+<h3 id="WebGL的替代方案"><a href="#WebGL的替代方案" class="headerlink" title="WebGL的替代方案"></a>WebGL的替代方案</h3><p>由于WebGL缺失这些现代特性，现代浏览器正在推进新的图形API：</p>
+<ul>
+<li><strong>WebGPU</strong>：<ul>
+<li>基于现代图形API（Vulkan、Metal、DirectX 12）</li>
+<li>支持Compute Shader、SSBO、Indirect Draw等所有现代特性</li>
+<li>更好的性能和更低的开销</li>
+<li>Chrome、Firefox、Safari已开始支持</li>
+</ul>
+</li>
+</ul>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>这三个特性共同构成了现代GPU驱动渲染管线的基础：</p>
+<ol>
+<li><strong>Compute Shader</strong>：提供通用计算能力</li>
+<li><strong>SSBO</strong>：提供大容量可读写存储</li>
+<li><strong>Indirect Draw</strong>：实现GPU驱动的绘制决策</li>
+</ol>
+<p>它们的组合使用可以实现：</p>
+<ul>
+<li>将渲染决策从CPU转移到GPU</li>
+<li>减少CPU-GPU同步开销</li>
+<li>实现更复杂的渲染算法</li>
+<li>处理更大规模的场景</li>
+</ul>
+<p>WebGL因为基于老旧的OpenGL ES 3.0，无法支持这些特性，这也是为什么它在现代图形应用中逐渐被WebGPU取代。</p>
+<h2 id="WebGPU"><a href="#WebGPU" class="headerlink" title="WebGPU"></a>WebGPU</h2><h2 id="Metal"><a href="#Metal" class="headerlink" title="Metal"></a>Metal</h2><h2 id="Vulkan"><a href="#Vulkan" class="headerlink" title="Vulkan"></a>Vulkan</h2>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/10/24/Tools/SSHLink/" rel="prev" title="SSHLink">
+      <i class="fa fa-chevron-left"></i> SSHLink
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/10/29/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/ComputerShader%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90/" rel="next" title="ComputerShader概念解析">
+      ComputerShader概念解析 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A7%BB%E5%8A%A8%E5%B9%B3%E5%8F%B0%E7%9A%84%E5%9B%BE%E5%BD%A2%E5%BC%95%E6%93%8E"><span class="nav-number">1.</span> <span class="nav-text">移动平台的图形引擎</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WebGL"><span class="nav-number">1.2.</span> <span class="nav-text">WebGL</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#WebGL%E6%A6%82%E8%BF%B0"><span class="nav-number">1.2.1.</span> <span class="nav-text">WebGL概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WebGL%E7%BC%BA%E5%A4%B1%E7%9A%84%E7%8E%B0%E4%BB%A3%E7%89%B9%E6%80%A7"><span class="nav-number">1.2.2.</span> <span class="nav-text">WebGL缺失的现代特性</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-SSBO%EF%BC%88Shader-Storage-Buffer-Object%EF%BC%8C%E7%9D%80%E8%89%B2%E5%99%A8%E5%AD%98%E5%82%A8%E7%BC%93%E5%86%B2%E5%AF%B9%E8%B1%A1%EF%BC%89"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">2. SSBO（Shader Storage Buffer Object，着色器存储缓冲对象）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Indirect-Draw%EF%BC%88%E9%97%B4%E6%8E%A5%E7%BB%98%E5%88%B6%EF%BC%89"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">3. Indirect Draw（间接绘制）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WebGL%E7%9A%84%E6%9B%BF%E4%BB%A3%E6%96%B9%E6%A1%88"><span class="nav-number">1.2.3.</span> <span class="nav-text">WebGL的替代方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">1.2.4.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WebGPU"><span class="nav-number">1.3.</span> <span class="nav-text">WebGPU</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Metal"><span class="nav-number">1.4.</span> <span class="nav-text">Metal</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Vulkan"><span class="nav-number">1.5.</span> <span class="nav-text">Vulkan</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">John Doe</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
