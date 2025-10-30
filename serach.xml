@@ -19,6 +19,180 @@
 ]]></content>
   </entry>
   <entry>
+    <title>C#反射</title>
+    <url>/2025/10/18/C#/C#%E5%8F%8D%E5%B0%84/</url>
+    <content><![CDATA[<h1 id="C-反射"><a href="#C-反射" class="headerlink" title="C#反射"></a>C#反射</h1><h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>反射（Reflection）是C#中一种强大的机制，它允许程序在运行时检查和操作类型的元数据信息。通过反射，可以在运行时动态地获取类型信息、创建对象实例、调用方法、访问属性和字段等。</p>
+<p>反射的核心是<code>System.Reflection</code>命名空间，其中<code>Type</code>类是反射的基础。</p>
+<h2 id="个人理解"><a href="#个人理解" class="headerlink" title="个人理解"></a>个人理解</h2><p>本质就是可以通过<code>Type</code>，在程序运行时去动态获取当前类里面的信息。运行前可能不知道类的具体信息，运行中可以直接获取。</p>
+<h2 id="主要功能"><a href="#主要功能" class="headerlink" title="主要功能"></a>主要功能</h2><p>反射可以实现以下功能：</p>
+<ol>
+<li><strong>获取类型信息</strong>：获取类、接口、结构体等的元数据</li>
+<li><strong>动态创建对象</strong>：在运行时创建类型的实例</li>
+<li><strong>动态调用方法</strong>：在运行时调用对象的方法</li>
+<li><strong>访问成员</strong>：读取或设置字段、属性的值</li>
+<li><strong>查看特性（Attribute）</strong>：获取类型上标注的特性信息</li>
+<li><strong>遍历程序集</strong>：查看程序集中包含的所有类型</li>
+</ol>
+<h2 id="常用API"><a href="#常用API" class="headerlink" title="常用API"></a>常用API</h2><h3 id="获取Type对象的方式"><a href="#获取Type对象的方式" class="headerlink" title="获取Type对象的方式"></a>获取Type对象的方式</h3><figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 1. 使用 typeof 关键字</span></span><br><span class="line">Type type1 = <span class="keyword">typeof</span>(MyClass);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 使用 GetType() 方法</span></span><br><span class="line">MyClass obj = <span class="keyword">new</span> MyClass();</span><br><span class="line">Type type2 = obj.GetType();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 使用 Type.GetType() 方法</span></span><br><span class="line">Type type3 = Type.GetType(<span class="string">&quot;命名空间.MyClass&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="常用反射方法"><a href="#常用反射方法" class="headerlink" title="常用反射方法"></a>常用反射方法</h3><figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 获取所有公共方法</span></span><br><span class="line">MethodInfo[] methods = type.GetMethods();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取所有公共属性</span></span><br><span class="line">PropertyInfo[] properties = type.GetProperties();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取所有公共字段</span></span><br><span class="line">FieldInfo[] fields = type.GetFields();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取所有构造函数</span></span><br><span class="line">ConstructorInfo[] constructors = type.GetConstructors();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建实例</span></span><br><span class="line"><span class="built_in">object</span> instance = Activator.CreateInstance(type);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用方法</span></span><br><span class="line">MethodInfo method = type.GetMethod(<span class="string">&quot;MethodName&quot;</span>);</span><br><span class="line">method.Invoke(instance, <span class="keyword">new</span> <span class="built_in">object</span>[] &#123; param1, param2 &#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取/设置属性值</span></span><br><span class="line">PropertyInfo property = type.GetProperty(<span class="string">&quot;PropertyName&quot;</span>);</span><br><span class="line"><span class="built_in">object</span> <span class="keyword">value</span> = property.GetValue(instance);</span><br><span class="line">property.SetValue(instance, newValue);</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><ol>
+<li><strong>插件系统</strong>：动态加载和使用外部程序集中的类型</li>
+<li><strong>依赖注入（DI）容器</strong>：如ASP.NET Core的依赖注入框架</li>
+<li><strong>序列化&#x2F;反序列化</strong>：JSON、XML等序列化库</li>
+<li><strong>ORM框架</strong>：如Entity Framework，动态映射对象和数据库</li>
+<li><strong>单元测试框架</strong>：如NUnit、xUnit，动态发现和执行测试方法</li>
+<li><strong>自动化工具</strong>：根据配置文件动态创建和调用对象</li>
+<li><strong>代码生成工具</strong>：分析现有类型生成代码</li>
+<li><strong>特性处理</strong>：处理自定义特性标记的类和方法</li>
+</ol>
+<h2 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h2><figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Reflection;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Person</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">string</span> Name &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> Age &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">SayHello</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;你好，我是<span class="subst">&#123;Name&#125;</span>，<span class="subst">&#123;Age&#125;</span>岁。&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">string</span> <span class="title">GetInfo</span>(<span class="params"><span class="built_in">string</span> prefix</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">$&quot;<span class="subst">&#123;prefix&#125;</span>: <span class="subst">&#123;Name&#125;</span>, <span class="subst">&#123;Age&#125;</span>岁&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 获取Type对象</span></span><br><span class="line">        Type type = <span class="keyword">typeof</span>(Person);</span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;类型名称: <span class="subst">&#123;type.Name&#125;</span>&quot;</span>);</span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;完整名称: <span class="subst">&#123;type.FullName&#125;</span>&quot;</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 创建实例</span></span><br><span class="line">        <span class="built_in">object</span> personObj = Activator.CreateInstance(type);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 设置属性值</span></span><br><span class="line">        PropertyInfo nameProp = type.GetProperty(<span class="string">&quot;Name&quot;</span>);</span><br><span class="line">        PropertyInfo ageProp = type.GetProperty(<span class="string">&quot;Age&quot;</span>);</span><br><span class="line">        nameProp.SetValue(personObj, <span class="string">&quot;张三&quot;</span>);</span><br><span class="line">        ageProp.SetValue(personObj, <span class="number">25</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 获取属性值</span></span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;姓名: <span class="subst">&#123;nameProp.GetValue(personObj)&#125;</span>&quot;</span>);</span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;年龄: <span class="subst">&#123;ageProp.GetValue(personObj)&#125;</span>&quot;</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 调用无参方法</span></span><br><span class="line">        MethodInfo sayHelloMethod = type.GetMethod(<span class="string">&quot;SayHello&quot;</span>);</span><br><span class="line">        sayHelloMethod.Invoke(personObj, <span class="literal">null</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 调用有参方法</span></span><br><span class="line">        MethodInfo getInfoMethod = type.GetMethod(<span class="string">&quot;GetInfo&quot;</span>);</span><br><span class="line">        <span class="built_in">object</span> result = getInfoMethod.Invoke(personObj, <span class="keyword">new</span> <span class="built_in">object</span>[] &#123; <span class="string">&quot;个人信息&quot;</span> &#125;);</span><br><span class="line">        Console.WriteLine(result);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 列出所有公共属性</span></span><br><span class="line">        Console.WriteLine(<span class="string">&quot;\n所有公共属性:&quot;</span>);</span><br><span class="line">        <span class="keyword">foreach</span> (PropertyInfo prop <span class="keyword">in</span> type.GetProperties())</span><br><span class="line">        &#123;</span><br><span class="line">            Console.WriteLine(<span class="string">$&quot;- <span class="subst">&#123;prop.Name&#125;</span> (<span class="subst">&#123;prop.PropertyType.Name&#125;</span>)&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 列出所有公共方法</span></span><br><span class="line">        Console.WriteLine(<span class="string">&quot;\n所有公共方法:&quot;</span>);</span><br><span class="line">        <span class="keyword">foreach</span> (MethodInfo method <span class="keyword">in</span> type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))</span><br><span class="line">        &#123;</span><br><span class="line">            Console.WriteLine(<span class="string">$&quot;- <span class="subst">&#123;method.Name&#125;</span>&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ol>
+<li><strong>动态性</strong>：可以在运行时处理编译时未知的类型</li>
+<li><strong>灵活性</strong>：适合构建通用框架和工具</li>
+<li><strong>解耦</strong>：降低模块间的直接依赖</li>
+<li><strong>可扩展性</strong>：便于实现插件机制</li>
+</ol>
+<h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2><ol>
+<li><strong>性能开销</strong>：反射操作比直接调用慢很多（通常慢10-100倍）</li>
+<li><strong>类型安全性降低</strong>：编译时无法检查类型错误</li>
+<li><strong>代码可读性差</strong>：反射代码通常比直接调用难理解</li>
+<li><strong>安全问题</strong>：可以访问私有成员，可能破坏封装性</li>
+<li><strong>调试困难</strong>：反射调用的错误在运行时才能发现</li>
+</ol>
+<h2 id="为什么反射的性能开销大？"><a href="#为什么反射的性能开销大？" class="headerlink" title="为什么反射的性能开销大？"></a>为什么反射的性能开销大？</h2><p>反射的性能开销主要来自以下几个方面：</p>
+<h3 id="1-元数据查找开销"><a href="#1-元数据查找开销" class="headerlink" title="1. 元数据查找开销"></a>1. 元数据查找开销</h3><ul>
+<li><strong>运行时搜索</strong>：反射需要在运行时遍历类型的元数据来查找方法、属性、字段等信息</li>
+<li><strong>字符串匹配</strong>：使用字符串名称查找成员（如<code>GetMethod(&quot;MethodName&quot;)</code>）需要进行字符串比较</li>
+<li><strong>无编译器优化</strong>：编译器无法对反射调用进行优化，而直接调用在编译时就已经确定了地址</li>
+</ul>
+<h3 id="2-类型检查和验证"><a href="#2-类型检查和验证" class="headerlink" title="2. 类型检查和验证"></a>2. 类型检查和验证</h3><ul>
+<li><strong>参数验证</strong>：每次反射调用都需要验证参数类型是否匹配</li>
+<li><strong>访问权限检查</strong>：需要检查是否有权限访问该成员（public、private等）</li>
+<li><strong>类型转换</strong>：反射调用的参数通常是<code>object[]</code>，需要进行装箱&#x2F;拆箱操作</li>
+</ul>
+<h3 id="3-安全检查"><a href="#3-安全检查" class="headerlink" title="3. 安全检查"></a>3. 安全检查</h3><ul>
+<li><strong>权限验证</strong>：CLR需要验证调用者是否有足够的权限执行反射操作</li>
+<li><strong>安全栈遍历</strong>：可能需要遍历调用栈来验证安全性</li>
+</ul>
+<h3 id="4-间接调用"><a href="#4-间接调用" class="headerlink" title="4. 间接调用"></a>4. 间接调用</h3><ul>
+<li><strong>无法内联</strong>：直接调用可以被编译器内联优化，而反射调用无法内联</li>
+<li><strong>动态调度</strong>：反射调用通过间接的方式执行，无法利用CPU的分支预测等优化</li>
+</ul>
+<h3 id="5-对象创建开销"><a href="#5-对象创建开销" class="headerlink" title="5. 对象创建开销"></a>5. 对象创建开销</h3><ul>
+<li><strong>装箱操作</strong>：值类型参数需要装箱成<code>object</code></li>
+<li><strong>数组分配</strong>：参数需要封装到<code>object[]</code>数组中</li>
+<li><strong>临时对象</strong>：会产生额外的临时对象和GC压力</li>
+</ul>
+<h3 id="性能对比示例"><a href="#性能对比示例" class="headerlink" title="性能对比示例"></a>性能对比示例</h3><figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 直接调用：约 1-2 纳秒</span></span><br><span class="line">person.SayHello();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 反射调用：约 100-200 纳秒</span></span><br><span class="line">methodInfo.Invoke(person, <span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 性能差距：约 100 倍</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>总结</strong>：反射的性能开销主要是因为它将编译时的静态操作推迟到了运行时，需要进行大量的查找、验证、类型检查等动态操作，而这些操作在直接调用中都是在编译时完成的。</p>
+<h2 id="性能优化建议"><a href="#性能优化建议" class="headerlink" title="性能优化建议"></a>性能优化建议</h2><ol>
+<li><strong>缓存Type和MemberInfo对象</strong>：避免重复获取</li>
+<li><strong>使用表达式树（Expression Trees）</strong>：比反射快，但仍比直接调用慢</li>
+<li><strong>考虑使用IL Emit</strong>：动态生成IL代码，性能接近原生</li>
+<li><strong>谨慎使用</strong>：仅在必要时使用反射，能用泛型就用泛型</li>
+</ol>
+<h2 id="BindingFlags-常用标志"><a href="#BindingFlags-常用标志" class="headerlink" title="BindingFlags 常用标志"></a>BindingFlags 常用标志</h2><figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 公共成员</span></span><br><span class="line">BindingFlags.Public</span><br><span class="line"></span><br><span class="line"><span class="comment">// 非公共成员（private, protected, internal）</span></span><br><span class="line">BindingFlags.NonPublic</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实例成员</span></span><br><span class="line">BindingFlags.Instance</span><br><span class="line"></span><br><span class="line"><span class="comment">// 静态成员</span></span><br><span class="line">BindingFlags.Static</span><br><span class="line"></span><br><span class="line"><span class="comment">// 仅包含当前类声明的成员（不包括继承的）</span></span><br><span class="line">BindingFlags.DeclaredOnly</span><br><span class="line"></span><br><span class="line"><span class="comment">// 组合使用示例</span></span><br><span class="line">type.GetMethods(BindingFlags.Public | BindingFlags.Instance)</span><br><span class="line">type.GetFields(BindingFlags.NonPublic | BindingFlags.Static)</span><br></pre></td></tr></table></figure>
+
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>反射是C#中非常强大的特性，它让程序具有了自省和动态操作的能力。虽然存在性能开销，但在很多场景下（如框架开发、插件系统），反射带来的灵活性是无可替代的。关键是要在灵活性和性能之间找到合适的平衡点。</p>
+]]></content>
+      <categories>
+        <category>C#</category>
+      </categories>
+      <tags>
+        <tag>C#</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>C#基本概念汇总</title>
+    <url>/2025/10/30/C#/C#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E6%B1%87%E6%80%BB/</url>
+    <content><![CDATA[<h1 id="创建属性"><a href="#创建属性" class="headerlink" title="创建属性"></a>创建属性</h1><p>属性本质上是对变量的 get 和 set 访问器的封装。</p>
+<p>对于需要公开访问的字段，直接使用 public 修饰符存在安全隐患，而使用属性可以带来以下优势：</p>
+<ol>
+<li>保护私有数据不被直接修改</li>
+<li>在 get 和 set 访问器中进行安全检测</li>
+<li>支持定义只读或只写属性</li>
+</ol>
+<p>此外，属性也可以理解为两个方法的组合。例如下面的 Level 属性，实际上就是提供了两个方法来修改或获取内部的 experience 数据。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class PlayerController</span><br><span class="line">&#123;</span><br><span class="line">    private int experience;</span><br><span class="line"></span><br><span class="line">    public int Experience</span><br><span class="line">    &#123;</span><br><span class="line">        get</span><br><span class="line">        &#123;</span><br><span class="line">            return experience;</span><br><span class="line">        &#125;</span><br><span class="line">        set</span><br><span class="line">        &#123;</span><br><span class="line">            experience = value;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    public int Level</span><br><span class="line">    &#123;</span><br><span class="line">        get</span><br><span class="line">        &#123;</span><br><span class="line">            return experience / 1000;</span><br><span class="line">        &#125;</span><br><span class="line">        set</span><br><span class="line">        &#123;</span><br><span class="line">            experience = value * 1000;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    public int Health &#123; get; set; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="特别注意"><a href="#特别注意" class="headerlink" title="特别注意"></a>特别注意</h2><ul>
+<li><p>在接口中：{ get; set; } 是一个抽象声明，它不包含任何实现或数据存储。它强制实现类去提供实现。</p>
+</li>
+<li><p>在类中：{ get; set; } 是一个完整的实现，它自动为数据存储和访问逻辑。</p>
+</li>
+</ul>
+<h1 id="虚函数"><a href="#虚函数" class="headerlink" title="虚函数"></a>虚函数</h1><p>C# 支持单继承，子类可以通过 <code>base</code> 关键字访问父类的成员。</p>
+<p>虚函数（Virtual Function）是实现多态的核心机制：</p>
+<ul>
+<li>父类使用 <code>virtual</code> 关键字声明可被重写的方法</li>
+<li>子类使用 <code>override</code> 关键字重写父类的虚方法</li>
+</ul>
+<p><strong>关键特性</strong>：当子类对象被强制转换为父类类型时，只能访问父类定义的成员，但调用虚函数时仍会执行子类重写的版本，这体现了运行时多态。</p>
+<p>代码示例如下：</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 父类：定义基础行为</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Actor</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">int</span> _health;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 属性：封装健康值</span></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> Health</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> &#123; <span class="keyword">return</span> _health; &#125;</span><br><span class="line">        <span class="keyword">set</span> &#123; _health = <span class="keyword">value</span>; &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 虚方法：可被子类重写</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Move</span>(<span class="params"><span class="built_in">float</span> x, <span class="built_in">float</span> y</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">&quot;Actor is moving to: &quot;</span> + x + <span class="string">&quot;, &quot;</span> + y);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 子类：继承并扩展父类功能</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">PlayerController</span> : <span class="title">Actor</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 子类特有的属性</span></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> jumpHeight;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">PlayerController</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        jumpHeight = <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 重写父类的虚方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">Move</span>(<span class="params"><span class="built_in">float</span> x, <span class="built_in">float</span> y</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">&quot;PlayerController is moving to: &quot;</span> + x + <span class="string">&quot;, &quot;</span> + y);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 测试类：演示多态行为</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">Test</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TestPlayer</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            PlayerController player = <span class="keyword">new</span> PlayerController();</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 通过子类引用调用</span></span><br><span class="line">            player.Move(<span class="number">5.0f</span>, <span class="number">10.0f</span>);           <span class="comment">// 输出：PlayerController is moving to: 5, 10</span></span><br><span class="line">            Debug.Log(player.jumpHeight);        <span class="comment">// 输出：2（子类特有属性可访问）</span></span><br><span class="line">            Debug.Log(player.Health);            <span class="comment">// 输出：0（继承自父类的属性）</span></span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 将子类对象强转为父类类型</span></span><br><span class="line">            Actor actor = (Actor)player;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 虚方法调用：仍然执行子类的重写版本（多态）</span></span><br><span class="line">            actor.Move(<span class="number">15.0f</span>, <span class="number">20.0f</span>);           <span class="comment">// 输出：PlayerController is moving to: 15, 20</span></span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 子类特有成员无法访问（编译错误）</span></span><br><span class="line">            <span class="comment">// Debug.Log(actor.jumpHeight);      // 错误：Actor 类型没有 jumpHeight 成员</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="成员隐藏"><a href="#成员隐藏" class="headerlink" title="成员隐藏"></a>成员隐藏</h1><p>成员隐藏（Member Hiding）是通过 <code>new</code> 关键字在子类中重新定义父类的成员或方法，从而”隐藏”父类的实现。</p>
+<p><strong>核心区别</strong>：</p>
+<ul>
+<li><strong>虚函数（多态）</strong>：使用 <code>virtual</code> 和 <code>override</code>，强转后调用的是子类重写的方法</li>
+<li><strong>成员隐藏</strong>：使用 <code>new</code> 关键字，强转后调用的是父类原有的方法</li>
+</ul>
+<p><strong>行为特点</strong>：当子类对象被强制转换为父类类型时，调用的成员或方法都是父类的版本，而非子类隐藏的版本。这是因为成员隐藏是编译时绑定，而非运行时多态。</p>
+<p>代码示例如下：</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 父类</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Warrior</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> damage = <span class="number">10</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 普通方法（非虚方法）</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Attack</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">&quot;Warrior attacks with damage: &quot;</span> + damage);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Defend</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">&quot;Warrior defends!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 子类：使用 new 关键字隐藏父类成员</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Paladin</span> : <span class="title">Warrior</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 使用 new 隐藏父类的字段</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">new</span> <span class="built_in">int</span> damage = <span class="number">20</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 使用 new 隐藏父类的方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">new</span> <span class="keyword">void</span> <span class="title">Attack</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">&quot;Paladin attacks with holy damage: &quot;</span> + damage);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">new</span> <span class="keyword">void</span> <span class="title">Defend</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">&quot;Paladin defends with shield!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 测试类：对比成员隐藏的行为</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">Test</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TestHiding</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            Paladin paladin = <span class="keyword">new</span> Paladin();</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 通过子类引用访问</span></span><br><span class="line">            Debug.Log(paladin.damage);      <span class="comment">// 输出：20（访问子类的 damage）</span></span><br><span class="line">            paladin.Attack();                <span class="comment">// 输出：Paladin attacks with holy damage: 20</span></span><br><span class="line">            paladin.Defend();                <span class="comment">// 输出：Paladin defends with shield!</span></span><br><span class="line">            </span><br><span class="line">            Debug.Log(<span class="string">&quot;--- 强转为父类后 ---&quot;</span>);</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 将子类对象强转为父类类型</span></span><br><span class="line">            Warrior warrior = (Warrior)paladin;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 关键：强转后访问的是父类的成员（编译时绑定）</span></span><br><span class="line">            Debug.Log(warrior.damage);       <span class="comment">// 输出：10（访问父类的 damage）</span></span><br><span class="line">            warrior.Attack();                <span class="comment">// 输出：Warrior attacks with damage: 10</span></span><br><span class="line">            warrior.Defend();                <span class="comment">// 输出：Warrior defends!</span></span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 注意：虽然 warrior 和 paladin 引用的是同一个对象，</span></span><br><span class="line">            <span class="comment">// 但由于使用了 new 隐藏而非 override 重写，</span></span><br><span class="line">            <span class="comment">// 所以通过父类引用调用的是父类版本的方法</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>总结</strong>：</p>
+<ul>
+<li>成员隐藏打破了多态性，调用哪个版本取决于引用类型而非对象类型</li>
+<li>如果需要多态行为，应使用 <code>virtual</code> 和 <code>override</code></li>
+<li><code>new</code> 关键字主要用于有意隐藏父类成员，或解决命名冲突</li>
+</ul>
+<h1 id="接口（Interface）"><a href="#接口（Interface）" class="headerlink" title="接口（Interface）"></a>接口（Interface）</h1><p>接口是一种定义契约的方式，只包含成员的声明，不包含任何实现。实现接口的类必须提供所有成员的具体实现。</p>
+<p><strong>接口的特点</strong>：</p>
+<ul>
+<li>只包含方法、属性、事件和索引器的声明，不包含实现</li>
+<li>接口成员默认是 <code>public</code> 的，不需要显式声明访问修饰符</li>
+<li>一个类可以实现多个接口，弥补 C# 单继承的限制</li>
+<li>接口支持多态，通过接口引用可以调用不同实现类的方法</li>
+</ul>
+<p><strong>属性与接口</strong>：属性可以定义在接口中，因为属性本质上就是 <code>get</code> 和 <code>set</code> 方法的声明。接口可以要求实现类提供特定的属性访问器。</p>
+<h2 id="接口属性的本质与演进"><a href="#接口属性的本质与演进" class="headerlink" title="接口属性的本质与演进"></a>接口属性的本质与演进</h2><h3 id="传统接口（C-8-0-之前）"><a href="#传统接口（C-8-0-之前）" class="headerlink" title="传统接口（C# 8.0 之前）"></a>传统接口（C# 8.0 之前）</h3><p>在 C# 8.0 之前，接口<strong>只能包含声明，不能包含实现</strong>。</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 传统接口：只有抽象声明</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IWeapon</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 这是抽象属性声明，不是实现</span></span><br><span class="line">    <span class="built_in">int</span> BulletNumber &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 等同于声明这两个抽象方法：</span></span><br><span class="line">    <span class="comment">// int get_BulletNumber();</span></span><br><span class="line">    <span class="comment">// void set_BulletNumber(int value);</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现类必须提供完整实现</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Pistol</span> : <span class="title">IWeapon</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 方式一：自动属性（编译器自动生成后备字段和实现）</span></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> BulletNumber &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 方式二：完整属性（手动定义后备字段和逻辑）</span></span><br><span class="line">    <span class="comment">// private int _bulletNumber;</span></span><br><span class="line">    <span class="comment">// public int BulletNumber </span></span><br><span class="line">    <span class="comment">// &#123; </span></span><br><span class="line">    <span class="comment">//     get &#123; return _bulletNumber; &#125;</span></span><br><span class="line">    <span class="comment">//     set &#123; _bulletNumber = value; &#125;</span></span><br><span class="line">    <span class="comment">// &#125;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键点</strong>：</p>
+<ul>
+<li>接口中的 <code>&#123; get; set; &#125;</code> 是<strong>抽象声明</strong>，强制实现类提供实现和数据存储</li>
+<li>类中的 <code>&#123; get; set; &#125;</code> 是<strong>自动属性</strong>，编译器自动生成后备字段和完整实现</li>
+</ul>
+<h3 id="接口默认实现（C-8-0-）"><a href="#接口默认实现（C-8-0-）" class="headerlink" title="接口默认实现（C# 8.0+）"></a>接口默认实现（C# 8.0+）</h3><p>从 C# 8.0 开始，接口可以包含<strong>默认实现</strong>，主要用于 API 的版本演进。</p>
+<p><strong>引入原因</strong>：解决接口扩展时的破坏性更改问题。</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 场景：为已有接口添加新功能，但不破坏现有实现类</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IWeapon</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Attack</span>()</span>;  <span class="comment">// 原有方法</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// C# 8.0+：为新方法提供默认实现</span></span><br><span class="line">    <span class="comment">// 现有实现类无需修改，新类可以选择重写</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Reload</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;Default reload behavior&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>属性的默认实现示例</strong>：</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IWeapon</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 1. 抽象属性：必须由实现类提供（用于存储状态）</span></span><br><span class="line">    <span class="built_in">int</span> CurrentAmmo &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="built_in">int</span> MaxAmmo &#123; <span class="keyword">get</span>; &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 2. 默认实现的计算属性：基于其他抽象成员</span></span><br><span class="line">    <span class="built_in">bool</span> IsEmpty</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> &#123; <span class="keyword">return</span> CurrentAmmo &lt;= <span class="number">0</span>; &#125;  <span class="comment">// ✅ 正确：依赖抽象属性</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 3. 默认实现的方法：操作抽象成员</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Shoot</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (!IsEmpty)</span><br><span class="line">        &#123;</span><br><span class="line">            CurrentAmmo--;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="⚠️-常见错误：接口默认实现的递归陷阱"><a href="#⚠️-常见错误：接口默认实现的递归陷阱" class="headerlink" title="⚠️ 常见错误：接口默认实现的递归陷阱"></a>⚠️ 常见错误：接口默认实现的递归陷阱</h3><p><strong>错误示例</strong>（会导致 <code>StackOverflowException</code>）：</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IWeapon</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// ❌ 错误：接口不能包含实例字段（后备字段）</span></span><br><span class="line">    <span class="built_in">int</span> bulletNumber </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 无限递归！调用 get 来获取 bulletNumber，而 bulletNumber 又调用 get...</span></span><br><span class="line">            <span class="keyword">return</span> bulletNumber;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">set</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 无限递归！调用 set 来设置 bulletNumber，而 bulletNumber 又调用 set...</span></span><br><span class="line">            bulletNumber = <span class="keyword">value</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>原因</strong>：接口不能包含实例状态（字段）。上述代码中没有后备字段来存储数据，访问属性会无限递归调用自身。</p>
+<p><strong>正确的做法</strong>：</p>
+<ul>
+<li><strong>抽象声明</strong>：让实现类提供存储</li>
+<li><strong>默认实现</strong>：基于其他抽象成员进行计算或逻辑处理</li>
+</ul>
+]]></content>
+      <categories>
+        <category>C#</category>
+      </categories>
+      <tags>
+        <tag>C#</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>虚函数和CRTP</title>
     <url>/2025/10/18/C++/%E8%99%9A%E5%87%BD%E6%95%B0%E5%92%8CCRTP/</url>
     <content><![CDATA[<h1 id="虚函数"><a href="#虚函数" class="headerlink" title="虚函数"></a>虚函数</h1><h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>虚函数是C++实现运行时多态的核心机制。通过在基类中使用<code>virtual</code>关键字声明函数，可以让派生类重写（override）该函数，从而在运行时根据对象的实际类型调用相应的函数实现。</p>
@@ -107,94 +281,6 @@
       </categories>
       <tags>
         <tag>C++</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>C#反射</title>
-    <url>/2025/10/18/C#/c#%E5%8F%8D%E5%B0%84/</url>
-    <content><![CDATA[<h1 id="C-反射"><a href="#C-反射" class="headerlink" title="C#反射"></a>C#反射</h1><h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>反射（Reflection）是C#中一种强大的机制，它允许程序在运行时检查和操作类型的元数据信息。通过反射，可以在运行时动态地获取类型信息、创建对象实例、调用方法、访问属性和字段等。</p>
-<p>反射的核心是<code>System.Reflection</code>命名空间，其中<code>Type</code>类是反射的基础。</p>
-<h2 id="个人理解"><a href="#个人理解" class="headerlink" title="个人理解"></a>个人理解</h2><p>本质就是可以通过<code>Type</code>，在程序运行时去动态获取当前类里面的信息。运行前可能不知道类的具体信息，运行中可以直接获取。</p>
-<h2 id="主要功能"><a href="#主要功能" class="headerlink" title="主要功能"></a>主要功能</h2><p>反射可以实现以下功能：</p>
-<ol>
-<li><strong>获取类型信息</strong>：获取类、接口、结构体等的元数据</li>
-<li><strong>动态创建对象</strong>：在运行时创建类型的实例</li>
-<li><strong>动态调用方法</strong>：在运行时调用对象的方法</li>
-<li><strong>访问成员</strong>：读取或设置字段、属性的值</li>
-<li><strong>查看特性（Attribute）</strong>：获取类型上标注的特性信息</li>
-<li><strong>遍历程序集</strong>：查看程序集中包含的所有类型</li>
-</ol>
-<h2 id="常用API"><a href="#常用API" class="headerlink" title="常用API"></a>常用API</h2><h3 id="获取Type对象的方式"><a href="#获取Type对象的方式" class="headerlink" title="获取Type对象的方式"></a>获取Type对象的方式</h3><figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 1. 使用 typeof 关键字</span></span><br><span class="line">Type type1 = <span class="keyword">typeof</span>(MyClass);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 使用 GetType() 方法</span></span><br><span class="line">MyClass obj = <span class="keyword">new</span> MyClass();</span><br><span class="line">Type type2 = obj.GetType();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 使用 Type.GetType() 方法</span></span><br><span class="line">Type type3 = Type.GetType(<span class="string">&quot;命名空间.MyClass&quot;</span>);</span><br></pre></td></tr></table></figure>
-
-<h3 id="常用反射方法"><a href="#常用反射方法" class="headerlink" title="常用反射方法"></a>常用反射方法</h3><figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 获取所有公共方法</span></span><br><span class="line">MethodInfo[] methods = type.GetMethods();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取所有公共属性</span></span><br><span class="line">PropertyInfo[] properties = type.GetProperties();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取所有公共字段</span></span><br><span class="line">FieldInfo[] fields = type.GetFields();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取所有构造函数</span></span><br><span class="line">ConstructorInfo[] constructors = type.GetConstructors();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建实例</span></span><br><span class="line"><span class="built_in">object</span> instance = Activator.CreateInstance(type);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用方法</span></span><br><span class="line">MethodInfo method = type.GetMethod(<span class="string">&quot;MethodName&quot;</span>);</span><br><span class="line">method.Invoke(instance, <span class="keyword">new</span> <span class="built_in">object</span>[] &#123; param1, param2 &#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取/设置属性值</span></span><br><span class="line">PropertyInfo property = type.GetProperty(<span class="string">&quot;PropertyName&quot;</span>);</span><br><span class="line"><span class="built_in">object</span> <span class="keyword">value</span> = property.GetValue(instance);</span><br><span class="line">property.SetValue(instance, newValue);</span><br></pre></td></tr></table></figure>
-
-<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><ol>
-<li><strong>插件系统</strong>：动态加载和使用外部程序集中的类型</li>
-<li><strong>依赖注入（DI）容器</strong>：如ASP.NET Core的依赖注入框架</li>
-<li><strong>序列化&#x2F;反序列化</strong>：JSON、XML等序列化库</li>
-<li><strong>ORM框架</strong>：如Entity Framework，动态映射对象和数据库</li>
-<li><strong>单元测试框架</strong>：如NUnit、xUnit，动态发现和执行测试方法</li>
-<li><strong>自动化工具</strong>：根据配置文件动态创建和调用对象</li>
-<li><strong>代码生成工具</strong>：分析现有类型生成代码</li>
-<li><strong>特性处理</strong>：处理自定义特性标记的类和方法</li>
-</ol>
-<h2 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h2><figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Reflection;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Person</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">string</span> Name &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> Age &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">SayHello</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;你好，我是<span class="subst">&#123;Name&#125;</span>，<span class="subst">&#123;Age&#125;</span>岁。&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">string</span> <span class="title">GetInfo</span>(<span class="params"><span class="built_in">string</span> prefix</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">$&quot;<span class="subst">&#123;prefix&#125;</span>: <span class="subst">&#123;Name&#125;</span>, <span class="subst">&#123;Age&#125;</span>岁&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// 获取Type对象</span></span><br><span class="line">        Type type = <span class="keyword">typeof</span>(Person);</span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;类型名称: <span class="subst">&#123;type.Name&#125;</span>&quot;</span>);</span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;完整名称: <span class="subst">&#123;type.FullName&#125;</span>&quot;</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 创建实例</span></span><br><span class="line">        <span class="built_in">object</span> personObj = Activator.CreateInstance(type);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 设置属性值</span></span><br><span class="line">        PropertyInfo nameProp = type.GetProperty(<span class="string">&quot;Name&quot;</span>);</span><br><span class="line">        PropertyInfo ageProp = type.GetProperty(<span class="string">&quot;Age&quot;</span>);</span><br><span class="line">        nameProp.SetValue(personObj, <span class="string">&quot;张三&quot;</span>);</span><br><span class="line">        ageProp.SetValue(personObj, <span class="number">25</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 获取属性值</span></span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;姓名: <span class="subst">&#123;nameProp.GetValue(personObj)&#125;</span>&quot;</span>);</span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;年龄: <span class="subst">&#123;ageProp.GetValue(personObj)&#125;</span>&quot;</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 调用无参方法</span></span><br><span class="line">        MethodInfo sayHelloMethod = type.GetMethod(<span class="string">&quot;SayHello&quot;</span>);</span><br><span class="line">        sayHelloMethod.Invoke(personObj, <span class="literal">null</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 调用有参方法</span></span><br><span class="line">        MethodInfo getInfoMethod = type.GetMethod(<span class="string">&quot;GetInfo&quot;</span>);</span><br><span class="line">        <span class="built_in">object</span> result = getInfoMethod.Invoke(personObj, <span class="keyword">new</span> <span class="built_in">object</span>[] &#123; <span class="string">&quot;个人信息&quot;</span> &#125;);</span><br><span class="line">        Console.WriteLine(result);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 列出所有公共属性</span></span><br><span class="line">        Console.WriteLine(<span class="string">&quot;\n所有公共属性:&quot;</span>);</span><br><span class="line">        <span class="keyword">foreach</span> (PropertyInfo prop <span class="keyword">in</span> type.GetProperties())</span><br><span class="line">        &#123;</span><br><span class="line">            Console.WriteLine(<span class="string">$&quot;- <span class="subst">&#123;prop.Name&#125;</span> (<span class="subst">&#123;prop.PropertyType.Name&#125;</span>)&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 列出所有公共方法</span></span><br><span class="line">        Console.WriteLine(<span class="string">&quot;\n所有公共方法:&quot;</span>);</span><br><span class="line">        <span class="keyword">foreach</span> (MethodInfo method <span class="keyword">in</span> type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))</span><br><span class="line">        &#123;</span><br><span class="line">            Console.WriteLine(<span class="string">$&quot;- <span class="subst">&#123;method.Name&#125;</span>&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ol>
-<li><strong>动态性</strong>：可以在运行时处理编译时未知的类型</li>
-<li><strong>灵活性</strong>：适合构建通用框架和工具</li>
-<li><strong>解耦</strong>：降低模块间的直接依赖</li>
-<li><strong>可扩展性</strong>：便于实现插件机制</li>
-</ol>
-<h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2><ol>
-<li><strong>性能开销</strong>：反射操作比直接调用慢很多（通常慢10-100倍）</li>
-<li><strong>类型安全性降低</strong>：编译时无法检查类型错误</li>
-<li><strong>代码可读性差</strong>：反射代码通常比直接调用难理解</li>
-<li><strong>安全问题</strong>：可以访问私有成员，可能破坏封装性</li>
-<li><strong>调试困难</strong>：反射调用的错误在运行时才能发现</li>
-</ol>
-<h2 id="为什么反射的性能开销大？"><a href="#为什么反射的性能开销大？" class="headerlink" title="为什么反射的性能开销大？"></a>为什么反射的性能开销大？</h2><p>反射的性能开销主要来自以下几个方面：</p>
-<h3 id="1-元数据查找开销"><a href="#1-元数据查找开销" class="headerlink" title="1. 元数据查找开销"></a>1. 元数据查找开销</h3><ul>
-<li><strong>运行时搜索</strong>：反射需要在运行时遍历类型的元数据来查找方法、属性、字段等信息</li>
-<li><strong>字符串匹配</strong>：使用字符串名称查找成员（如<code>GetMethod(&quot;MethodName&quot;)</code>）需要进行字符串比较</li>
-<li><strong>无编译器优化</strong>：编译器无法对反射调用进行优化，而直接调用在编译时就已经确定了地址</li>
-</ul>
-<h3 id="2-类型检查和验证"><a href="#2-类型检查和验证" class="headerlink" title="2. 类型检查和验证"></a>2. 类型检查和验证</h3><ul>
-<li><strong>参数验证</strong>：每次反射调用都需要验证参数类型是否匹配</li>
-<li><strong>访问权限检查</strong>：需要检查是否有权限访问该成员（public、private等）</li>
-<li><strong>类型转换</strong>：反射调用的参数通常是<code>object[]</code>，需要进行装箱&#x2F;拆箱操作</li>
-</ul>
-<h3 id="3-安全检查"><a href="#3-安全检查" class="headerlink" title="3. 安全检查"></a>3. 安全检查</h3><ul>
-<li><strong>权限验证</strong>：CLR需要验证调用者是否有足够的权限执行反射操作</li>
-<li><strong>安全栈遍历</strong>：可能需要遍历调用栈来验证安全性</li>
-</ul>
-<h3 id="4-间接调用"><a href="#4-间接调用" class="headerlink" title="4. 间接调用"></a>4. 间接调用</h3><ul>
-<li><strong>无法内联</strong>：直接调用可以被编译器内联优化，而反射调用无法内联</li>
-<li><strong>动态调度</strong>：反射调用通过间接的方式执行，无法利用CPU的分支预测等优化</li>
-</ul>
-<h3 id="5-对象创建开销"><a href="#5-对象创建开销" class="headerlink" title="5. 对象创建开销"></a>5. 对象创建开销</h3><ul>
-<li><strong>装箱操作</strong>：值类型参数需要装箱成<code>object</code></li>
-<li><strong>数组分配</strong>：参数需要封装到<code>object[]</code>数组中</li>
-<li><strong>临时对象</strong>：会产生额外的临时对象和GC压力</li>
-</ul>
-<h3 id="性能对比示例"><a href="#性能对比示例" class="headerlink" title="性能对比示例"></a>性能对比示例</h3><figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 直接调用：约 1-2 纳秒</span></span><br><span class="line">person.SayHello();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 反射调用：约 100-200 纳秒</span></span><br><span class="line">methodInfo.Invoke(person, <span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 性能差距：约 100 倍</span></span><br></pre></td></tr></table></figure>
-
-<p><strong>总结</strong>：反射的性能开销主要是因为它将编译时的静态操作推迟到了运行时，需要进行大量的查找、验证、类型检查等动态操作，而这些操作在直接调用中都是在编译时完成的。</p>
-<h2 id="性能优化建议"><a href="#性能优化建议" class="headerlink" title="性能优化建议"></a>性能优化建议</h2><ol>
-<li><strong>缓存Type和MemberInfo对象</strong>：避免重复获取</li>
-<li><strong>使用表达式树（Expression Trees）</strong>：比反射快，但仍比直接调用慢</li>
-<li><strong>考虑使用IL Emit</strong>：动态生成IL代码，性能接近原生</li>
-<li><strong>谨慎使用</strong>：仅在必要时使用反射，能用泛型就用泛型</li>
-</ol>
-<h2 id="BindingFlags-常用标志"><a href="#BindingFlags-常用标志" class="headerlink" title="BindingFlags 常用标志"></a>BindingFlags 常用标志</h2><figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 公共成员</span></span><br><span class="line">BindingFlags.Public</span><br><span class="line"></span><br><span class="line"><span class="comment">// 非公共成员（private, protected, internal）</span></span><br><span class="line">BindingFlags.NonPublic</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实例成员</span></span><br><span class="line">BindingFlags.Instance</span><br><span class="line"></span><br><span class="line"><span class="comment">// 静态成员</span></span><br><span class="line">BindingFlags.Static</span><br><span class="line"></span><br><span class="line"><span class="comment">// 仅包含当前类声明的成员（不包括继承的）</span></span><br><span class="line">BindingFlags.DeclaredOnly</span><br><span class="line"></span><br><span class="line"><span class="comment">// 组合使用示例</span></span><br><span class="line">type.GetMethods(BindingFlags.Public | BindingFlags.Instance)</span><br><span class="line">type.GetFields(BindingFlags.NonPublic | BindingFlags.Static)</span><br></pre></td></tr></table></figure>
-
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>反射是C#中非常强大的特性，它让程序具有了自省和动态操作的能力。虽然存在性能开销，但在很多场景下（如框架开发、插件系统），反射带来的灵活性是无可替代的。关键是要在灵活性和性能之间找到合适的平衡点。</p>
-]]></content>
-      <categories>
-        <category>C#</category>
-      </categories>
-      <tags>
-        <tag>C#</tag>
       </tags>
   </entry>
   <entry>
@@ -310,72 +396,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Hexo</title>
-    <url>/2025/09/04/Tools/Hexo/</url>
-    <content><![CDATA[<h1 id="Hexo-静态博客框架使用指南"><a href="#Hexo-静态博客框架使用指南" class="headerlink" title="Hexo 静态博客框架使用指南"></a>Hexo 静态博客框架使用指南</h1><p>Hexo 是一个快速、简洁且高效的博客框架，基于 Node.js 构建。它可以将 Markdown 文件渲染成静态网页，支持多种主题和插件。</p>
-<h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><h3 id="基础命令"><a href="#基础命令" class="headerlink" title="基础命令"></a>基础命令</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建新文章</span></span><br><span class="line">hexo new <span class="string">&quot;文章标题&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建新页面</span></span><br><span class="line">hexo new page <span class="string">&quot;页面名称&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建草稿</span></span><br><span class="line">hexo new draft <span class="string">&quot;草稿标题&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成静态文件</span></span><br><span class="line">hexo generate</span><br><span class="line"><span class="comment"># 或简写</span></span><br><span class="line">hexo g</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动本地服务器</span></span><br><span class="line">hexo server</span><br><span class="line"><span class="comment"># 或简写</span></span><br><span class="line">hexo s</span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署到服务器</span></span><br><span class="line">hexo deploy</span><br><span class="line"><span class="comment"># 或简写</span></span><br><span class="line">hexo d</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理缓存和生成的文件</span></span><br><span class="line">hexo clean</span><br><span class="line"></span><br><span class="line"><span class="comment"># 一键生成并部署</span></span><br><span class="line">hexo g -d</span><br></pre></td></tr></table></figure>
-
-<h3 id="草稿相关命令"><a href="#草稿相关命令" class="headerlink" title="草稿相关命令"></a>草稿相关命令</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 发布草稿</span></span><br><span class="line">hexo publish <span class="string">&quot;草稿文件名&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 预览草稿</span></span><br><span class="line">hexo server --draft</span><br></pre></td></tr></table></figure>
-
-<h3 id="主题管理"><a href="#主题管理" class="headerlink" title="主题管理"></a>主题管理</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装主题</span></span><br><span class="line">git <span class="built_in">clone</span> &lt;theme-repository-url&gt; themes/&lt;theme-name&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新主题</span></span><br><span class="line"><span class="built_in">cd</span> themes/&lt;theme-name&gt;</span><br><span class="line">git pull</span><br></pre></td></tr></table></figure>
-
-<h2 id="配置文件说明"><a href="#配置文件说明" class="headerlink" title="配置文件说明"></a>配置文件说明</h2><h3 id="config-yml-主要配置项"><a href="#config-yml-主要配置项" class="headerlink" title="_config.yml 主要配置项"></a>_config.yml 主要配置项</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 网站基本信息</span></span><br><span class="line"><span class="attr">title:</span> <span class="string">网站标题</span></span><br><span class="line"><span class="attr">subtitle:</span> <span class="string">网站副标题</span></span><br><span class="line"><span class="attr">description:</span> <span class="string">网站描述</span></span><br><span class="line"><span class="attr">keywords:</span> <span class="string">关键词</span></span><br><span class="line"><span class="attr">author:</span> <span class="string">作者名</span></span><br><span class="line"><span class="attr">language:</span> <span class="string">zh-CN</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># URL 设置</span></span><br><span class="line"><span class="attr">url:</span> <span class="string">https://your-domain.com</span></span><br><span class="line"><span class="attr">permalink:</span> <span class="string">:year/:month/:day/:title/</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 目录设置</span></span><br><span class="line"><span class="attr">source_dir:</span> <span class="string">source</span></span><br><span class="line"><span class="attr">public_dir:</span> <span class="string">public</span></span><br><span class="line"><span class="attr">skip_render:</span> []</span><br><span class="line"></span><br><span class="line"><span class="comment"># 写作设置</span></span><br><span class="line"><span class="attr">new_post_name:</span> <span class="string">:title.md</span></span><br><span class="line"><span class="attr">default_layout:</span> <span class="string">post</span></span><br><span class="line"><span class="attr">auto_spacing:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">titlecase:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 分类和标签</span></span><br><span class="line"><span class="attr">default_category:</span> <span class="string">uncategorized</span></span><br><span class="line"><span class="attr">category_map:</span></span><br><span class="line"><span class="attr">tag_map:</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 日期格式</span></span><br><span class="line"><span class="attr">date_format:</span> <span class="string">YYYY-MM-DD</span></span><br><span class="line"><span class="attr">time_format:</span> <span class="string">HH:mm:ss</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 分页设置</span></span><br><span class="line"><span class="attr">per_page:</span> <span class="number">10</span></span><br><span class="line"><span class="attr">pagination_dir:</span> <span class="string">page</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 主题设置</span></span><br><span class="line"><span class="attr">theme:</span> <span class="string">next</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署设置</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repo:</span> <span class="string">&lt;repository-url&gt;</span></span><br><span class="line">  <span class="attr">branch:</span> <span class="string">main</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="文章写作"><a href="#文章写作" class="headerlink" title="文章写作"></a>文章写作</h2><h3 id="Front-matter-格式"><a href="#Front-matter-格式" class="headerlink" title="Front-matter 格式"></a>Front-matter 格式</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">title:</span> <span class="string">文章标题</span></span><br><span class="line"><span class="attr">date:</span> <span class="number">2025-09-04 00:35:50</span></span><br><span class="line"><span class="attr">updated:</span> <span class="number">2025-09-04 00:35:50</span></span><br><span class="line"><span class="attr">tags:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">标签1</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">标签2</span></span><br><span class="line"><span class="attr">categories:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">分类1</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">分类2</span></span><br><span class="line"><span class="attr">comments:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">toc:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">toc_number:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">toc_style_simple:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">mathjax:</span> <span class="literal">true</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="string">文章内容...</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="常用标签语法"><a href="#常用标签语法" class="headerlink" title="常用标签语法"></a>常用标签语法</h3><figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line"><span class="section"># 图片</span></span><br><span class="line">![<span class="string">图片描述</span>](<span class="link">图片链接</span>)</span><br><span class="line"></span><br><span class="line"><span class="section"># 链接</span></span><br><span class="line">[<span class="string">链接文字</span>](<span class="link">链接地址</span>)</span><br><span class="line"></span><br><span class="line"><span class="section"># 代码块</span></span><br><span class="line"><span class="code">```javascript</span></span><br><span class="line"><span class="code">console.log(&#x27;Hello World&#x27;);</span></span><br></pre></td></tr></table></figure>
-
-<!-- # 引用
-> 引用内容
-
-# 表格
-| 列1 | 列2 | 列3 |
-|-----|-----|-----|
-| 内容1 | 内容2 | 内容3 | -->
-
-
-<h2 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h2><h3 id="Next-主题常用配置"><a href="#Next-主题常用配置" class="headerlink" title="Next 主题常用配置"></a>Next 主题常用配置</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 主题设置</span></span><br><span class="line"><span class="attr">theme:</span> <span class="string">next</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 菜单设置</span></span><br><span class="line"><span class="attr">menu:</span></span><br><span class="line">  <span class="attr">home:</span> <span class="string">/</span> <span class="string">||</span> <span class="string">home</span></span><br><span class="line">  <span class="attr">archives:</span> <span class="string">/archives/</span> <span class="string">||</span> <span class="string">archive</span></span><br><span class="line">  <span class="attr">categories:</span> <span class="string">/categories/</span> <span class="string">||</span> <span class="string">th</span></span><br><span class="line">  <span class="attr">tags:</span> <span class="string">/tags/</span> <span class="string">||</span> <span class="string">tags</span></span><br><span class="line">  <span class="attr">about:</span> <span class="string">/about/</span> <span class="string">||</span> <span class="string">about</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 侧边栏设置</span></span><br><span class="line"><span class="attr">sidebar:</span></span><br><span class="line">  <span class="attr">position:</span> <span class="string">left</span></span><br><span class="line">  <span class="attr">display:</span> <span class="string">always</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 社交链接</span></span><br><span class="line"><span class="attr">social:</span></span><br><span class="line">  <span class="attr">github:</span> <span class="string">https://github.com/yourname</span></span><br><span class="line">  <span class="attr">twitter:</span> <span class="string">https://twitter.com/yourname</span></span><br><span class="line">  <span class="attr">email:</span> <span class="string">your-email@example.com</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 评论系统</span></span><br><span class="line"><span class="attr">comments:</span></span><br><span class="line">  <span class="attr">active:</span> <span class="string">disqus</span></span><br><span class="line">  <span class="attr">shortname:</span> <span class="string">your-disqus-shortname</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="部署配置"><a href="#部署配置" class="headerlink" title="部署配置"></a>部署配置</h2><h3 id="GitHub-Pages-部署"><a href="#GitHub-Pages-部署" class="headerlink" title="GitHub Pages 部署"></a>GitHub Pages 部署</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repo:</span> <span class="string">https://github.com/username/username.github.io.git</span></span><br><span class="line">  <span class="attr">branch:</span> <span class="string">main</span></span><br><span class="line">  <span class="attr">message:</span> <span class="string">&quot;Site updated: <span class="template-variable">&#123;&#123; now(&#x27;YYYY-MM-DD HH:mm:ss&#x27;) &#125;&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="其他部署方式"><a href="#其他部署方式" class="headerlink" title="其他部署方式"></a>其他部署方式</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 部署到服务器</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">rsync</span></span><br><span class="line">  <span class="attr">host:</span> <span class="string">your-server.com</span></span><br><span class="line">  <span class="attr">user:</span> <span class="string">username</span></span><br><span class="line">  <span class="attr">root:</span> <span class="string">/var/www/</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">blog/</span></span><br><span class="line">  <span class="attr">delete:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署到腾讯云 COS</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">cos</span></span><br><span class="line">  <span class="attr">bucket:</span> <span class="string">your-bucket-name</span></span><br><span class="line">  <span class="attr">region:</span> <span class="string">ap-beijing</span></span><br><span class="line">  <span class="attr">secretId:</span> <span class="string">your-secret-id</span></span><br><span class="line">  <span class="attr">secretKey:</span> <span class="string">your-secret-key</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="插件推荐"><a href="#插件推荐" class="headerlink" title="插件推荐"></a>插件推荐</h2><h3 id="常用插件"><a href="#常用插件" class="headerlink" title="常用插件"></a>常用插件</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 搜索插件</span></span><br><span class="line">npm install hexo-generator-search --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 站点地图</span></span><br><span class="line">npm install hexo-generator-sitemap --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># RSS 订阅</span></span><br><span class="line">npm install hexo-generator-feed --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 文章阅读时间统计</span></span><br><span class="line">npm install hexo-reading-time --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 图片懒加载</span></span><br><span class="line">npm install hexo-lazyload-image --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 代码高亮</span></span><br><span class="line">npm install hexo-prism-plugin --save</span><br></pre></td></tr></table></figure>
-
-<h2 id="性能优化"><a href="#性能优化" class="headerlink" title="性能优化"></a>性能优化</h2><h3 id="图片优化"><a href="#图片优化" class="headerlink" title="图片优化"></a>图片优化</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装图片压缩插件</span></span><br><span class="line">npm install hexo-image-min --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置图片懒加载</span></span><br><span class="line">lazyload:</span><br><span class="line">  <span class="built_in">enable</span>: <span class="literal">true</span></span><br><span class="line">  onlypost: <span class="literal">false</span></span><br><span class="line">  loadingImg: /images/loading.gif</span><br></pre></td></tr></table></figure>
-
-<h3 id="代码压缩"><a href="#代码压缩" class="headerlink" title="代码压缩"></a>代码压缩</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装压缩插件</span></span><br><span class="line">npm install hexo-html-minifier --save</span><br><span class="line">npm install hexo-clean-css --save</span><br><span class="line">npm install hexo-uglify --save</span><br></pre></td></tr></table></figure>
-
-
-<hr>
-<!-- *本文档会持续更新，如有问题欢迎交流讨论。* -->
-]]></content>
-      <tags>
-        <tag>Hexo</tag>
-        <tag>博客</tag>
-        <tag>静态网站</tag>
-        <tag>教程</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SSHLink</title>
-    <url>/2025/10/24/Tools/SSHLink/</url>
-    <content><![CDATA[<h1 id="SSH-Link"><a href="#SSH-Link" class="headerlink" title="SSH Link"></a>SSH Link</h1><p>在用vscode连接远端服务器，账号之前删除过，现在重现创建后连不上了。很可能是以前连的本地密钥没删，重装后连不上了。</p>
-<p>当你用 VS Code (或其他任何 SSH 客户端) 连接服务器时，主要涉及两个地方的”信任”：</p>
-<ul>
-<li><p>服务器信任你（你的电脑）：通过authorized_keys文件。</p>
-</li>
-<li><p>你（你的电脑）信任服务器：通过known_hosts文件。</p>
-</li>
-</ul>
-<p>情况一：一般报错Permission denied (publickey)，需要在服务器上重新添加自己的公钥</p>
-<p>情况二：一般报错REMOTE HOST IDENTIFICATION HAS CHANGED 或 OFFENDING_KEY_IN_KNOWN_HOSTS，需要修改自己本地的~&#x2F;.ssh&#x2F;known_hosts 文件</p>
-]]></content>
-      <tags>
-        <tag>Tips</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>BRDF</title>
     <url>/2025/09/24/Rendering/BRDF/</url>
     <content><![CDATA[<h1 id="BRDF"><a href="#BRDF" class="headerlink" title="BRDF"></a>BRDF</h1><p>BRDF考虑了菲涅尔反射，微表面理论中的法线分布函数、遮蔽函数。</p>
@@ -474,20 +494,6 @@
 <li>知乎专栏合集：BRDF&#x2F;渲染相关 <a href="https://zhuanlan.zhihu.com/c_1647165706373316609">链接</a></li>
 <li>知识库&#x2F;计算机图形学&#x2F;Cook Torrance BRDF <a href="https://geodoer.github.io/A-%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E5%BD%A2%E5%AD%A6/2-%E6%B8%B2%E6%9F%93%E6%A6%82%E8%BF%B0/%E5%85%89%E7%85%A7%E4%B8%8E%E6%9D%90%E8%B4%A8/PBR/PBR%E5%8E%9F%E7%90%86/BRDF/Cook-Torrance%20BRDF/">链接</a></li>
 <li>PBR渲染: Cook-Torrance的实现与补充 <a href="https://www.blurredcode.com/2021/05/dec701b2/#%e5%87%a0%e4%bd%95%e9%81%ae%e8%94%bd%e9%a1%b9g">链接</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Rendering</category>
-      </categories>
-      <tags>
-        <tag>Rendering</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Rendering ToolTips</title>
-    <url>/2025/09/03/Rendering/Rendering/</url>
-    <content><![CDATA[<h1 id="常用软件"><a href="#常用软件" class="headerlink" title="常用软件"></a>常用软件</h1><ul>
-<li>renderDoc：支持对应用截帧分析</li>
 </ul>
 ]]></content>
       <categories>
@@ -629,29 +635,83 @@
       </tags>
   </entry>
   <entry>
-    <title>WASM</title>
-    <url>/2025/10/29/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/WASM/</url>
-    <content><![CDATA[<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>WASM (WebAssembly) 是一种“网页汇编”技术。</p>
-<p>是一种低级 (low-level) 的、高性能的“二进制指令格式”，专门设计用于在网页浏览器中运行。对标exe。</p>
-<p>可以理解为一种让 C++、C#、Rust、Go 等高性能语言编写的代码，能够以接近原生的速度在浏览器里运行的方式。</p>
-<h1 id="出现原因"><a href="#出现原因" class="headerlink" title="出现原因"></a>出现原因</h1><p>JavaScript 是唯一能在浏览器中运行的编程语言。</p>
-<p>JavaScript 是一种很棒的脚本语言，但它在执行非常繁重的计算任务时（比如 3D 游戏引擎、视频编辑、物理模拟、图像识别）会非常吃力，速度跟不上。</p>
-<p>开发者们渴望能用 C++ 或 Rust 这种高性能语言来编写程序，因为它们运行速度极快。</p>
-<p>但 C++ 编译出来的程序是 .exe (Windows) 或 .app (Mac)，它们无法在浏览器这个“沙盒”里运行。</p>
-<p>WASM就是用来做这种翻译的，工作流如下：</p>
-<ul>
-<li>编写 (开发者)：开发者使用 C++ 或 Rust 编写了一个高性能的程序（例如一个 3D 游戏的物理引擎）。</li>
-<li>编译 (工具链)：开发者使用一个特殊的编译器（如 Emscripten），不把 C++ 代码编译成 .exe。而是把它编译成一种平台无关的、高度优化的二进制文件，扩展名为 .wasm。</li>
-<li>运行 (浏览器)：浏览器（如 Chrome, Firefox）加载这个 .wasm 文件。浏览器内部的 JavaScript 引擎（它也是一个虚拟机）能极快地解析和执行这种二进制格式，速度远超解析 JavaScript 文本。</li>
+    <title>Hexo</title>
+    <url>/2025/09/04/Tools/Hexo/</url>
+    <content><![CDATA[<h1 id="Hexo-静态博客框架使用指南"><a href="#Hexo-静态博客框架使用指南" class="headerlink" title="Hexo 静态博客框架使用指南"></a>Hexo 静态博客框架使用指南</h1><p>Hexo 是一个快速、简洁且高效的博客框架，基于 Node.js 构建。它可以将 Markdown 文件渲染成静态网页，支持多种主题和插件。</p>
+<h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><h3 id="基础命令"><a href="#基础命令" class="headerlink" title="基础命令"></a>基础命令</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建新文章</span></span><br><span class="line">hexo new <span class="string">&quot;文章标题&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建新页面</span></span><br><span class="line">hexo new page <span class="string">&quot;页面名称&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建草稿</span></span><br><span class="line">hexo new draft <span class="string">&quot;草稿标题&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成静态文件</span></span><br><span class="line">hexo generate</span><br><span class="line"><span class="comment"># 或简写</span></span><br><span class="line">hexo g</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动本地服务器</span></span><br><span class="line">hexo server</span><br><span class="line"><span class="comment"># 或简写</span></span><br><span class="line">hexo s</span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署到服务器</span></span><br><span class="line">hexo deploy</span><br><span class="line"><span class="comment"># 或简写</span></span><br><span class="line">hexo d</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理缓存和生成的文件</span></span><br><span class="line">hexo clean</span><br><span class="line"></span><br><span class="line"><span class="comment"># 一键生成并部署</span></span><br><span class="line">hexo g -d</span><br></pre></td></tr></table></figure>
+
+<h3 id="草稿相关命令"><a href="#草稿相关命令" class="headerlink" title="草稿相关命令"></a>草稿相关命令</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 发布草稿</span></span><br><span class="line">hexo publish <span class="string">&quot;草稿文件名&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 预览草稿</span></span><br><span class="line">hexo server --draft</span><br></pre></td></tr></table></figure>
+
+<h3 id="主题管理"><a href="#主题管理" class="headerlink" title="主题管理"></a>主题管理</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装主题</span></span><br><span class="line">git <span class="built_in">clone</span> &lt;theme-repository-url&gt; themes/&lt;theme-name&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新主题</span></span><br><span class="line"><span class="built_in">cd</span> themes/&lt;theme-name&gt;</span><br><span class="line">git pull</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置文件说明"><a href="#配置文件说明" class="headerlink" title="配置文件说明"></a>配置文件说明</h2><h3 id="config-yml-主要配置项"><a href="#config-yml-主要配置项" class="headerlink" title="_config.yml 主要配置项"></a>_config.yml 主要配置项</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 网站基本信息</span></span><br><span class="line"><span class="attr">title:</span> <span class="string">网站标题</span></span><br><span class="line"><span class="attr">subtitle:</span> <span class="string">网站副标题</span></span><br><span class="line"><span class="attr">description:</span> <span class="string">网站描述</span></span><br><span class="line"><span class="attr">keywords:</span> <span class="string">关键词</span></span><br><span class="line"><span class="attr">author:</span> <span class="string">作者名</span></span><br><span class="line"><span class="attr">language:</span> <span class="string">zh-CN</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># URL 设置</span></span><br><span class="line"><span class="attr">url:</span> <span class="string">https://your-domain.com</span></span><br><span class="line"><span class="attr">permalink:</span> <span class="string">:year/:month/:day/:title/</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 目录设置</span></span><br><span class="line"><span class="attr">source_dir:</span> <span class="string">source</span></span><br><span class="line"><span class="attr">public_dir:</span> <span class="string">public</span></span><br><span class="line"><span class="attr">skip_render:</span> []</span><br><span class="line"></span><br><span class="line"><span class="comment"># 写作设置</span></span><br><span class="line"><span class="attr">new_post_name:</span> <span class="string">:title.md</span></span><br><span class="line"><span class="attr">default_layout:</span> <span class="string">post</span></span><br><span class="line"><span class="attr">auto_spacing:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">titlecase:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 分类和标签</span></span><br><span class="line"><span class="attr">default_category:</span> <span class="string">uncategorized</span></span><br><span class="line"><span class="attr">category_map:</span></span><br><span class="line"><span class="attr">tag_map:</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 日期格式</span></span><br><span class="line"><span class="attr">date_format:</span> <span class="string">YYYY-MM-DD</span></span><br><span class="line"><span class="attr">time_format:</span> <span class="string">HH:mm:ss</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 分页设置</span></span><br><span class="line"><span class="attr">per_page:</span> <span class="number">10</span></span><br><span class="line"><span class="attr">pagination_dir:</span> <span class="string">page</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 主题设置</span></span><br><span class="line"><span class="attr">theme:</span> <span class="string">next</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署设置</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repo:</span> <span class="string">&lt;repository-url&gt;</span></span><br><span class="line">  <span class="attr">branch:</span> <span class="string">main</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="文章写作"><a href="#文章写作" class="headerlink" title="文章写作"></a>文章写作</h2><h3 id="Front-matter-格式"><a href="#Front-matter-格式" class="headerlink" title="Front-matter 格式"></a>Front-matter 格式</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">title:</span> <span class="string">文章标题</span></span><br><span class="line"><span class="attr">date:</span> <span class="number">2025-09-04 00:35:50</span></span><br><span class="line"><span class="attr">updated:</span> <span class="number">2025-09-04 00:35:50</span></span><br><span class="line"><span class="attr">tags:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">标签1</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">标签2</span></span><br><span class="line"><span class="attr">categories:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">分类1</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">分类2</span></span><br><span class="line"><span class="attr">comments:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">toc:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">toc_number:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">toc_style_simple:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">mathjax:</span> <span class="literal">true</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="string">文章内容...</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="常用标签语法"><a href="#常用标签语法" class="headerlink" title="常用标签语法"></a>常用标签语法</h3><figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line"><span class="section"># 图片</span></span><br><span class="line">![<span class="string">图片描述</span>](<span class="link">图片链接</span>)</span><br><span class="line"></span><br><span class="line"><span class="section"># 链接</span></span><br><span class="line">[<span class="string">链接文字</span>](<span class="link">链接地址</span>)</span><br><span class="line"></span><br><span class="line"><span class="section"># 代码块</span></span><br><span class="line"><span class="code">```javascript</span></span><br><span class="line"><span class="code">console.log(&#x27;Hello World&#x27;);</span></span><br></pre></td></tr></table></figure>
+
+<!-- # 引用
+> 引用内容
+
+# 表格
+| 列1 | 列2 | 列3 |
+|-----|-----|-----|
+| 内容1 | 内容2 | 内容3 | -->
+
+
+<h2 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h2><h3 id="Next-主题常用配置"><a href="#Next-主题常用配置" class="headerlink" title="Next 主题常用配置"></a>Next 主题常用配置</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 主题设置</span></span><br><span class="line"><span class="attr">theme:</span> <span class="string">next</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 菜单设置</span></span><br><span class="line"><span class="attr">menu:</span></span><br><span class="line">  <span class="attr">home:</span> <span class="string">/</span> <span class="string">||</span> <span class="string">home</span></span><br><span class="line">  <span class="attr">archives:</span> <span class="string">/archives/</span> <span class="string">||</span> <span class="string">archive</span></span><br><span class="line">  <span class="attr">categories:</span> <span class="string">/categories/</span> <span class="string">||</span> <span class="string">th</span></span><br><span class="line">  <span class="attr">tags:</span> <span class="string">/tags/</span> <span class="string">||</span> <span class="string">tags</span></span><br><span class="line">  <span class="attr">about:</span> <span class="string">/about/</span> <span class="string">||</span> <span class="string">about</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 侧边栏设置</span></span><br><span class="line"><span class="attr">sidebar:</span></span><br><span class="line">  <span class="attr">position:</span> <span class="string">left</span></span><br><span class="line">  <span class="attr">display:</span> <span class="string">always</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 社交链接</span></span><br><span class="line"><span class="attr">social:</span></span><br><span class="line">  <span class="attr">github:</span> <span class="string">https://github.com/yourname</span></span><br><span class="line">  <span class="attr">twitter:</span> <span class="string">https://twitter.com/yourname</span></span><br><span class="line">  <span class="attr">email:</span> <span class="string">your-email@example.com</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 评论系统</span></span><br><span class="line"><span class="attr">comments:</span></span><br><span class="line">  <span class="attr">active:</span> <span class="string">disqus</span></span><br><span class="line">  <span class="attr">shortname:</span> <span class="string">your-disqus-shortname</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="部署配置"><a href="#部署配置" class="headerlink" title="部署配置"></a>部署配置</h2><h3 id="GitHub-Pages-部署"><a href="#GitHub-Pages-部署" class="headerlink" title="GitHub Pages 部署"></a>GitHub Pages 部署</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repo:</span> <span class="string">https://github.com/username/username.github.io.git</span></span><br><span class="line">  <span class="attr">branch:</span> <span class="string">main</span></span><br><span class="line">  <span class="attr">message:</span> <span class="string">&quot;Site updated: <span class="template-variable">&#123;&#123; now(&#x27;YYYY-MM-DD HH:mm:ss&#x27;) &#125;&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="其他部署方式"><a href="#其他部署方式" class="headerlink" title="其他部署方式"></a>其他部署方式</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 部署到服务器</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">rsync</span></span><br><span class="line">  <span class="attr">host:</span> <span class="string">your-server.com</span></span><br><span class="line">  <span class="attr">user:</span> <span class="string">username</span></span><br><span class="line">  <span class="attr">root:</span> <span class="string">/var/www/</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">blog/</span></span><br><span class="line">  <span class="attr">delete:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署到腾讯云 COS</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">cos</span></span><br><span class="line">  <span class="attr">bucket:</span> <span class="string">your-bucket-name</span></span><br><span class="line">  <span class="attr">region:</span> <span class="string">ap-beijing</span></span><br><span class="line">  <span class="attr">secretId:</span> <span class="string">your-secret-id</span></span><br><span class="line">  <span class="attr">secretKey:</span> <span class="string">your-secret-key</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="插件推荐"><a href="#插件推荐" class="headerlink" title="插件推荐"></a>插件推荐</h2><h3 id="常用插件"><a href="#常用插件" class="headerlink" title="常用插件"></a>常用插件</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 搜索插件</span></span><br><span class="line">npm install hexo-generator-search --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 站点地图</span></span><br><span class="line">npm install hexo-generator-sitemap --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># RSS 订阅</span></span><br><span class="line">npm install hexo-generator-feed --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 文章阅读时间统计</span></span><br><span class="line">npm install hexo-reading-time --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 图片懒加载</span></span><br><span class="line">npm install hexo-lazyload-image --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 代码高亮</span></span><br><span class="line">npm install hexo-prism-plugin --save</span><br></pre></td></tr></table></figure>
+
+<h2 id="性能优化"><a href="#性能优化" class="headerlink" title="性能优化"></a>性能优化</h2><h3 id="图片优化"><a href="#图片优化" class="headerlink" title="图片优化"></a>图片优化</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装图片压缩插件</span></span><br><span class="line">npm install hexo-image-min --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置图片懒加载</span></span><br><span class="line">lazyload:</span><br><span class="line">  <span class="built_in">enable</span>: <span class="literal">true</span></span><br><span class="line">  onlypost: <span class="literal">false</span></span><br><span class="line">  loadingImg: /images/loading.gif</span><br></pre></td></tr></table></figure>
+
+<h3 id="代码压缩"><a href="#代码压缩" class="headerlink" title="代码压缩"></a>代码压缩</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装压缩插件</span></span><br><span class="line">npm install hexo-html-minifier --save</span><br><span class="line">npm install hexo-clean-css --save</span><br><span class="line">npm install hexo-uglify --save</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<!-- *本文档会持续更新，如有问题欢迎交流讨论。* -->
+]]></content>
+      <tags>
+        <tag>Hexo</tag>
+        <tag>博客</tag>
+        <tag>静态网站</tag>
+        <tag>教程</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Rendering ToolTips</title>
+    <url>/2025/09/03/Rendering/Rendering/</url>
+    <content><![CDATA[<h1 id="常用软件"><a href="#常用软件" class="headerlink" title="常用软件"></a>常用软件</h1><ul>
+<li>renderDoc：支持对应用截帧分析</li>
 </ul>
 ]]></content>
       <categories>
-        <category>Basic Concept</category>
+        <category>Rendering</category>
       </categories>
       <tags>
         <tag>Rendering</tag>
-        <tag>Basic Concept</tag>
-        <tag>WASM</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SSHLink</title>
+    <url>/2025/10/24/Tools/SSHLink/</url>
+    <content><![CDATA[<h1 id="SSH-Link"><a href="#SSH-Link" class="headerlink" title="SSH Link"></a>SSH Link</h1><p>在用vscode连接远端服务器，账号之前删除过，现在重现创建后连不上了。很可能是以前连的本地密钥没删，重装后连不上了。</p>
+<p>当你用 VS Code (或其他任何 SSH 客户端) 连接服务器时，主要涉及两个地方的”信任”：</p>
+<ul>
+<li><p>服务器信任你（你的电脑）：通过authorized_keys文件。</p>
+</li>
+<li><p>你（你的电脑）信任服务器：通过known_hosts文件。</p>
+</li>
+</ul>
+<p>情况一：一般报错Permission denied (publickey)，需要在服务器上重新添加自己的公钥</p>
+<p>情况二：一般报错REMOTE HOST IDENTIFICATION HAS CHANGED 或 OFFENDING_KEY_IN_KNOWN_HOSTS，需要修改自己本地的~&#x2F;.ssh&#x2F;known_hosts 文件</p>
+]]></content>
+      <tags>
+        <tag>Tips</tag>
       </tags>
   </entry>
   <entry>
@@ -780,6 +840,32 @@
         <tag>Basic Concept</tag>
         <tag>Computer Shader</tag>
         <tag>BBSO</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>WASM</title>
+    <url>/2025/10/29/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/WASM/</url>
+    <content><![CDATA[<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>WASM (WebAssembly) 是一种“网页汇编”技术。</p>
+<p>是一种低级 (low-level) 的、高性能的“二进制指令格式”，专门设计用于在网页浏览器中运行。对标exe。</p>
+<p>可以理解为一种让 C++、C#、Rust、Go 等高性能语言编写的代码，能够以接近原生的速度在浏览器里运行的方式。</p>
+<h1 id="出现原因"><a href="#出现原因" class="headerlink" title="出现原因"></a>出现原因</h1><p>JavaScript 是唯一能在浏览器中运行的编程语言。</p>
+<p>JavaScript 是一种很棒的脚本语言，但它在执行非常繁重的计算任务时（比如 3D 游戏引擎、视频编辑、物理模拟、图像识别）会非常吃力，速度跟不上。</p>
+<p>开发者们渴望能用 C++ 或 Rust 这种高性能语言来编写程序，因为它们运行速度极快。</p>
+<p>但 C++ 编译出来的程序是 .exe (Windows) 或 .app (Mac)，它们无法在浏览器这个“沙盒”里运行。</p>
+<p>WASM就是用来做这种翻译的，工作流如下：</p>
+<ul>
+<li>编写 (开发者)：开发者使用 C++ 或 Rust 编写了一个高性能的程序（例如一个 3D 游戏的物理引擎）。</li>
+<li>编译 (工具链)：开发者使用一个特殊的编译器（如 Emscripten），不把 C++ 代码编译成 .exe。而是把它编译成一种平台无关的、高度优化的二进制文件，扩展名为 .wasm。</li>
+<li>运行 (浏览器)：浏览器（如 Chrome, Firefox）加载这个 .wasm 文件。浏览器内部的 JavaScript 引擎（它也是一个虚拟机）能极快地解析和执行这种二进制格式，速度远超解析 JavaScript 文本。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Basic Concept</category>
+      </categories>
+      <tags>
+        <tag>Rendering</tag>
+        <tag>Basic Concept</tag>
+        <tag>WASM</tag>
       </tags>
   </entry>
 </search>
