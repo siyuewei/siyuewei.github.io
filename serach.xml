@@ -19,6 +19,114 @@
 ]]></content>
   </entry>
   <entry>
+    <title>BRDF</title>
+    <url>/2025/09/24/Rendering/BRDF/</url>
+    <content><![CDATA[<h1 id="BRDF"><a href="#BRDF" class="headerlink" title="BRDF"></a>BRDF</h1><p>BRDF考虑了菲涅尔反射，微表面理论中的法线分布函数、遮蔽函数。</p>
+<h2 id="菲涅尔反射"><a href="#菲涅尔反射" class="headerlink" title="菲涅尔反射"></a>菲涅尔反射</h2><p>当一束光线打到平面后，会同时发生反射和折射，入射光的能量被分散到反射和折射上。</p>
+<p><img src="/../Image/BRDF/LightReflectionAndRefraction.png" alt="光的反射和折射"></p>
+<p>菲涅尔效应（Fresnel Effect）指的是反射随着掠射角(Glancing Angle, 入射光与表面的夹角) 的增大而减小。也即当入射光方向越垂直平面，折射越强；当入射光方向越平行平面，反射越强。</p>
+<p><img src="/../Image/BRDF/FresnelSchematic.png" alt="菲涅尔效应示意图"></p>
+<p>所以看物体在水面的倒影时，离我们远的物体更清楚，因为反射更强，离我们近的物体更模糊，因为反射更弱。</p>
+<h3 id="菲涅尔方程"><a href="#菲涅尔方程" class="headerlink" title="菲涅尔方程"></a>菲涅尔方程</h3><p>菲涅尔方程给出了不同偏振下的反射率。设入射介质折射率为 $n_1$，透射介质为 $n_2$，入射角为 $\theta_i$，折射角为 $\theta_t$，满足斯涅尔定律 $n_1\sin\theta_i &#x3D; n_2\sin\theta_t$。</p>
+<ul>
+<li><p>非导体（介电质，$\kappa&#x3D;0$）：<br>$$<br>R_s &#x3D; \left(\frac{n_1\cos\theta_i - n_2\cos\theta_t}{n_1\cos\theta_i + n_2\cos\theta_t}\right)^2,\quad<br>R_p &#x3D; \left(\frac{n_1\cos\theta_t - n_2\cos\theta_i}{n_1\cos\theta_t + n_2\cos\theta_i}\right)^2<br>$$<br>未偏振光的反射率为 $ R &#x3D; (R_s + R_p)&#x2F;2 $。当 $n_1&gt;n_2$ 且 $\sin\theta_i &gt; n_2&#x2F;n_1$ 时发生全反射：$R&#x3D;1$。</p>
+</li>
+<li><p>导体（复折射率 $\tilde{n}&#x3D;\eta + i\kappa$）：令 $c&#x3D;\cos\theta_i$，则<br>$$<br>R_s &#x3D; \frac{(\eta^2+\kappa^2) - 2\eta c + c^2}{(\eta^2+\kappa^2) + 2\eta c + c^2},\quad<br>R_p &#x3D; \frac{(\eta^2+\kappa^2)c^2 - 2\eta c + 1}{(\eta^2+\kappa^2)c^2 + 2\eta c + 1}<br>$$<br>同样取 $ R &#x3D; (R_s + R_p)&#x2F;2 $。</p>
+</li>
+</ul>
+<p>为实际渲染常用的近似：</p>
+<ul>
+<li><p>Schlick 近似（介电质）：<br>$$<br>R(\theta_i) &#x3D; R_0 + (1-R_0)(1-\cos\theta_i)^5,\quad<br>R_0 &#x3D; \left(\frac{n_1-n_2}{n_1+n_2}\right)^2<br>$$</p>
+</li>
+<li><p>Schlick 近似（导体，按通道）：<br>$$<br>R_0 &#x3D; \frac{(\eta-1)^2+\kappa^2}{(\eta+1)^2+\kappa^2}<br>$$</p>
+</li>
+</ul>
+<h2 id="微表面理论"><a href="#微表面理论" class="headerlink" title="微表面理论"></a>微表面理论</h2><p>微表面模型是把宏观上的一块平面，看成若干个微小有起伏的平面的组合。<br>如下图所示，dS层可以看作宏观上的平面，dA层则是微观上的若干个微表面。</p>
+<p><img src="/../Image/BRDF/MicrosurfaceSchematic.png" alt="微表面模型示意图"></p>
+<h3 id="法线分布函数（NDF，Normal-Distribution-Function）"><a href="#法线分布函数（NDF，Normal-Distribution-Function）" class="headerlink" title="法线分布函数（NDF，Normal Distribution Function）"></a>法线分布函数（NDF，Normal Distribution Function）</h3><p>对于每一个微表面，都有自己的微表面法线$m$，表面的宏观法线一般表示为$n$。法线分布函数是用来描述微表面法线的分布情况的函数$D(m)$。</p>
+<p>法线分布函数是对微表面法线在微观几何表面上的统计分布，即$D(m)$表示法线方向为$m$的微表面在微观几何中的密度。</p>
+<p>法线分布函数有如下性质：</p>
+<ul>
+<li>法线分布函数与微平面法线的积分为微表面面积。</li>
+</ul>
+<p><img src="/../Image/BRDF/%E6%80%A7%E8%B4%A81.png" alt="性质1"></p>
+<p>$$<br>A_{\text{micro}}<br>&#x3D; \int_{\Omega^+} D(m),\mathrm{d}\omega_m ;;\ge; 1<br>\quad (\text{以宏观单位面积为基准})<br>$$</p>
+<ul>
+<li>微平面法线投影到宏观表面上面积的积分为宏观表面面积(规定为1)。</li>
+</ul>
+<p><img src="/../Image/BRDF/MicrosurfaceSchematic.png" alt="性质2"></p>
+<p>$$<br>\int_{\Omega^+} D(m),\big(n\cdot m\big),\mathrm{d}\omega_m<br>&#x3D; 1<br>$$</p>
+<ul>
+<li>微表面法线投影到视角垂平面等效于宏观法线投影到视角垂平面。</li>
+</ul>
+<p><img src="/../Image/BRDF/%E6%80%A7%E8%B4%A83.png" alt="性质3"></p>
+<p>设视线方向为 $v$ 且 $n\cdot v&gt;0$，则有<br>$$<br>\int_{\Omega^+} D(m),\max!\big(0,,v\cdot m\big),\mathrm{d}\omega_m<br>&#x3D; n\cdot v<br>$$</p>
+<h4 id="常见的法线函数"><a href="#常见的法线函数" class="headerlink" title="常见的法线函数"></a>常见的法线函数</h4><p>设半程向量为 $h$，宏观法线为 $n$，$c&#x3D;n\cdot h&#x3D;\cos\theta_h$。</p>
+<ul>
+<li><p>Phong（经典各向同性）：<br>$$<br>D_{\text{Phong}}(h) &#x3D; \frac{n_p+2}{2\pi},c^{,n_p}\quad (c&gt;0)<br>$$</p>
+</li>
+<li><p>Beckmann（高斯斜率）：<br>$$<br>D_{\text{Beck}}(h) &#x3D; \frac{\exp!\left(-\tan^2!\theta_h&#x2F;\alpha^2\right)}{\pi,\alpha^2,c^{4}}<br>$$</p>
+</li>
+<li><p>GGX &#x2F; Trowbridge–Reitz：<br>$$<br>D_{\text{GGX}}(h) &#x3D; \frac{\alpha^2}{\pi,\big[(\alpha^2-1),c^2 + 1\big]^2}<br>$$</p>
+</li>
+<li><p>各向异性 GGX（切线空间粗糙度 $\alpha_x,\alpha_y$）：<br>$$<br>D_{\text{GGX-aniso}}(h) &#x3D; \frac{1}{\pi,\alpha_x\alpha_y,\Big[\big(h_x&#x2F;\alpha_x\big)^2 + \big(h_y&#x2F;\alpha_y\big)^2 + h_z^2\Big]^2}<br>$$</p>
+</li>
+</ul>
+<p>参数与粗糙度的常用近似关系（经验）：<br>$$<br>\alpha \approx \text{roughness}^2,\qquad n_p \approx \frac{2}{\alpha^2}-2<br>$$<br>其中 $\text{roughness}\in[0,1]$ 为艺术参数，$n_p$ 为 Phong 指数。</p>
+<h3 id="联合遮蔽-阴影函数-joint-masking-shadowing-function"><a href="#联合遮蔽-阴影函数-joint-masking-shadowing-function" class="headerlink" title="联合遮蔽-阴影函数(joint masking-shadowing function)"></a>联合遮蔽-阴影函数(joint masking-shadowing function)</h3><p>在微表面模型中，光线在微表面上的弹射会导致遮挡，有 $Shadowing$ 和 $Masking$ 两种情况。$Shadowing$ 是入射光被微表面遮挡，$Masking$ 是反射光被微表面遮挡。一般用 $G_1(v,m)$ 表示 Masking。</p>
+<p><img src="/../Image/BRDF/%E5%85%89%E5%9C%A8%E5%BE%AE%E8%A1%A8%E9%9D%A2%E7%9A%84%E5%BC%B9%E5%B0%84.png" alt="光在微表面的弹射"></p>
+<p>同时考虑 $Shadowing$ 和 $Masking$ 两种情况的函数被称为联合遮蔽-阴影函数 $G_2(l,v,m)$，也被称为几何函数。</p>
+<p>实际应用中，常用 $The Smith Shadow-Masking G2$ 函数，它将$Shadowing$和$Masking$分开考虑。由于光路的可逆性，我们可以认为两种情况是近似等效的，因为用 $G_1(v,m)$ 表示$ Masking$，则用$G_1(l,m)$ 表示 $Shadowing$。</p>
+<p>$$<br>G_2(l,v,m) &#x3D; G_1(v,m),G_1(l,m)<br>$$</p>
+<p>它建立在Shadowing和Masking不相关的基础上，但实际上它们是相关的。使用这个G2会导致BRDFs结果偏暗。</p>
+<h2 id="宏观BRDF"><a href="#宏观BRDF" class="headerlink" title="宏观BRDF"></a>宏观BRDF</h2><p>基于微表面理论，给出微BRDF $f_{u}(l,v,m)$，法线分布函数$D(m)$，联合遮蔽-阴影函数$G_2(l,v,m)$，可以推出宏观BRDF</p>
+<p>$$<br>f(l,v) &#x3D; \int_{m \in \Omega^+} f_{u}(l,v,m),D(m),G_2(l,v,m),\frac{\max(0,,m\cdot l)}{|n\cdot l|},\frac{\max(0,,m\cdot v)}{|n\cdot v|},\mathrm{d}\omega_m<br>$$</p>
+<p>$\frac{\max(0,,m\cdot l)}{|n\cdot l|}$,$\frac{\max(0,,m\cdot v)}{|n\cdot v|}$是为了归一化。</p>
+<h2 id="镜面反射BRDF"><a href="#镜面反射BRDF" class="headerlink" title="镜面反射BRDF"></a>镜面反射BRDF</h2><p>在镜面微面元模型下，每个微平面都是一个完美的菲涅尔镜(Fresnel mirror)。只有当微平面的法线 $m$ 与 $l$ 和 $v$ 的半程向量 $h &#x3D; \frac{l+v}{\lVert l+v\rVert}$ 一致时，该微面元才把能量反射进视线方向。</p>
+<p><img src="/../Image/BRDF/%E8%8F%B2%E6%B6%85%E5%B0%94%E9%95%9C.png" alt="菲涅尔镜"></p>
+<p>$$<br>h &#x3D; \frac{l+v}{\lVert l+v\rVert},\quad m &#x3D; h,\quad n\cdot l&gt;0,; n\cdot v&gt;0,; l\cdot m&gt;0,; v\cdot m&gt;0<br>$$<br>等价的反射约束写法为：<br>$$<br>v &#x3D; 2,(m\cdot l),m - l<br>$$</p>
+<h1 id="一种常用的BRDF——Cook-Torrance-BRDF"><a href="#一种常用的BRDF——Cook-Torrance-BRDF" class="headerlink" title="一种常用的BRDF——Cook Torrance BRDF"></a>一种常用的BRDF——Cook Torrance BRDF</h1><p>Cook-Torrance BRDF兼有漫反射和镜面反射两个部分：</p>
+<p>$$<br>f_{r} &#x3D; k_{d}f_{lambert} + k_{s}f_{cook-torrance}<br>$$</p>
+<ul>
+<li>$k_{d}$表示入射光线中，被折射部分能量的比率</li>
+<li>$k_{s}$表示反射光线中，被反射部分的比率</li>
+<li>$k_{d}$ 和 $k_{s}$一般由艺术家设置，不同的材质，这两个参数的值不同</li>
+</ul>
+<h2 id="漫反射"><a href="#漫反射" class="headerlink" title="漫反射"></a>漫反射</h2><p>$$<br>f_{lambert} &#x3D; \frac{c}{\pi}<br>$$</p>
+<ul>
+<li>$c$表示表面颜色</li>
+<li>$\pi$ 是为了对漫反射光标准化，因为前面含有BRDF的积分方程是受 $\pi$ 影响的</li>
+</ul>
+<p>Lambertian漫反射模型已经足够应付大多数实时渲染的用途了</p>
+<h2 id="镜面反射"><a href="#镜面反射" class="headerlink" title="镜面反射"></a>镜面反射</h2><p>对于Cook Torrance BRDF，<br>半程向量 $h&#x3D;\dfrac{l+v}{\lVert l+v\rVert}$，取理想镜面微 BRDF 为<br>$$<br>f_u(l,v,m)&#x3D;<br>\begin{cases}<br>\dfrac{F(v,m)}{4,|v\cdot m|,|l\cdot m|}, &amp; m &#x3D; h \<br>0, &amp; m \ne h<br>\end{cases}<br>$$<br>代入宏观BRDF积分<br>$$<br>f(l,v) &#x3D; \int_{m \in \Omega^+} f_{u}(l,v,m),D(m),G_2(l,v,m),\frac{\max(0,,m\cdot l)}{|n\cdot l|},\frac{\max(0,,m\cdot v)}{|n\cdot v|},\mathrm{d}\omega_m<br>$$<br>可得<br>$$<br>f_{cook-torrance}(l,v) &#x3D; \frac{D(h),G_2(l,v,h),F(v,h)}{4,|n\cdot l|,|n\cdot v|}<br>$$</p>
+<h2 id="最终公式"><a href="#最终公式" class="headerlink" title="最终公式"></a>最终公式</h2><p>$$<br>f_{r} &#x3D; k_{d}\frac{c}{\pi} + k_{s}\frac{D(h),G_2(l,v,h),F(v,h)}{4,|n\cdot l|,|n\cdot v|}<br>$$</p>
+<p>一般而言，</p>
+<ul>
+<li><p>D公式选用Trowbridge-Reitz GGX函数近似<br>$$<br>D_{\text{GGX}}(h) &#x3D; \frac{\alpha^2}{\pi,\big[(\alpha^2-1),c^2 + 1\big]^2}<br>$$<br>$\alpha$为粗糙度。</p>
+</li>
+<li><p>F项选用schilick近似<br>$$<br>F_{schilick}(v,h,F_0) &#x3D; F_0 + (1-F_0),\big(1- v\cdot h\big)^5<br>$$</p>
+</li>
+<li><p>G的公式选用schlick-GGX近似<br>$$<br>G_{ggx}(n,v,k) &#x3D; \frac{n \cdot v}{(n \cdot v)(1-k) + k}<br>$$</p>
+</li>
+</ul>
+<p>$k$ 是一个和粗糙度roughness有关的常数。 一个完整的G函数由两部分组成:</p>
+<p>$$<br>G(n, v, l, k) \approx G_{ggx}(n,v,k) G_{ggx}(n,l,k)<br>$$</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">vec3 evaluateSpecular(...)</span><br><span class="line">&#123;</span><br><span class="line">    //计算光线达到点p处的能量</span><br><span class="line">    float radiance = evaluateRadiance(light, pixel); </span><br><span class="line"></span><br><span class="line">    float NDF = evaluateDistributionGGX(...);  //法线方程  </span><br><span class="line">    float G   = evaluateGeometrySmith(...);    //几何函数</span><br><span class="line">    vec3 F    = evaluateFresnelSchlick(...);   //菲涅尔函数</span><br><span class="line"></span><br><span class="line">    float denominator = ...;  //根据一些参数计算出一个常量</span><br><span class="line">    vec3 specular = NDF * G * F / denominator;</span><br><span class="line"></span><br><span class="line">    return specular;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li>知乎专栏合集：BRDF&#x2F;渲染相关 <a href="https://zhuanlan.zhihu.com/c_1647165706373316609">链接</a></li>
+<li>知识库&#x2F;计算机图形学&#x2F;Cook Torrance BRDF <a href="https://geodoer.github.io/A-%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E5%BD%A2%E5%AD%A6/2-%E6%B8%B2%E6%9F%93%E6%A6%82%E8%BF%B0/%E5%85%89%E7%85%A7%E4%B8%8E%E6%9D%90%E8%B4%A8/PBR/PBR%E5%8E%9F%E7%90%86/BRDF/Cook-Torrance%20BRDF/">链接</a></li>
+<li>PBR渲染: Cook-Torrance的实现与补充 <a href="https://www.blurredcode.com/2021/05/dec701b2/#%e5%87%a0%e4%bd%95%e9%81%ae%e8%94%bd%e9%a1%b9g">链接</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Rendering</category>
+      </categories>
+      <tags>
+        <tag>Rendering</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>C#反射</title>
     <url>/2025/10/18/C#/C#%E5%8F%8D%E5%B0%84/</url>
     <content><![CDATA[<h1 id="C-反射"><a href="#C-反射" class="headerlink" title="C#反射"></a>C#反射</h1><h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>反射（Reflection）是C#中一种强大的机制，它允许程序在运行时检查和操作类型的元数据信息。通过反射，可以在运行时动态地获取类型信息、创建对象实例、调用方法、访问属性和字段等。</p>
@@ -107,180 +215,17 @@
       </tags>
   </entry>
   <entry>
-    <title>C#基本概念汇总</title>
-    <url>/2025/10/30/C#/C#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E6%B1%87%E6%80%BB/</url>
-    <content><![CDATA[<h1 id="创建属性"><a href="#创建属性" class="headerlink" title="创建属性"></a>创建属性</h1><p>属性本质上是对变量的 get 和 set 访问器的封装。</p>
-<p>对于需要公开访问的字段，直接使用 public 修饰符存在安全隐患，而使用属性可以带来以下优势：</p>
-<ol>
-<li>保护私有数据不被直接修改</li>
-<li>在 get 和 set 访问器中进行安全检测</li>
-<li>支持定义只读或只写属性</li>
-</ol>
-<p>此外，属性也可以理解为两个方法的组合。例如下面的 Level 属性，实际上就是提供了两个方法来修改或获取内部的 experience 数据。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class PlayerController</span><br><span class="line">&#123;</span><br><span class="line">    private int experience;</span><br><span class="line"></span><br><span class="line">    public int Experience</span><br><span class="line">    &#123;</span><br><span class="line">        get</span><br><span class="line">        &#123;</span><br><span class="line">            return experience;</span><br><span class="line">        &#125;</span><br><span class="line">        set</span><br><span class="line">        &#123;</span><br><span class="line">            experience = value;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    public int Level</span><br><span class="line">    &#123;</span><br><span class="line">        get</span><br><span class="line">        &#123;</span><br><span class="line">            return experience / 1000;</span><br><span class="line">        &#125;</span><br><span class="line">        set</span><br><span class="line">        &#123;</span><br><span class="line">            experience = value * 1000;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    public int Health &#123; get; set; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="特别注意"><a href="#特别注意" class="headerlink" title="特别注意"></a>特别注意</h2><ul>
-<li><p>在接口中：{ get; set; } 是一个抽象声明，它不包含任何实现或数据存储。它强制实现类去提供实现。</p>
-</li>
-<li><p>在类中：{ get; set; } 是一个完整的实现，它自动为数据存储和访问逻辑。</p>
-</li>
-</ul>
-<h1 id="虚函数"><a href="#虚函数" class="headerlink" title="虚函数"></a>虚函数</h1><p>C# 支持单继承，子类可以通过 <code>base</code> 关键字访问父类的成员。</p>
-<p>虚函数（Virtual Function）是实现多态的核心机制：</p>
-<ul>
-<li>父类使用 <code>virtual</code> 关键字声明可被重写的方法</li>
-<li>子类使用 <code>override</code> 关键字重写父类的虚方法</li>
-</ul>
-<p><strong>关键特性</strong>：当子类对象被强制转换为父类类型时，只能访问父类定义的成员，但调用虚函数时仍会执行子类重写的版本，这体现了运行时多态。</p>
-<p>代码示例如下：</p>
-<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 父类：定义基础行为</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Actor</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">int</span> _health;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 属性：封装健康值</span></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> Health</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> &#123; <span class="keyword">return</span> _health; &#125;</span><br><span class="line">        <span class="keyword">set</span> &#123; _health = <span class="keyword">value</span>; &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 虚方法：可被子类重写</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Move</span>(<span class="params"><span class="built_in">float</span> x, <span class="built_in">float</span> y</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">&quot;Actor is moving to: &quot;</span> + x + <span class="string">&quot;, &quot;</span> + y);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 子类：继承并扩展父类功能</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">PlayerController</span> : <span class="title">Actor</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 子类特有的属性</span></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> jumpHeight;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">PlayerController</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        jumpHeight = <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 重写父类的虚方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">Move</span>(<span class="params"><span class="built_in">float</span> x, <span class="built_in">float</span> y</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">&quot;PlayerController is moving to: &quot;</span> + x + <span class="string">&quot;, &quot;</span> + y);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 测试类：演示多态行为</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">Test</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TestPlayer</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            PlayerController player = <span class="keyword">new</span> PlayerController();</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 通过子类引用调用</span></span><br><span class="line">            player.Move(<span class="number">5.0f</span>, <span class="number">10.0f</span>);           <span class="comment">// 输出：PlayerController is moving to: 5, 10</span></span><br><span class="line">            Debug.Log(player.jumpHeight);        <span class="comment">// 输出：2（子类特有属性可访问）</span></span><br><span class="line">            Debug.Log(player.Health);            <span class="comment">// 输出：0（继承自父类的属性）</span></span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 将子类对象强转为父类类型</span></span><br><span class="line">            Actor actor = (Actor)player;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 虚方法调用：仍然执行子类的重写版本（多态）</span></span><br><span class="line">            actor.Move(<span class="number">15.0f</span>, <span class="number">20.0f</span>);           <span class="comment">// 输出：PlayerController is moving to: 15, 20</span></span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 子类特有成员无法访问（编译错误）</span></span><br><span class="line">            <span class="comment">// Debug.Log(actor.jumpHeight);      // 错误：Actor 类型没有 jumpHeight 成员</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="成员隐藏"><a href="#成员隐藏" class="headerlink" title="成员隐藏"></a>成员隐藏</h1><p>成员隐藏（Member Hiding）是通过 <code>new</code> 关键字在子类中重新定义父类的成员或方法，从而”隐藏”父类的实现。</p>
-<p><strong>核心区别</strong>：</p>
-<ul>
-<li><strong>虚函数（多态）</strong>：使用 <code>virtual</code> 和 <code>override</code>，强转后调用的是子类重写的方法</li>
-<li><strong>成员隐藏</strong>：使用 <code>new</code> 关键字，强转后调用的是父类原有的方法</li>
-</ul>
-<p><strong>行为特点</strong>：当子类对象被强制转换为父类类型时，调用的成员或方法都是父类的版本，而非子类隐藏的版本。这是因为成员隐藏是编译时绑定，而非运行时多态。</p>
-<p>代码示例如下：</p>
-<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 父类</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Warrior</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> damage = <span class="number">10</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 普通方法（非虚方法）</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Attack</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">&quot;Warrior attacks with damage: &quot;</span> + damage);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Defend</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">&quot;Warrior defends!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 子类：使用 new 关键字隐藏父类成员</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Paladin</span> : <span class="title">Warrior</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 使用 new 隐藏父类的字段</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">new</span> <span class="built_in">int</span> damage = <span class="number">20</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 使用 new 隐藏父类的方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">new</span> <span class="keyword">void</span> <span class="title">Attack</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">&quot;Paladin attacks with holy damage: &quot;</span> + damage);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">new</span> <span class="keyword">void</span> <span class="title">Defend</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">&quot;Paladin defends with shield!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 测试类：对比成员隐藏的行为</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">Test</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TestHiding</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            Paladin paladin = <span class="keyword">new</span> Paladin();</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 通过子类引用访问</span></span><br><span class="line">            Debug.Log(paladin.damage);      <span class="comment">// 输出：20（访问子类的 damage）</span></span><br><span class="line">            paladin.Attack();                <span class="comment">// 输出：Paladin attacks with holy damage: 20</span></span><br><span class="line">            paladin.Defend();                <span class="comment">// 输出：Paladin defends with shield!</span></span><br><span class="line">            </span><br><span class="line">            Debug.Log(<span class="string">&quot;--- 强转为父类后 ---&quot;</span>);</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 将子类对象强转为父类类型</span></span><br><span class="line">            Warrior warrior = (Warrior)paladin;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 关键：强转后访问的是父类的成员（编译时绑定）</span></span><br><span class="line">            Debug.Log(warrior.damage);       <span class="comment">// 输出：10（访问父类的 damage）</span></span><br><span class="line">            warrior.Attack();                <span class="comment">// 输出：Warrior attacks with damage: 10</span></span><br><span class="line">            warrior.Defend();                <span class="comment">// 输出：Warrior defends!</span></span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 注意：虽然 warrior 和 paladin 引用的是同一个对象，</span></span><br><span class="line">            <span class="comment">// 但由于使用了 new 隐藏而非 override 重写，</span></span><br><span class="line">            <span class="comment">// 所以通过父类引用调用的是父类版本的方法</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>总结</strong>：</p>
-<ul>
-<li>成员隐藏打破了多态性，调用哪个版本取决于引用类型而非对象类型</li>
-<li>如果需要多态行为，应使用 <code>virtual</code> 和 <code>override</code></li>
-<li><code>new</code> 关键字主要用于有意隐藏父类成员，或解决命名冲突</li>
-</ul>
-<h1 id="接口（Interface）"><a href="#接口（Interface）" class="headerlink" title="接口（Interface）"></a>接口（Interface）</h1><p>接口是一种定义契约的方式，只包含成员的声明，不包含任何实现。实现接口的类必须提供所有成员的具体实现。</p>
-<p><strong>接口的特点</strong>：</p>
-<ul>
-<li>只包含方法、属性、事件和索引器的声明，不包含实现</li>
-<li>接口成员默认是 <code>public</code> 的，不需要显式声明访问修饰符</li>
-<li>一个类可以实现多个接口，弥补 C# 单继承的限制</li>
-<li>接口支持多态，通过接口引用可以调用不同实现类的方法</li>
-</ul>
-<p><strong>属性与接口</strong>：属性可以定义在接口中，因为属性本质上就是 <code>get</code> 和 <code>set</code> 方法的声明。接口可以要求实现类提供特定的属性访问器。</p>
-<h2 id="接口属性的本质与演进"><a href="#接口属性的本质与演进" class="headerlink" title="接口属性的本质与演进"></a>接口属性的本质与演进</h2><h3 id="传统接口（C-8-0-之前）"><a href="#传统接口（C-8-0-之前）" class="headerlink" title="传统接口（C# 8.0 之前）"></a>传统接口（C# 8.0 之前）</h3><p>在 C# 8.0 之前，接口<strong>只能包含声明，不能包含实现</strong>。</p>
-<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 传统接口：只有抽象声明</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IWeapon</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 这是抽象属性声明，不是实现</span></span><br><span class="line">    <span class="built_in">int</span> BulletNumber &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 等同于声明这两个抽象方法：</span></span><br><span class="line">    <span class="comment">// int get_BulletNumber();</span></span><br><span class="line">    <span class="comment">// void set_BulletNumber(int value);</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现类必须提供完整实现</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Pistol</span> : <span class="title">IWeapon</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 方式一：自动属性（编译器自动生成后备字段和实现）</span></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> BulletNumber &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 方式二：完整属性（手动定义后备字段和逻辑）</span></span><br><span class="line">    <span class="comment">// private int _bulletNumber;</span></span><br><span class="line">    <span class="comment">// public int BulletNumber </span></span><br><span class="line">    <span class="comment">// &#123; </span></span><br><span class="line">    <span class="comment">//     get &#123; return _bulletNumber; &#125;</span></span><br><span class="line">    <span class="comment">//     set &#123; _bulletNumber = value; &#125;</span></span><br><span class="line">    <span class="comment">// &#125;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>关键点</strong>：</p>
-<ul>
-<li>接口中的 <code>&#123; get; set; &#125;</code> 是<strong>抽象声明</strong>，强制实现类提供实现和数据存储</li>
-<li>类中的 <code>&#123; get; set; &#125;</code> 是<strong>自动属性</strong>，编译器自动生成后备字段和完整实现</li>
-</ul>
-<h3 id="接口默认实现（C-8-0-）"><a href="#接口默认实现（C-8-0-）" class="headerlink" title="接口默认实现（C# 8.0+）"></a>接口默认实现（C# 8.0+）</h3><p>从 C# 8.0 开始，接口可以包含<strong>默认实现</strong>，主要用于 API 的版本演进。</p>
-<p><strong>引入原因</strong>：解决接口扩展时的破坏性更改问题。</p>
-<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 场景：为已有接口添加新功能，但不破坏现有实现类</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IWeapon</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Attack</span>()</span>;  <span class="comment">// 原有方法</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// C# 8.0+：为新方法提供默认实现</span></span><br><span class="line">    <span class="comment">// 现有实现类无需修改，新类可以选择重写</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Reload</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;Default reload behavior&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>属性的默认实现示例</strong>：</p>
-<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IWeapon</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 1. 抽象属性：必须由实现类提供（用于存储状态）</span></span><br><span class="line">    <span class="built_in">int</span> CurrentAmmo &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="built_in">int</span> MaxAmmo &#123; <span class="keyword">get</span>; &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 2. 默认实现的计算属性：基于其他抽象成员</span></span><br><span class="line">    <span class="built_in">bool</span> IsEmpty</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> &#123; <span class="keyword">return</span> CurrentAmmo &lt;= <span class="number">0</span>; &#125;  <span class="comment">// ✅ 正确：依赖抽象属性</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 3. 默认实现的方法：操作抽象成员</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Shoot</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (!IsEmpty)</span><br><span class="line">        &#123;</span><br><span class="line">            CurrentAmmo--;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="⚠️-常见错误：接口默认实现的递归陷阱"><a href="#⚠️-常见错误：接口默认实现的递归陷阱" class="headerlink" title="⚠️ 常见错误：接口默认实现的递归陷阱"></a>⚠️ 常见错误：接口默认实现的递归陷阱</h3><p><strong>错误示例</strong>（会导致 <code>StackOverflowException</code>）：</p>
-<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IWeapon</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// ❌ 错误：接口不能包含实例字段（后备字段）</span></span><br><span class="line">    <span class="built_in">int</span> bulletNumber </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 无限递归！调用 get 来获取 bulletNumber，而 bulletNumber 又调用 get...</span></span><br><span class="line">            <span class="keyword">return</span> bulletNumber;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">set</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 无限递归！调用 set 来设置 bulletNumber，而 bulletNumber 又调用 set...</span></span><br><span class="line">            bulletNumber = <span class="keyword">value</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>原因</strong>：接口不能包含实例状态（字段）。上述代码中没有后备字段来存储数据，访问属性会无限递归调用自身。</p>
-<p><strong>正确的做法</strong>：</p>
-<ul>
-<li><strong>抽象声明</strong>：让实现类提供存储</li>
-<li><strong>默认实现</strong>：基于其他抽象成员进行计算或逻辑处理</li>
+    <title>Rendering ToolTips</title>
+    <url>/2025/09/03/Rendering/Rendering/</url>
+    <content><![CDATA[<h1 id="常用软件"><a href="#常用软件" class="headerlink" title="常用软件"></a>常用软件</h1><ul>
+<li>renderDoc：支持对应用截帧分析</li>
 </ul>
 ]]></content>
       <categories>
-        <category>C#</category>
+        <category>Rendering</category>
       </categories>
       <tags>
-        <tag>C#</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>虚函数和CRTP</title>
-    <url>/2025/10/18/C++/%E8%99%9A%E5%87%BD%E6%95%B0%E5%92%8CCRTP/</url>
-    <content><![CDATA[<h1 id="虚函数"><a href="#虚函数" class="headerlink" title="虚函数"></a>虚函数</h1><h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>虚函数是C++实现运行时多态的核心机制。通过在基类中使用<code>virtual</code>关键字声明函数，可以让派生类重写（override）该函数，从而在运行时根据对象的实际类型调用相应的函数实现。</p>
-<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><ul>
-<li><strong>动态绑定</strong>：函数调用在运行时根据对象的实际类型确定，而不是编译时的静态类型</li>
-<li><strong>虚函数表（vtable）</strong>：编译器为每个包含虚函数的类生成一个虚函数表，通过虚指针（vptr）指向该表</li>
-<li><strong>性能开销</strong>：由于需要通过虚指针查找虚函数表，存在一定的运行时开销</li>
-<li><strong>灵活性</strong>：派生类可以选择性地重写虚函数，未重写时使用基类的默认实现</li>
-</ul>
-<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><p>当你需要通过基类指针或引用操作不同派生类对象，并根据对象的实际类型执行不同行为时，虚函数是最佳选择。</p>
-<h2 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#include &lt;iostream&gt;</span><br><span class="line">#include &lt;memory&gt;</span><br><span class="line"></span><br><span class="line">// 基类</span><br><span class="line">class Animal &#123;</span><br><span class="line">public:</span><br><span class="line">    virtual ~Animal() = default;  // 虚析构函数</span><br><span class="line">    </span><br><span class="line">    virtual void makeSound() const &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Animal makes a sound&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    virtual void move() const &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Animal moves&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// 派生类：狗</span><br><span class="line">class Dog : public Animal &#123;</span><br><span class="line">public:</span><br><span class="line">    void makeSound() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Dog barks: Woof! Woof!&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    void move() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Dog runs on four legs&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// 派生类：猫</span><br><span class="line">class Cat : public Animal &#123;</span><br><span class="line">public:</span><br><span class="line">    void makeSound() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Cat meows: Meow! Meow!&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    void move() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Cat walks gracefully&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// 派生类：鸟</span><br><span class="line">class Bird : public Animal &#123;</span><br><span class="line">public:</span><br><span class="line">    void makeSound() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Bird chirps: Tweet! Tweet!&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    void move() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Bird flies in the sky&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// 使用多态</span><br><span class="line">void demonstratePolymorphism(const Animal&amp; animal) &#123;</span><br><span class="line">    animal.makeSound();</span><br><span class="line">    animal.move();</span><br><span class="line">    std::cout &lt;&lt; &quot;---&quot; &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    Dog dog;</span><br><span class="line">    Cat cat;</span><br><span class="line">    Bird bird;</span><br><span class="line">    </span><br><span class="line">    std::cout &lt;&lt; &quot;=== 运行时多态演示 ===&quot; &lt;&lt; std::endl;</span><br><span class="line">    demonstratePolymorphism(dog);</span><br><span class="line">    demonstratePolymorphism(cat);</span><br><span class="line">    demonstratePolymorphism(bird);</span><br><span class="line">    </span><br><span class="line">    // 使用指针</span><br><span class="line">    std::cout &lt;&lt; &quot;=== 使用指针 ===&quot; &lt;&lt; std::endl;</span><br><span class="line">    Animal* animals[] = &#123;&amp;dog, &amp;cat, &amp;bird&#125;;</span><br><span class="line">    for (auto* animal : animals) &#123;</span><br><span class="line">        animal-&gt;makeSound();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="CRTP"><a href="#CRTP" class="headerlink" title="CRTP"></a>CRTP</h1><h2 id="概念-1"><a href="#概念-1" class="headerlink" title="概念"></a>概念</h2><p>CRTP（Curiously Recurring Template Pattern，奇异递归模板模式）是一种编译时多态技术。其核心思想是让派生类作为模板参数传递给基类模板，使得基类可以在编译时访问派生类的成员。</p>
-<h2 id="特点-1"><a href="#特点-1" class="headerlink" title="特点"></a>特点</h2><ul>
-<li><strong>静态多态</strong>：函数调用在编译时就已确定，无需运行时查找</li>
-<li><strong>零开销</strong>：不需要虚函数表和虚指针，没有运行时性能损耗</li>
-<li><strong>编译期类型检查</strong>：如果派生类没有实现所需的函数，会在编译时报错</li>
-<li><strong>代码膨胀</strong>：每个派生类都会生成独立的代码，可能导致二进制文件增大</li>
-</ul>
-<h2 id="使用场景-1"><a href="#使用场景-1" class="headerlink" title="使用场景"></a>使用场景</h2><p>当你需要在编译期实现多态，追求零开销抽象，且类型关系在编译期就能确定时，CRTP是理想选择。常用于性能敏感的场景，如模板库、数学库等。</p>
-<h2 id="示例代码-1"><a href="#示例代码-1" class="headerlink" title="示例代码"></a>示例代码</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">template &lt;typename Derived&gt;</span><br><span class="line">class Base &#123;</span><br><span class="line">public:</span><br><span class="line">    void interface() &#123;</span><br><span class="line">        // 调用派生类的实现</span><br><span class="line">        static_cast&lt;Derived*&gt;(this)-&gt;implementation();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">class Derived : public Base&lt;Derived&gt; &#123;</span><br><span class="line">public:</span><br><span class="line">    void implementation() &#123;</span><br><span class="line">        // 具体实现</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-
-<h1 id="虚函数-vs-CRTP-对比"><a href="#虚函数-vs-CRTP-对比" class="headerlink" title="虚函数 vs CRTP 对比"></a>虚函数 vs CRTP 对比</h1><h2 id="主要区别"><a href="#主要区别" class="headerlink" title="主要区别"></a>主要区别</h2><table>
-<thead>
-<tr>
-<th>特性</th>
-<th>虚函数</th>
-<th>CRTP</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>多态类型</td>
-<td>运行时多态</td>
-<td>编译时多态</td>
-</tr>
-<tr>
-<td>性能开销</td>
-<td>有（虚函数表查找）</td>
-<td>无（编译期展开）</td>
-</tr>
-<tr>
-<td>灵活性</td>
-<td>可选择性重写</td>
-<td>必须实现所需函数</td>
-</tr>
-<tr>
-<td>内存开销</td>
-<td>每个对象有虚指针</td>
-<td>无额外指针开销</td>
-</tr>
-<tr>
-<td>代码大小</td>
-<td>较小</td>
-<td>可能较大（模板展开）</td>
-</tr>
-<tr>
-<td>类型安全</td>
-<td>运行时</td>
-<td>编译时</td>
-</tr>
-<tr>
-<td>异构容器</td>
-<td>支持（可用基类指针容器）</td>
-<td>不支持（类型不同）</td>
-</tr>
-</tbody></table>
-<h2 id="选择建议"><a href="#选择建议" class="headerlink" title="选择建议"></a>选择建议</h2><p><strong>使用虚函数的情况：</strong></p>
-<ul>
-<li>需要在运行时动态确定对象类型</li>
-<li>需要将不同类型的对象放在同一个容器中</li>
-<li>派生类可以选择性地实现某些功能</li>
-<li>性能开销可以接受</li>
-</ul>
-<p><strong>使用CRTP的情况：</strong></p>
-<ul>
-<li>追求极致性能，无法接受虚函数开销</li>
-<li>类型关系在编译期就已确定</li>
-<li>需要编译期类型检查和错误提示</li>
-<li>所有派生类都必须实现相同的接口</li>
-</ul>
-<h2 id="个人理解"><a href="#个人理解" class="headerlink" title="个人理解"></a>个人理解</h2><p>如果虚函数基类中的某一个<code>virtual</code>函数会被所有子类<code>override</code>，那其实就可以用CRTP平替。CRTP要求所有子类都必须实现被调用的函数（否则编译错误），而虚函数的子类可以选择不实现某个虚函数（使用基类的默认实现）。因此，虚函数更灵活，CRTP更高效。</p>
-]]></content>
-      <categories>
-        <category>C++</category>
-      </categories>
-      <tags>
-        <tag>C++</tag>
+        <tag>Rendering</tag>
       </tags>
   </entry>
   <entry>
@@ -387,114 +332,6 @@
 </ul>
 <h2 id="算法停止"><a href="#算法停止" class="headerlink" title="算法停止"></a>算法停止</h2><h3 id="俄罗斯轮盘赌（Russian-Roulette）"><a href="#俄罗斯轮盘赌（Russian-Roulette）" class="headerlink" title="俄罗斯轮盘赌（Russian Roulette）"></a>俄罗斯轮盘赌（Russian Roulette）</h3><p>在光线追踪中，递归可能无限进行下去，需要一种机制来停止算法。俄罗斯轮盘赌是一种概率终止方法：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">shade(p, wo, depth) </span><br><span class="line">    // 俄罗斯轮盘赌：设定一个概率值continue_probability，随机取一个[0,1]的random()值</span><br><span class="line">    if random() &gt; continue_probability:</span><br><span class="line">        return 0.0;  // 终止递归</span><br><span class="line">    </span><br><span class="line">    Lo = Le(p, wo)  // 自发光项</span><br><span class="line">    Randomly sample ONE direction wi based on pdf</span><br><span class="line">    Trace a ray r(p, wi)</span><br><span class="line">    if ray hit a light:</span><br><span class="line">        Lo += fr(p,wi,wo) * Li(p,wi) * cos(θi) / pdf(wi)</span><br><span class="line">    else if ray hit an object at q:</span><br><span class="line">        Lo += shade(q, -wi, depth+1) * fr(p,wi,wo) * cos(θi) / pdf(wi)</span><br><span class="line">    </span><br><span class="line">    // 补偿能量：除以继续概率</span><br><span class="line">    return Lo / continue_probability</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>Rendering</category>
-      </categories>
-      <tags>
-        <tag>Rendering</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>BRDF</title>
-    <url>/2025/09/24/Rendering/BRDF/</url>
-    <content><![CDATA[<h1 id="BRDF"><a href="#BRDF" class="headerlink" title="BRDF"></a>BRDF</h1><p>BRDF考虑了菲涅尔反射，微表面理论中的法线分布函数、遮蔽函数。</p>
-<h2 id="菲涅尔反射"><a href="#菲涅尔反射" class="headerlink" title="菲涅尔反射"></a>菲涅尔反射</h2><p>当一束光线打到平面后，会同时发生反射和折射，入射光的能量被分散到反射和折射上。</p>
-<p><img src="/../Image/BRDF/LightReflectionAndRefraction.png" alt="光的反射和折射"></p>
-<p>菲涅尔效应（Fresnel Effect）指的是反射随着掠射角(Glancing Angle, 入射光与表面的夹角) 的增大而减小。也即当入射光方向越垂直平面，折射越强；当入射光方向越平行平面，反射越强。</p>
-<p><img src="/../Image/BRDF/FresnelSchematic.png" alt="菲涅尔效应示意图"></p>
-<p>所以看物体在水面的倒影时，离我们远的物体更清楚，因为反射更强，离我们近的物体更模糊，因为反射更弱。</p>
-<h3 id="菲涅尔方程"><a href="#菲涅尔方程" class="headerlink" title="菲涅尔方程"></a>菲涅尔方程</h3><p>菲涅尔方程给出了不同偏振下的反射率。设入射介质折射率为 $n_1$，透射介质为 $n_2$，入射角为 $\theta_i$，折射角为 $\theta_t$，满足斯涅尔定律 $n_1\sin\theta_i &#x3D; n_2\sin\theta_t$。</p>
-<ul>
-<li><p>非导体（介电质，$\kappa&#x3D;0$）：<br>$$<br>R_s &#x3D; \left(\frac{n_1\cos\theta_i - n_2\cos\theta_t}{n_1\cos\theta_i + n_2\cos\theta_t}\right)^2,\quad<br>R_p &#x3D; \left(\frac{n_1\cos\theta_t - n_2\cos\theta_i}{n_1\cos\theta_t + n_2\cos\theta_i}\right)^2<br>$$<br>未偏振光的反射率为 $ R &#x3D; (R_s + R_p)&#x2F;2 $。当 $n_1&gt;n_2$ 且 $\sin\theta_i &gt; n_2&#x2F;n_1$ 时发生全反射：$R&#x3D;1$。</p>
-</li>
-<li><p>导体（复折射率 $\tilde{n}&#x3D;\eta + i\kappa$）：令 $c&#x3D;\cos\theta_i$，则<br>$$<br>R_s &#x3D; \frac{(\eta^2+\kappa^2) - 2\eta c + c^2}{(\eta^2+\kappa^2) + 2\eta c + c^2},\quad<br>R_p &#x3D; \frac{(\eta^2+\kappa^2)c^2 - 2\eta c + 1}{(\eta^2+\kappa^2)c^2 + 2\eta c + 1}<br>$$<br>同样取 $ R &#x3D; (R_s + R_p)&#x2F;2 $。</p>
-</li>
-</ul>
-<p>为实际渲染常用的近似：</p>
-<ul>
-<li><p>Schlick 近似（介电质）：<br>$$<br>R(\theta_i) &#x3D; R_0 + (1-R_0)(1-\cos\theta_i)^5,\quad<br>R_0 &#x3D; \left(\frac{n_1-n_2}{n_1+n_2}\right)^2<br>$$</p>
-</li>
-<li><p>Schlick 近似（导体，按通道）：<br>$$<br>R_0 &#x3D; \frac{(\eta-1)^2+\kappa^2}{(\eta+1)^2+\kappa^2}<br>$$</p>
-</li>
-</ul>
-<h2 id="微表面理论"><a href="#微表面理论" class="headerlink" title="微表面理论"></a>微表面理论</h2><p>微表面模型是把宏观上的一块平面，看成若干个微小有起伏的平面的组合。<br>如下图所示，dS层可以看作宏观上的平面，dA层则是微观上的若干个微表面。</p>
-<p><img src="/../Image/BRDF/MicrosurfaceSchematic.png" alt="微表面模型示意图"></p>
-<h3 id="法线分布函数（NDF，Normal-Distribution-Function）"><a href="#法线分布函数（NDF，Normal-Distribution-Function）" class="headerlink" title="法线分布函数（NDF，Normal Distribution Function）"></a>法线分布函数（NDF，Normal Distribution Function）</h3><p>对于每一个微表面，都有自己的微表面法线$m$，表面的宏观法线一般表示为$n$。法线分布函数是用来描述微表面法线的分布情况的函数$D(m)$。</p>
-<p>法线分布函数是对微表面法线在微观几何表面上的统计分布，即$D(m)$表示法线方向为$m$的微表面在微观几何中的密度。</p>
-<p>法线分布函数有如下性质：</p>
-<ul>
-<li>法线分布函数与微平面法线的积分为微表面面积。</li>
-</ul>
-<p><img src="/../Image/BRDF/%E6%80%A7%E8%B4%A81.png" alt="性质1"></p>
-<p>$$<br>A_{\text{micro}}<br>&#x3D; \int_{\Omega^+} D(m),\mathrm{d}\omega_m ;;\ge; 1<br>\quad (\text{以宏观单位面积为基准})<br>$$</p>
-<ul>
-<li>微平面法线投影到宏观表面上面积的积分为宏观表面面积(规定为1)。</li>
-</ul>
-<p><img src="/../Image/BRDF/MicrosurfaceSchematic.png" alt="性质2"></p>
-<p>$$<br>\int_{\Omega^+} D(m),\big(n\cdot m\big),\mathrm{d}\omega_m<br>&#x3D; 1<br>$$</p>
-<ul>
-<li>微表面法线投影到视角垂平面等效于宏观法线投影到视角垂平面。</li>
-</ul>
-<p><img src="/../Image/BRDF/%E6%80%A7%E8%B4%A83.png" alt="性质3"></p>
-<p>设视线方向为 $v$ 且 $n\cdot v&gt;0$，则有<br>$$<br>\int_{\Omega^+} D(m),\max!\big(0,,v\cdot m\big),\mathrm{d}\omega_m<br>&#x3D; n\cdot v<br>$$</p>
-<h4 id="常见的法线函数"><a href="#常见的法线函数" class="headerlink" title="常见的法线函数"></a>常见的法线函数</h4><p>设半程向量为 $h$，宏观法线为 $n$，$c&#x3D;n\cdot h&#x3D;\cos\theta_h$。</p>
-<ul>
-<li><p>Phong（经典各向同性）：<br>$$<br>D_{\text{Phong}}(h) &#x3D; \frac{n_p+2}{2\pi},c^{,n_p}\quad (c&gt;0)<br>$$</p>
-</li>
-<li><p>Beckmann（高斯斜率）：<br>$$<br>D_{\text{Beck}}(h) &#x3D; \frac{\exp!\left(-\tan^2!\theta_h&#x2F;\alpha^2\right)}{\pi,\alpha^2,c^{4}}<br>$$</p>
-</li>
-<li><p>GGX &#x2F; Trowbridge–Reitz：<br>$$<br>D_{\text{GGX}}(h) &#x3D; \frac{\alpha^2}{\pi,\big[(\alpha^2-1),c^2 + 1\big]^2}<br>$$</p>
-</li>
-<li><p>各向异性 GGX（切线空间粗糙度 $\alpha_x,\alpha_y$）：<br>$$<br>D_{\text{GGX-aniso}}(h) &#x3D; \frac{1}{\pi,\alpha_x\alpha_y,\Big[\big(h_x&#x2F;\alpha_x\big)^2 + \big(h_y&#x2F;\alpha_y\big)^2 + h_z^2\Big]^2}<br>$$</p>
-</li>
-</ul>
-<p>参数与粗糙度的常用近似关系（经验）：<br>$$<br>\alpha \approx \text{roughness}^2,\qquad n_p \approx \frac{2}{\alpha^2}-2<br>$$<br>其中 $\text{roughness}\in[0,1]$ 为艺术参数，$n_p$ 为 Phong 指数。</p>
-<h3 id="联合遮蔽-阴影函数-joint-masking-shadowing-function"><a href="#联合遮蔽-阴影函数-joint-masking-shadowing-function" class="headerlink" title="联合遮蔽-阴影函数(joint masking-shadowing function)"></a>联合遮蔽-阴影函数(joint masking-shadowing function)</h3><p>在微表面模型中，光线在微表面上的弹射会导致遮挡，有 $Shadowing$ 和 $Masking$ 两种情况。$Shadowing$ 是入射光被微表面遮挡，$Masking$ 是反射光被微表面遮挡。一般用 $G_1(v,m)$ 表示 Masking。</p>
-<p><img src="/../Image/BRDF/%E5%85%89%E5%9C%A8%E5%BE%AE%E8%A1%A8%E9%9D%A2%E7%9A%84%E5%BC%B9%E5%B0%84.png" alt="光在微表面的弹射"></p>
-<p>同时考虑 $Shadowing$ 和 $Masking$ 两种情况的函数被称为联合遮蔽-阴影函数 $G_2(l,v,m)$，也被称为几何函数。</p>
-<p>实际应用中，常用 $The Smith Shadow-Masking G2$ 函数，它将$Shadowing$和$Masking$分开考虑。由于光路的可逆性，我们可以认为两种情况是近似等效的，因为用 $G_1(v,m)$ 表示$ Masking$，则用$G_1(l,m)$ 表示 $Shadowing$。</p>
-<p>$$<br>G_2(l,v,m) &#x3D; G_1(v,m),G_1(l,m)<br>$$</p>
-<p>它建立在Shadowing和Masking不相关的基础上，但实际上它们是相关的。使用这个G2会导致BRDFs结果偏暗。</p>
-<h2 id="宏观BRDF"><a href="#宏观BRDF" class="headerlink" title="宏观BRDF"></a>宏观BRDF</h2><p>基于微表面理论，给出微BRDF $f_{u}(l,v,m)$，法线分布函数$D(m)$，联合遮蔽-阴影函数$G_2(l,v,m)$，可以推出宏观BRDF</p>
-<p>$$<br>f(l,v) &#x3D; \int_{m \in \Omega^+} f_{u}(l,v,m),D(m),G_2(l,v,m),\frac{\max(0,,m\cdot l)}{|n\cdot l|},\frac{\max(0,,m\cdot v)}{|n\cdot v|},\mathrm{d}\omega_m<br>$$</p>
-<p>$\frac{\max(0,,m\cdot l)}{|n\cdot l|}$,$\frac{\max(0,,m\cdot v)}{|n\cdot v|}$是为了归一化。</p>
-<h2 id="镜面反射BRDF"><a href="#镜面反射BRDF" class="headerlink" title="镜面反射BRDF"></a>镜面反射BRDF</h2><p>在镜面微面元模型下，每个微平面都是一个完美的菲涅尔镜(Fresnel mirror)。只有当微平面的法线 $m$ 与 $l$ 和 $v$ 的半程向量 $h &#x3D; \frac{l+v}{\lVert l+v\rVert}$ 一致时，该微面元才把能量反射进视线方向。</p>
-<p><img src="/../Image/BRDF/%E8%8F%B2%E6%B6%85%E5%B0%94%E9%95%9C.png" alt="菲涅尔镜"></p>
-<p>$$<br>h &#x3D; \frac{l+v}{\lVert l+v\rVert},\quad m &#x3D; h,\quad n\cdot l&gt;0,; n\cdot v&gt;0,; l\cdot m&gt;0,; v\cdot m&gt;0<br>$$<br>等价的反射约束写法为：<br>$$<br>v &#x3D; 2,(m\cdot l),m - l<br>$$</p>
-<h1 id="一种常用的BRDF——Cook-Torrance-BRDF"><a href="#一种常用的BRDF——Cook-Torrance-BRDF" class="headerlink" title="一种常用的BRDF——Cook Torrance BRDF"></a>一种常用的BRDF——Cook Torrance BRDF</h1><p>Cook-Torrance BRDF兼有漫反射和镜面反射两个部分：</p>
-<p>$$<br>f_{r} &#x3D; k_{d}f_{lambert} + k_{s}f_{cook-torrance}<br>$$</p>
-<ul>
-<li>$k_{d}$表示入射光线中，被折射部分能量的比率</li>
-<li>$k_{s}$表示反射光线中，被反射部分的比率</li>
-<li>$k_{d}$ 和 $k_{s}$一般由艺术家设置，不同的材质，这两个参数的值不同</li>
-</ul>
-<h2 id="漫反射"><a href="#漫反射" class="headerlink" title="漫反射"></a>漫反射</h2><p>$$<br>f_{lambert} &#x3D; \frac{c}{\pi}<br>$$</p>
-<ul>
-<li>$c$表示表面颜色</li>
-<li>$\pi$ 是为了对漫反射光标准化，因为前面含有BRDF的积分方程是受 $\pi$ 影响的</li>
-</ul>
-<p>Lambertian漫反射模型已经足够应付大多数实时渲染的用途了</p>
-<h2 id="镜面反射"><a href="#镜面反射" class="headerlink" title="镜面反射"></a>镜面反射</h2><p>对于Cook Torrance BRDF，<br>半程向量 $h&#x3D;\dfrac{l+v}{\lVert l+v\rVert}$，取理想镜面微 BRDF 为<br>$$<br>f_u(l,v,m)&#x3D;<br>\begin{cases}<br>\dfrac{F(v,m)}{4,|v\cdot m|,|l\cdot m|}, &amp; m &#x3D; h \<br>0, &amp; m \ne h<br>\end{cases}<br>$$<br>代入宏观BRDF积分<br>$$<br>f(l,v) &#x3D; \int_{m \in \Omega^+} f_{u}(l,v,m),D(m),G_2(l,v,m),\frac{\max(0,,m\cdot l)}{|n\cdot l|},\frac{\max(0,,m\cdot v)}{|n\cdot v|},\mathrm{d}\omega_m<br>$$<br>可得<br>$$<br>f_{cook-torrance}(l,v) &#x3D; \frac{D(h),G_2(l,v,h),F(v,h)}{4,|n\cdot l|,|n\cdot v|}<br>$$</p>
-<h2 id="最终公式"><a href="#最终公式" class="headerlink" title="最终公式"></a>最终公式</h2><p>$$<br>f_{r} &#x3D; k_{d}\frac{c}{\pi} + k_{s}\frac{D(h),G_2(l,v,h),F(v,h)}{4,|n\cdot l|,|n\cdot v|}<br>$$</p>
-<p>一般而言，</p>
-<ul>
-<li><p>D公式选用Trowbridge-Reitz GGX函数近似<br>$$<br>D_{\text{GGX}}(h) &#x3D; \frac{\alpha^2}{\pi,\big[(\alpha^2-1),c^2 + 1\big]^2}<br>$$<br>$\alpha$为粗糙度。</p>
-</li>
-<li><p>F项选用schilick近似<br>$$<br>F_{schilick}(v,h,F_0) &#x3D; F_0 + (1-F_0),\big(1- v\cdot h\big)^5<br>$$</p>
-</li>
-<li><p>G的公式选用schlick-GGX近似<br>$$<br>G_{ggx}(n,v,k) &#x3D; \frac{n \cdot v}{(n \cdot v)(1-k) + k}<br>$$</p>
-</li>
-</ul>
-<p>$k$ 是一个和粗糙度roughness有关的常数。 一个完整的G函数由两部分组成:</p>
-<p>$$<br>G(n, v, l, k) \approx G_{ggx}(n,v,k) G_{ggx}(n,l,k)<br>$$</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">vec3 evaluateSpecular(...)</span><br><span class="line">&#123;</span><br><span class="line">    //计算光线达到点p处的能量</span><br><span class="line">    float radiance = evaluateRadiance(light, pixel); </span><br><span class="line"></span><br><span class="line">    float NDF = evaluateDistributionGGX(...);  //法线方程  </span><br><span class="line">    float G   = evaluateGeometrySmith(...);    //几何函数</span><br><span class="line">    vec3 F    = evaluateFresnelSchlick(...);   //菲涅尔函数</span><br><span class="line"></span><br><span class="line">    float denominator = ...;  //根据一些参数计算出一个常量</span><br><span class="line">    vec3 specular = NDF * G * F / denominator;</span><br><span class="line"></span><br><span class="line">    return specular;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
-<li>知乎专栏合集：BRDF&#x2F;渲染相关 <a href="https://zhuanlan.zhihu.com/c_1647165706373316609">链接</a></li>
-<li>知识库&#x2F;计算机图形学&#x2F;Cook Torrance BRDF <a href="https://geodoer.github.io/A-%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E5%BD%A2%E5%AD%A6/2-%E6%B8%B2%E6%9F%93%E6%A6%82%E8%BF%B0/%E5%85%89%E7%85%A7%E4%B8%8E%E6%9D%90%E8%B4%A8/PBR/PBR%E5%8E%9F%E7%90%86/BRDF/Cook-Torrance%20BRDF/">链接</a></li>
-<li>PBR渲染: Cook-Torrance的实现与补充 <a href="https://www.blurredcode.com/2021/05/dec701b2/#%e5%87%a0%e4%bd%95%e9%81%ae%e8%94%bd%e9%a1%b9g">链接</a></li>
-</ul>
 ]]></content>
       <categories>
         <category>Rendering</category>
@@ -624,14 +461,234 @@
 </ol>
 <p>数据从始至终都在同一块共享内存里，没有发生任何“拷贝”。</p>
 ]]></content>
+      <categories>
+        <category>Rendering</category>
+      </categories>
+      <tags>
+        <tag>Rendering</tag>
+        <tag>Basic Concept</tag>
+      </tags>
   </entry>
   <entry>
-    <title>Tools</title>
-    <url>/2025/09/04/Tools/Tools/</url>
-    <content><![CDATA[<h1 id="妙妙工具合集"><a href="#妙妙工具合集" class="headerlink" title="妙妙工具合集"></a>妙妙工具合集</h1><p><a href="https://realfavicongenerator.net/">https://realfavicongenerator.net/</a> 上传一张图片，生成浏览器图片所需的图片格式</p>
-]]></content>
+    <title>Delegate以及延申</title>
+    <url>/2025/11/14/C#/Delegate%E4%BB%A5%E5%8F%8A%E5%BB%B6%E7%94%B3/</url>
+    <content><![CDATA[<h1 id="基本关系介绍"><a href="#基本关系介绍" class="headerlink" title="基本关系介绍"></a>基本关系介绍</h1><p>Delegate类似一个函数的类型声明，与之相关的内容有Func，Action，Event，UnityEvent。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">┌─────────────────────────────────────┐</span><br><span class="line">│     delegate (C# 的基础特性)         │  ← 最底层</span><br><span class="line">└─────────────────┬───────────────────┘</span><br><span class="line">                  │</span><br><span class="line">        ┌─────────┴─────────┐</span><br><span class="line">        ↓                   ↓</span><br><span class="line">┌─────────────┐      ┌─────────────┐</span><br><span class="line">│ Func/Action │      │ 自定义delegate│</span><br><span class="line">│  (C# 内置)  │      │  (你定义的) │</span><br><span class="line">└──────┬──────┘      └──────┬──────┘</span><br><span class="line">       │                    │</span><br><span class="line">       └────────┬───────────┘</span><br><span class="line">                ↓</span><br><span class="line">        ┌─────────────┐</span><br><span class="line">        │    event    │  ← 关键字，不是类型</span><br><span class="line">        │  (访问限制)  │</span><br><span class="line">        └──────┬──────┘</span><br><span class="line">               │</span><br><span class="line">               ↓</span><br><span class="line">        ┌─────────────┐</span><br><span class="line">        │ UnityEvent  │  ← Unity 特有封装</span><br><span class="line">        │(Unity特有)  │</span><br><span class="line">        └─────────────┘</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>类型&#x2F;关键字</th>
+<th>来源</th>
+<th>用途</th>
+<th>Inspector可见</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>delegate</code></td>
+<td>关键字</td>
+<td>C#</td>
+<td>定义委托类型</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>Func</code></td>
+<td>预定义委托</td>
+<td>C#&#x2F;.NET</td>
+<td>有返回值的通用委托</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>Action</code></td>
+<td>预定义委托</td>
+<td>C#&#x2F;.NET</td>
+<td>无返回值的通用委托</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>event</code></td>
+<td>关键字&#x2F;修饰符</td>
+<td>C#</td>
+<td>封装委托，限制访问</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>UnityEvent</code></td>
+<td>类</td>
+<td>Unity</td>
+<td>Unity封装的事件系统</td>
+<td>✅</td>
+</tr>
+</tbody></table>
+<h1 id="详细解释"><a href="#详细解释" class="headerlink" title="详细解释"></a>详细解释</h1><h2 id="1-delegate-C-的基础特性"><a href="#1-delegate-C-的基础特性" class="headerlink" title="1. delegate - C#的基础特性"></a>1. delegate - C#的基础特性</h2><p><strong>定义</strong>：函数的类型定义，是对函数签名（输入参数+返回值）的抽象</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 1. 定义委托类型（就像定义一个类型）</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="built_in">delegate</span> <span class="built_in">int</span> <span class="title">Calculator</span>(<span class="params"><span class="built_in">int</span> a, <span class="built_in">int</span> b</span>)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 定义符合委托签名的方法</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="built_in">int</span> <span class="title">Add</span>(<span class="params"><span class="built_in">int</span> a, <span class="built_in">int</span> b</span>)</span> </span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="built_in">int</span> <span class="title">Multiply</span>(<span class="params"><span class="built_in">int</span> a, <span class="built_in">int</span> b</span>)</span> </span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> a * b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 使用委托</span></span><br><span class="line">Calculator calc = Add;           <span class="comment">// 将方法赋值给委托变量</span></span><br><span class="line"><span class="built_in">int</span> result = calc(<span class="number">5</span>, <span class="number">3</span>);         <span class="comment">// 调用委托，结果为 8</span></span><br><span class="line"></span><br><span class="line">calc = Multiply;                 <span class="comment">// 更换为另一个方法</span></span><br><span class="line">result = calc(<span class="number">5</span>, <span class="number">3</span>);             <span class="comment">// 调用委托，结果为 15</span></span><br></pre></td></tr></table></figure>
+<h2 id="2-Func和Action-C-预定义的泛型委托"><a href="#2-Func和Action-C-预定义的泛型委托" class="headerlink" title="2. Func和Action - C#预定义的泛型委托"></a>2. Func和Action - C#预定义的泛型委托</h2><ul>
+<li>Func和Action都是C#基于Delegate预先定义好的类型</li>
+<li>主要区别在于Func是有返回值的，Action是没有返回值的</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">它们在.NET Framework/Core中的定义类似下面</span><br><span class="line"></span><br><span class="line">//Action：无返回值的委托</span><br><span class="line">public delegate void Action();</span><br><span class="line">public delegate void Action&lt;T&gt;(T arg);</span><br><span class="line">public delegate void Action&lt;T1,T2&gt;(T1 arg1,T2 args);</span><br><span class="line">//...最多16个参数</span><br><span class="line"></span><br><span class="line">//Func：有返回值的委托，最后一个参数是返回值</span><br><span class="line">public delegate TResult Func&lt;TResult&gt;();</span><br><span class="line">public delegate TResult Func&lt;T,TResult&gt;(T arg);</span><br><span class="line">public delegate TResult Func&lt;T1,T2,TResult&gt;(T1 arg1,T2 arg2);</span><br><span class="line">//...最多16个参数+1个返回值</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-event-C-的访问控制关键字"><a href="#3-event-C-的访问控制关键字" class="headerlink" title="3. event - C#的访问控制关键字"></a>3. event - C#的访问控制关键字</h2><ul>
+<li>event不是一个类型，它是修饰符关键字</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public delegate void Action(); //C#中已有代码，不需要我们再写</span><br><span class="line">public event Action myAction;  //event修饰Action</span><br><span class="line"></span><br><span class="line">public delegate int MyDelegate(bool b); //自己随便定义的委托</span><br><span class="line">public event MyDelegate myDelegate; //event修饰自定义的委托</span><br></pre></td></tr></table></figure>
+
+<p>有无event的对比：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//没有event，外部可以随机操作</span><br><span class="line">public delegate int MyDelegate(bool b);</span><br><span class="line">public MyDelegate myDelegate;</span><br><span class="line"></span><br><span class="line">//外部代码可以：</span><br><span class="line">obj.myDelegate += Handler;  // ✅ 订阅</span><br><span class="line">obj.myDelegate -= Handler;  // ✅ 取消订阅</span><br><span class="line">obj.myDelegate();           // ❌ 但也能直接调用！</span><br><span class="line">obj.myDelegate = null;      // ❌ 甚至能清空所有订阅者！</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">有event修饰，外部的访问权限部分被限制</span><br><span class="line">public delegate int MyDelegate(bool b);</span><br><span class="line">public MyDelegate myDelegate;</span><br><span class="line"></span><br><span class="line">//外部代码只能：</span><br><span class="line">obj.myDelegate += Handler;  // ✅ 订阅</span><br><span class="line">obj.myDelegate -= Handler;  // ✅ 取消订阅</span><br><span class="line">obj.myDelegate();           // ❌ 编译错误！不能调用</span><br><span class="line">obj.myDelegate = null;      // ❌ 编译错误！不能赋值</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-UnityEvent-Unity特有的封装事件类"><a href="#4-UnityEvent-Unity特有的封装事件类" class="headerlink" title="4. UnityEvent - Unity特有的封装事件类"></a>4. UnityEvent - Unity特有的封装事件类</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">using UnityEngine.Events; //Unity特有的命名空间</span><br><span class="line"></span><br><span class="line">//UnityEvent是Unity封装的事件类</span><br><span class="line">public UnityEvent onButtonClick;       //无参数</span><br><span class="line">public UnityEvent&lt;int&gt; onScoreChanged; //带参数</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Unity特有，不是C#标准</li>
+<li>可以在inspector窗口中可视化配置</li>
+<li>可以序列化</li>
+<li>使用反射，性能比较差</li>
+</ul>
+<h3 id="UnityEvent使用反射"><a href="#UnityEvent使用反射" class="headerlink" title="UnityEvent使用反射"></a>UnityEvent使用反射</h3><h4 id="1-Inspector配置中的反射"><a href="#1-Inspector配置中的反射" class="headerlink" title="1.Inspector配置中的反射"></a>1.Inspector配置中的反射</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">using UnityEngine;</span><br><span class="line">using UnityEngine.Events;</span><br><span class="line"></span><br><span class="line">public class MyButton : MonoBehaviour</span><br><span class="line">&#123;</span><br><span class="line">    public UnityEvent onClick;  // 在 Inspector 中可见</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Inspector 做的事情：</p>
+<ul>
+<li>使用反射扫描 GameObject 上的所有组件</li>
+<li>使用反射获取每个组件的所有 public 方法</li>
+<li>展示在下拉列表中供你选择</li>
+</ul>
+<h4 id="2-运行时的反射调用"><a href="#2-运行时的反射调用" class="headerlink" title="2.运行时的反射调用"></a>2.运行时的反射调用</h4><p>Unity 将 Inspector 配置序列化存储：</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 存储的配置信息（字符串形式）</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;target&quot;</span>: ScoreManager 组件引用,</span><br><span class="line">    <span class="string">&quot;methodName&quot;</span>: <span class="string">&quot;UpdateScore&quot;</span>,</span><br><span class="line">    <span class="string">&quot;argument&quot;</span>: <span class="number">100</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当调用 <code>onClick.Invoke()</code> 时，Unity 读取这些配置并使用反射调用：</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 简化的内部实现</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Invoke</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 1. 获取 Inspector 配置的目标对象和方法名</span></span><br><span class="line">    Object target = config.target;</span><br><span class="line">    <span class="built_in">string</span> methodName = config.methodName;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 2. 使用反射获取方法</span></span><br><span class="line">    Type type = target.GetType();</span><br><span class="line">    MethodInfo method = type.GetMethod(methodName);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 3. 使用反射调用方法</span></span><br><span class="line">    method.Invoke(target, <span class="keyword">new</span> <span class="built_in">object</span>[] &#123; config.argument &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h1><p>一般而言，Delegate有以下使用场景：</p>
+<ul>
+<li><p>事件系统：</p>
+<ul>
+<li>event Action         ████████████████████ 80%  (最常用)</li>
+<li>event 自定义delegate  ████████ 20%</li>
+</ul>
+</li>
+<li><p>回调&#x2F;策略：</p>
+<ul>
+<li>Func&#x2F;Action          ████████████ 60%</li>
+<li>自定义 delegate       ████████ 40</li>
+</ul>
+</li>
+<li><p>有返回值的多播（一般来说可能是验证链）：</p>
+<ul>
+<li>自定义 delegate + 手动处理 GetInvocationList</li>
+</ul>
+</li>
+</ul>
+<h2 id="1-事件系统"><a href="#1-事件系统" class="headerlink" title="1.事件系统"></a>1.事件系统</h2><p>优先event Action，当参数很多，需要参数名提高可读性的时候，会用到自定义delegate</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 当参数很多，需要参数名提高可读性时</span><br><span class="line">public delegate void OnTowerUpgraded(</span><br><span class="line">    TowerActor tower,</span><br><span class="line">    int oldLevel,</span><br><span class="line">    int newLevel,</span><br><span class="line">    UpgradeType type,</span><br><span class="line">    float cost</span><br><span class="line">);</span><br><span class="line">public event OnTowerUpgraded onTowerUpgraded;</span><br><span class="line"></span><br><span class="line">// 对比 Action：</span><br><span class="line">public event Action&lt;TowerActor, int, int, UpgradeType, float&gt; onTowerUpgraded;</span><br><span class="line">// ❌ 看不懂每个参数的含义</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-回调-策略"><a href="#2-回调-策略" class="headerlink" title="2.回调&#x2F;策略"></a>2.回调&#x2F;策略</h2><p>简单场景，使用 Func&#x2F;Action</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// ✅ 简单回调用 Func/Action</span><br><span class="line">public void LoadAsync(string url, Action&lt;string&gt; onSuccess)</span><br><span class="line">&#123;</span><br><span class="line">    // ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public void ProcessData(Func&lt;int, int&gt; transformer)</span><br><span class="line">&#123;</span><br><span class="line">    // ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// LINQ 风格</span><br><span class="line">public List&lt;T&gt; Filter&lt;T&gt;(List&lt;T&gt; list, Func&lt;T, bool&gt; predicate)</span><br><span class="line">&#123;</span><br><span class="line">    // ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>领域概念&#x2F;复杂场景 → 自定义 delegate</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// ✅ 表达领域概念用自定义 delegate</span><br><span class="line">public delegate EnemyActor TargetingLogicFuncType(</span><br><span class="line">    List&lt;EnemyActor&gt; enemies,</span><br><span class="line">    TowerActor tower</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">private Dictionary&lt;TargetingType, TargetingLogicFuncType&gt; _logics;</span><br><span class="line"></span><br><span class="line">// 对比 Func：</span><br><span class="line">private Dictionary&lt;TargetingType, Func&lt;List&lt;EnemyActor&gt;, TowerActor, EnemyActor&gt;&gt; _logics;</span><br><span class="line">// ❌ 太长，可读性差</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-多播-验证链（有返回值）"><a href="#3-多播-验证链（有返回值）" class="headerlink" title="3.多播 - 验证链（有返回值）"></a>3.多播 - 验证链（有返回值）</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class ValidationSystem</span><br><span class="line">&#123;</span><br><span class="line">    // ✅ 有返回值，不用 event</span><br><span class="line">    public delegate bool Validator(string input);</span><br><span class="line">    public Validator validators;  // ⚠️ 没有 event 关键字</span><br><span class="line">    </span><br><span class="line">    // 也可以用 Func（少见）</span><br><span class="line">    // public Func&lt;string, bool&gt; validators;</span><br><span class="line">    </span><br><span class="line">    public bool ValidateAll(string input)</span><br><span class="line">    &#123;</span><br><span class="line">        if (validators == null) return true;</span><br><span class="line">        </span><br><span class="line">        // 手动处理所有返回值</span><br><span class="line">        foreach (Validator v in validators.GetInvocationList())</span><br><span class="line">        &#123;</span><br><span class="line">            if (!v(input))</span><br><span class="line">            &#123;</span><br><span class="line">                Debug.Log($&quot;验证失败：&#123;v.Method.Name&#125;&quot;);</span><br><span class="line">                return false;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 使用</span><br><span class="line">validationSystem.validators += ValidateLength;</span><br><span class="line">validationSystem.validators += ValidateFormat;</span><br><span class="line">bool isValid = validationSystem.ValidateAll(&quot;test@email.com&quot;);</span><br></pre></td></tr></table></figure>
+
+<p>有返回值的多播，通常不加 event，需要手动控制调用逻辑。其实在代码上没有任何问题</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class ValidationSystem</span><br><span class="line">&#123;</span><br><span class="line">    public delegate bool Validator(string input);</span><br><span class="line">    public event Validator validators;  // ✅ 封装良好</span><br><span class="line">    </span><br><span class="line">    // 必须提供方法</span><br><span class="line">    public bool ValidateAll(string input)</span><br><span class="line">    &#123;</span><br><span class="line">        if (validators == null) return true;</span><br><span class="line">        foreach (Validator v in validators.GetInvocationList())</span><br><span class="line">        &#123;</span><br><span class="line">            if (!v(input)) return false;</span><br><span class="line">        &#125;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是语义怪异（event 暗示”事件”），违反开发者直觉，必须提供包装方法</p>
+<p>实际上是一种约定俗成</p>
+<p>如果要实现event那种封装，可以用其他的办法：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class ValidationSystem</span><br><span class="line">&#123;</span><br><span class="line">    public delegate bool Validator(string input);</span><br><span class="line">    private Validator _validators;  // ✅ 私有化</span><br><span class="line">    </span><br><span class="line">    // 提供受控的订阅接口</span><br><span class="line">    public void AddValidator(Validator validator)</span><br><span class="line">    &#123;</span><br><span class="line">        _validators += validator;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    public void RemoveValidator(Validator validator)</span><br><span class="line">    &#123;</span><br><span class="line">        _validators -= validator;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 提供调用接口</span><br><span class="line">    public bool ValidateAll(string input)</span><br><span class="line">    &#123;</span><br><span class="line">        if (_validators == null) return true;</span><br><span class="line">        foreach (Validator v in _validators.GetInvocationList())</span><br><span class="line">        &#123;</span><br><span class="line">            if (!v(input)) return false;</span><br><span class="line">        &#125;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>C#</category>
+      </categories>
       <tags>
-        <tag>Tools</tag>
+        <tag>C#</tag>
+        <tag>Unity</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>C#基本概念汇总</title>
+    <url>/2025/10/30/C#/C#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E6%B1%87%E6%80%BB/</url>
+    <content><![CDATA[<h1 id="创建属性"><a href="#创建属性" class="headerlink" title="创建属性"></a>创建属性</h1><p>属性本质上是对变量的 get 和 set 访问器的封装。</p>
+<p>对于需要公开访问的字段，直接使用 public 修饰符存在安全隐患，而使用属性可以带来以下优势：</p>
+<ol>
+<li>保护私有数据不被直接修改</li>
+<li>在 get 和 set 访问器中进行安全检测</li>
+<li>支持定义只读或只写属性</li>
+</ol>
+<p>此外，属性也可以理解为两个方法的组合。例如下面的 Level 属性，实际上就是提供了两个方法来修改或获取内部的 experience 数据。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class PlayerController</span><br><span class="line">&#123;</span><br><span class="line">    private int experience;</span><br><span class="line"></span><br><span class="line">    public int Experience</span><br><span class="line">    &#123;</span><br><span class="line">        get</span><br><span class="line">        &#123;</span><br><span class="line">            return experience;</span><br><span class="line">        &#125;</span><br><span class="line">        set</span><br><span class="line">        &#123;</span><br><span class="line">            experience = value;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    public int Level</span><br><span class="line">    &#123;</span><br><span class="line">        get</span><br><span class="line">        &#123;</span><br><span class="line">            return experience / 1000;</span><br><span class="line">        &#125;</span><br><span class="line">        set</span><br><span class="line">        &#123;</span><br><span class="line">            experience = value * 1000;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    public int Health &#123; get; set; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="特别注意"><a href="#特别注意" class="headerlink" title="特别注意"></a>特别注意</h2><ul>
+<li><p>在接口中：{ get; set; } 是一个抽象声明，它不包含任何实现或数据存储。它强制实现类去提供实现。</p>
+</li>
+<li><p>在类中：{ get; set; } 是一个完整的实现，它自动为数据存储和访问逻辑。</p>
+</li>
+</ul>
+<h1 id="虚函数"><a href="#虚函数" class="headerlink" title="虚函数"></a>虚函数</h1><p>C# 支持单继承，子类可以通过 <code>base</code> 关键字访问父类的成员。</p>
+<p>虚函数（Virtual Function）是实现多态的核心机制：</p>
+<ul>
+<li>父类使用 <code>virtual</code> 关键字声明可被重写的方法</li>
+<li>子类使用 <code>override</code> 关键字重写父类的虚方法</li>
+</ul>
+<p><strong>关键特性</strong>：当子类对象被强制转换为父类类型时，只能访问父类定义的成员，但调用虚函数时仍会执行子类重写的版本，这体现了运行时多态。</p>
+<p>代码示例如下：</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 父类：定义基础行为</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Actor</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="built_in">int</span> _health;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 属性：封装健康值</span></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> Health</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> &#123; <span class="keyword">return</span> _health; &#125;</span><br><span class="line">        <span class="keyword">set</span> &#123; _health = <span class="keyword">value</span>; &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 虚方法：可被子类重写</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Move</span>(<span class="params"><span class="built_in">float</span> x, <span class="built_in">float</span> y</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">&quot;Actor is moving to: &quot;</span> + x + <span class="string">&quot;, &quot;</span> + y);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 子类：继承并扩展父类功能</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">PlayerController</span> : <span class="title">Actor</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 子类特有的属性</span></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> jumpHeight;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">PlayerController</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        jumpHeight = <span class="number">2</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 重写父类的虚方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">Move</span>(<span class="params"><span class="built_in">float</span> x, <span class="built_in">float</span> y</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">&quot;PlayerController is moving to: &quot;</span> + x + <span class="string">&quot;, &quot;</span> + y);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 测试类：演示多态行为</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">Test</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TestPlayer</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            PlayerController player = <span class="keyword">new</span> PlayerController();</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 通过子类引用调用</span></span><br><span class="line">            player.Move(<span class="number">5.0f</span>, <span class="number">10.0f</span>);           <span class="comment">// 输出：PlayerController is moving to: 5, 10</span></span><br><span class="line">            Debug.Log(player.jumpHeight);        <span class="comment">// 输出：2（子类特有属性可访问）</span></span><br><span class="line">            Debug.Log(player.Health);            <span class="comment">// 输出：0（继承自父类的属性）</span></span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 将子类对象强转为父类类型</span></span><br><span class="line">            Actor actor = (Actor)player;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 虚方法调用：仍然执行子类的重写版本（多态）</span></span><br><span class="line">            actor.Move(<span class="number">15.0f</span>, <span class="number">20.0f</span>);           <span class="comment">// 输出：PlayerController is moving to: 15, 20</span></span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 子类特有成员无法访问（编译错误）</span></span><br><span class="line">            <span class="comment">// Debug.Log(actor.jumpHeight);      // 错误：Actor 类型没有 jumpHeight 成员</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="成员隐藏"><a href="#成员隐藏" class="headerlink" title="成员隐藏"></a>成员隐藏</h1><p>成员隐藏（Member Hiding）是通过 <code>new</code> 关键字在子类中重新定义父类的成员或方法，从而”隐藏”父类的实现。</p>
+<p><strong>核心区别</strong>：</p>
+<ul>
+<li><strong>虚函数（多态）</strong>：使用 <code>virtual</code> 和 <code>override</code>，强转后调用的是子类重写的方法</li>
+<li><strong>成员隐藏</strong>：使用 <code>new</code> 关键字，强转后调用的是父类原有的方法</li>
+</ul>
+<p><strong>行为特点</strong>：当子类对象被强制转换为父类类型时，调用的成员或方法都是父类的版本，而非子类隐藏的版本。这是因为成员隐藏是编译时绑定，而非运行时多态。</p>
+<p>代码示例如下：</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">using</span> UnityEngine;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 父类</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Warrior</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> damage = <span class="number">10</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 普通方法（非虚方法）</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Attack</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">&quot;Warrior attacks with damage: &quot;</span> + damage);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Defend</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">&quot;Warrior defends!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 子类：使用 new 关键字隐藏父类成员</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Paladin</span> : <span class="title">Warrior</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 使用 new 隐藏父类的字段</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">new</span> <span class="built_in">int</span> damage = <span class="number">20</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 使用 new 隐藏父类的方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">new</span> <span class="keyword">void</span> <span class="title">Attack</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">&quot;Paladin attacks with holy damage: &quot;</span> + damage);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">new</span> <span class="keyword">void</span> <span class="title">Defend</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Debug.Log(<span class="string">&quot;Paladin defends with shield!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 测试类：对比成员隐藏的行为</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">Test</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TestHiding</span> : <span class="title">MonoBehaviour</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">Start</span>()</span></span><br><span class="line">        &#123;</span><br><span class="line">            Paladin paladin = <span class="keyword">new</span> Paladin();</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 通过子类引用访问</span></span><br><span class="line">            Debug.Log(paladin.damage);      <span class="comment">// 输出：20（访问子类的 damage）</span></span><br><span class="line">            paladin.Attack();                <span class="comment">// 输出：Paladin attacks with holy damage: 20</span></span><br><span class="line">            paladin.Defend();                <span class="comment">// 输出：Paladin defends with shield!</span></span><br><span class="line">            </span><br><span class="line">            Debug.Log(<span class="string">&quot;--- 强转为父类后 ---&quot;</span>);</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 将子类对象强转为父类类型</span></span><br><span class="line">            Warrior warrior = (Warrior)paladin;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 关键：强转后访问的是父类的成员（编译时绑定）</span></span><br><span class="line">            Debug.Log(warrior.damage);       <span class="comment">// 输出：10（访问父类的 damage）</span></span><br><span class="line">            warrior.Attack();                <span class="comment">// 输出：Warrior attacks with damage: 10</span></span><br><span class="line">            warrior.Defend();                <span class="comment">// 输出：Warrior defends!</span></span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 注意：虽然 warrior 和 paladin 引用的是同一个对象，</span></span><br><span class="line">            <span class="comment">// 但由于使用了 new 隐藏而非 override 重写，</span></span><br><span class="line">            <span class="comment">// 所以通过父类引用调用的是父类版本的方法</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>总结</strong>：</p>
+<ul>
+<li>成员隐藏打破了多态性，调用哪个版本取决于引用类型而非对象类型</li>
+<li>如果需要多态行为，应使用 <code>virtual</code> 和 <code>override</code></li>
+<li><code>new</code> 关键字主要用于有意隐藏父类成员，或解决命名冲突</li>
+</ul>
+<h1 id="接口（Interface）"><a href="#接口（Interface）" class="headerlink" title="接口（Interface）"></a>接口（Interface）</h1><p>接口是一种定义契约的方式，只包含成员的声明，不包含任何实现。实现接口的类必须提供所有成员的具体实现。</p>
+<p><strong>接口的特点</strong>：</p>
+<ul>
+<li>只包含方法、属性、事件和索引器的声明，不包含实现</li>
+<li>接口成员默认是 <code>public</code> 的，不需要显式声明访问修饰符</li>
+<li>一个类可以实现多个接口，弥补 C# 单继承的限制</li>
+<li>接口支持多态，通过接口引用可以调用不同实现类的方法</li>
+</ul>
+<p><strong>属性与接口</strong>：属性可以定义在接口中，因为属性本质上就是 <code>get</code> 和 <code>set</code> 方法的声明。接口可以要求实现类提供特定的属性访问器。</p>
+<h2 id="接口属性的本质与演进"><a href="#接口属性的本质与演进" class="headerlink" title="接口属性的本质与演进"></a>接口属性的本质与演进</h2><h3 id="传统接口（C-8-0-之前）"><a href="#传统接口（C-8-0-之前）" class="headerlink" title="传统接口（C# 8.0 之前）"></a>传统接口（C# 8.0 之前）</h3><p>在 C# 8.0 之前，接口<strong>只能包含声明，不能包含实现</strong>。</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 传统接口：只有抽象声明</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IWeapon</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 这是抽象属性声明，不是实现</span></span><br><span class="line">    <span class="built_in">int</span> BulletNumber &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 等同于声明这两个抽象方法：</span></span><br><span class="line">    <span class="comment">// int get_BulletNumber();</span></span><br><span class="line">    <span class="comment">// void set_BulletNumber(int value);</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现类必须提供完整实现</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Pistol</span> : <span class="title">IWeapon</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 方式一：自动属性（编译器自动生成后备字段和实现）</span></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">int</span> BulletNumber &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 方式二：完整属性（手动定义后备字段和逻辑）</span></span><br><span class="line">    <span class="comment">// private int _bulletNumber;</span></span><br><span class="line">    <span class="comment">// public int BulletNumber </span></span><br><span class="line">    <span class="comment">// &#123; </span></span><br><span class="line">    <span class="comment">//     get &#123; return _bulletNumber; &#125;</span></span><br><span class="line">    <span class="comment">//     set &#123; _bulletNumber = value; &#125;</span></span><br><span class="line">    <span class="comment">// &#125;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键点</strong>：</p>
+<ul>
+<li>接口中的 <code>&#123; get; set; &#125;</code> 是<strong>抽象声明</strong>，强制实现类提供实现和数据存储</li>
+<li>类中的 <code>&#123; get; set; &#125;</code> 是<strong>自动属性</strong>，编译器自动生成后备字段和完整实现</li>
+</ul>
+<h3 id="接口默认实现（C-8-0-）"><a href="#接口默认实现（C-8-0-）" class="headerlink" title="接口默认实现（C# 8.0+）"></a>接口默认实现（C# 8.0+）</h3><p>从 C# 8.0 开始，接口可以包含<strong>默认实现</strong>，主要用于 API 的版本演进。</p>
+<p><strong>引入原因</strong>：解决接口扩展时的破坏性更改问题。</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 场景：为已有接口添加新功能，但不破坏现有实现类</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IWeapon</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Attack</span>()</span>;  <span class="comment">// 原有方法</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// C# 8.0+：为新方法提供默认实现</span></span><br><span class="line">    <span class="comment">// 现有实现类无需修改，新类可以选择重写</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Reload</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;Default reload behavior&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>属性的默认实现示例</strong>：</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IWeapon</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 1. 抽象属性：必须由实现类提供（用于存储状态）</span></span><br><span class="line">    <span class="built_in">int</span> CurrentAmmo &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="built_in">int</span> MaxAmmo &#123; <span class="keyword">get</span>; &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 2. 默认实现的计算属性：基于其他抽象成员</span></span><br><span class="line">    <span class="built_in">bool</span> IsEmpty</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span> &#123; <span class="keyword">return</span> CurrentAmmo &lt;= <span class="number">0</span>; &#125;  <span class="comment">// ✅ 正确：依赖抽象属性</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 3. 默认实现的方法：操作抽象成员</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Shoot</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (!IsEmpty)</span><br><span class="line">        &#123;</span><br><span class="line">            CurrentAmmo--;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="⚠️-常见错误：接口默认实现的递归陷阱"><a href="#⚠️-常见错误：接口默认实现的递归陷阱" class="headerlink" title="⚠️ 常见错误：接口默认实现的递归陷阱"></a>⚠️ 常见错误：接口默认实现的递归陷阱</h3><p><strong>错误示例</strong>（会导致 <code>StackOverflowException</code>）：</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IWeapon</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// ❌ 错误：接口不能包含实例字段（后备字段）</span></span><br><span class="line">    <span class="built_in">int</span> bulletNumber </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">get</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 无限递归！调用 get 来获取 bulletNumber，而 bulletNumber 又调用 get...</span></span><br><span class="line">            <span class="keyword">return</span> bulletNumber;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">set</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 无限递归！调用 set 来设置 bulletNumber，而 bulletNumber 又调用 set...</span></span><br><span class="line">            bulletNumber = <span class="keyword">value</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>原因</strong>：接口不能包含实例状态（字段）。上述代码中没有后备字段来存储数据，访问属性会无限递归调用自身。</p>
+<p><strong>正确的做法</strong>：</p>
+<ul>
+<li><strong>抽象声明</strong>：让实现类提供存储</li>
+<li><strong>默认实现</strong>：基于其他抽象成员进行计算或逻辑处理</li>
+</ul>
+]]></content>
+      <categories>
+        <category>C#</category>
+      </categories>
+      <tags>
+        <tag>C#</tag>
       </tags>
   </entry>
   <entry>
@@ -683,17 +740,94 @@
       </tags>
   </entry>
   <entry>
-    <title>Rendering ToolTips</title>
-    <url>/2025/09/03/Rendering/Rendering/</url>
-    <content><![CDATA[<h1 id="常用软件"><a href="#常用软件" class="headerlink" title="常用软件"></a>常用软件</h1><ul>
-<li>renderDoc：支持对应用截帧分析</li>
+    <title>虚函数和CRTP</title>
+    <url>/2025/10/18/C++/%E8%99%9A%E5%87%BD%E6%95%B0%E5%92%8CCRTP/</url>
+    <content><![CDATA[<h1 id="虚函数"><a href="#虚函数" class="headerlink" title="虚函数"></a>虚函数</h1><h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>虚函数是C++实现运行时多态的核心机制。通过在基类中使用<code>virtual</code>关键字声明函数，可以让派生类重写（override）该函数，从而在运行时根据对象的实际类型调用相应的函数实现。</p>
+<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><ul>
+<li><strong>动态绑定</strong>：函数调用在运行时根据对象的实际类型确定，而不是编译时的静态类型</li>
+<li><strong>虚函数表（vtable）</strong>：编译器为每个包含虚函数的类生成一个虚函数表，通过虚指针（vptr）指向该表</li>
+<li><strong>性能开销</strong>：由于需要通过虚指针查找虚函数表，存在一定的运行时开销</li>
+<li><strong>灵活性</strong>：派生类可以选择性地重写虚函数，未重写时使用基类的默认实现</li>
 </ul>
+<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><p>当你需要通过基类指针或引用操作不同派生类对象，并根据对象的实际类型执行不同行为时，虚函数是最佳选择。</p>
+<h2 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#include &lt;iostream&gt;</span><br><span class="line">#include &lt;memory&gt;</span><br><span class="line"></span><br><span class="line">// 基类</span><br><span class="line">class Animal &#123;</span><br><span class="line">public:</span><br><span class="line">    virtual ~Animal() = default;  // 虚析构函数</span><br><span class="line">    </span><br><span class="line">    virtual void makeSound() const &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Animal makes a sound&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    virtual void move() const &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Animal moves&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// 派生类：狗</span><br><span class="line">class Dog : public Animal &#123;</span><br><span class="line">public:</span><br><span class="line">    void makeSound() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Dog barks: Woof! Woof!&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    void move() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Dog runs on four legs&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// 派生类：猫</span><br><span class="line">class Cat : public Animal &#123;</span><br><span class="line">public:</span><br><span class="line">    void makeSound() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Cat meows: Meow! Meow!&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    void move() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Cat walks gracefully&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// 派生类：鸟</span><br><span class="line">class Bird : public Animal &#123;</span><br><span class="line">public:</span><br><span class="line">    void makeSound() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Bird chirps: Tweet! Tweet!&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    void move() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Bird flies in the sky&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// 使用多态</span><br><span class="line">void demonstratePolymorphism(const Animal&amp; animal) &#123;</span><br><span class="line">    animal.makeSound();</span><br><span class="line">    animal.move();</span><br><span class="line">    std::cout &lt;&lt; &quot;---&quot; &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    Dog dog;</span><br><span class="line">    Cat cat;</span><br><span class="line">    Bird bird;</span><br><span class="line">    </span><br><span class="line">    std::cout &lt;&lt; &quot;=== 运行时多态演示 ===&quot; &lt;&lt; std::endl;</span><br><span class="line">    demonstratePolymorphism(dog);</span><br><span class="line">    demonstratePolymorphism(cat);</span><br><span class="line">    demonstratePolymorphism(bird);</span><br><span class="line">    </span><br><span class="line">    // 使用指针</span><br><span class="line">    std::cout &lt;&lt; &quot;=== 使用指针 ===&quot; &lt;&lt; std::endl;</span><br><span class="line">    Animal* animals[] = &#123;&amp;dog, &amp;cat, &amp;bird&#125;;</span><br><span class="line">    for (auto* animal : animals) &#123;</span><br><span class="line">        animal-&gt;makeSound();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="CRTP"><a href="#CRTP" class="headerlink" title="CRTP"></a>CRTP</h1><h2 id="概念-1"><a href="#概念-1" class="headerlink" title="概念"></a>概念</h2><p>CRTP（Curiously Recurring Template Pattern，奇异递归模板模式）是一种编译时多态技术。其核心思想是让派生类作为模板参数传递给基类模板，使得基类可以在编译时访问派生类的成员。</p>
+<h2 id="特点-1"><a href="#特点-1" class="headerlink" title="特点"></a>特点</h2><ul>
+<li><strong>静态多态</strong>：函数调用在编译时就已确定，无需运行时查找</li>
+<li><strong>零开销</strong>：不需要虚函数表和虚指针，没有运行时性能损耗</li>
+<li><strong>编译期类型检查</strong>：如果派生类没有实现所需的函数，会在编译时报错</li>
+<li><strong>代码膨胀</strong>：每个派生类都会生成独立的代码，可能导致二进制文件增大</li>
+</ul>
+<h2 id="使用场景-1"><a href="#使用场景-1" class="headerlink" title="使用场景"></a>使用场景</h2><p>当你需要在编译期实现多态，追求零开销抽象，且类型关系在编译期就能确定时，CRTP是理想选择。常用于性能敏感的场景，如模板库、数学库等。</p>
+<h2 id="示例代码-1"><a href="#示例代码-1" class="headerlink" title="示例代码"></a>示例代码</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">template &lt;typename Derived&gt;</span><br><span class="line">class Base &#123;</span><br><span class="line">public:</span><br><span class="line">    void interface() &#123;</span><br><span class="line">        // 调用派生类的实现</span><br><span class="line">        static_cast&lt;Derived*&gt;(this)-&gt;implementation();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">class Derived : public Base&lt;Derived&gt; &#123;</span><br><span class="line">public:</span><br><span class="line">    void implementation() &#123;</span><br><span class="line">        // 具体实现</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="虚函数-vs-CRTP-对比"><a href="#虚函数-vs-CRTP-对比" class="headerlink" title="虚函数 vs CRTP 对比"></a>虚函数 vs CRTP 对比</h1><h2 id="主要区别"><a href="#主要区别" class="headerlink" title="主要区别"></a>主要区别</h2><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>虚函数</th>
+<th>CRTP</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>多态类型</td>
+<td>运行时多态</td>
+<td>编译时多态</td>
+</tr>
+<tr>
+<td>性能开销</td>
+<td>有（虚函数表查找）</td>
+<td>无（编译期展开）</td>
+</tr>
+<tr>
+<td>灵活性</td>
+<td>可选择性重写</td>
+<td>必须实现所需函数</td>
+</tr>
+<tr>
+<td>内存开销</td>
+<td>每个对象有虚指针</td>
+<td>无额外指针开销</td>
+</tr>
+<tr>
+<td>代码大小</td>
+<td>较小</td>
+<td>可能较大（模板展开）</td>
+</tr>
+<tr>
+<td>类型安全</td>
+<td>运行时</td>
+<td>编译时</td>
+</tr>
+<tr>
+<td>异构容器</td>
+<td>支持（可用基类指针容器）</td>
+<td>不支持（类型不同）</td>
+</tr>
+</tbody></table>
+<h2 id="选择建议"><a href="#选择建议" class="headerlink" title="选择建议"></a>选择建议</h2><p><strong>使用虚函数的情况：</strong></p>
+<ul>
+<li>需要在运行时动态确定对象类型</li>
+<li>需要将不同类型的对象放在同一个容器中</li>
+<li>派生类可以选择性地实现某些功能</li>
+<li>性能开销可以接受</li>
+</ul>
+<p><strong>使用CRTP的情况：</strong></p>
+<ul>
+<li>追求极致性能，无法接受虚函数开销</li>
+<li>类型关系在编译期就已确定</li>
+<li>需要编译期类型检查和错误提示</li>
+<li>所有派生类都必须实现相同的接口</li>
+</ul>
+<h2 id="个人理解"><a href="#个人理解" class="headerlink" title="个人理解"></a>个人理解</h2><p>如果虚函数基类中的某一个<code>virtual</code>函数会被所有子类<code>override</code>，那其实就可以用CRTP平替。CRTP要求所有子类都必须实现被调用的函数（否则编译错误），而虚函数的子类可以选择不实现某个虚函数（使用基类的默认实现）。因此，虚函数更灵活，CRTP更高效。</p>
 ]]></content>
       <categories>
-        <category>Rendering</category>
+        <category>C++</category>
       </categories>
       <tags>
-        <tag>Rendering</tag>
+        <tag>C++</tag>
       </tags>
   </entry>
   <entry>
@@ -712,6 +846,41 @@
 ]]></content>
       <tags>
         <tag>Tips</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>WASM</title>
+    <url>/2025/10/29/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/WASM/</url>
+    <content><![CDATA[<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>WASM (WebAssembly) 是一种“网页汇编”技术。</p>
+<p>是一种低级 (low-level) 的、高性能的“二进制指令格式”，专门设计用于在网页浏览器中运行。对标exe。</p>
+<p>可以理解为一种让 C++、C#、Rust、Go 等高性能语言编写的代码，能够以接近原生的速度在浏览器里运行的方式。</p>
+<h1 id="出现原因"><a href="#出现原因" class="headerlink" title="出现原因"></a>出现原因</h1><p>JavaScript 是唯一能在浏览器中运行的编程语言。</p>
+<p>JavaScript 是一种很棒的脚本语言，但它在执行非常繁重的计算任务时（比如 3D 游戏引擎、视频编辑、物理模拟、图像识别）会非常吃力，速度跟不上。</p>
+<p>开发者们渴望能用 C++ 或 Rust 这种高性能语言来编写程序，因为它们运行速度极快。</p>
+<p>但 C++ 编译出来的程序是 .exe (Windows) 或 .app (Mac)，它们无法在浏览器这个“沙盒”里运行。</p>
+<p>WASM就是用来做这种翻译的，工作流如下：</p>
+<ul>
+<li>编写 (开发者)：开发者使用 C++ 或 Rust 编写了一个高性能的程序（例如一个 3D 游戏的物理引擎）。</li>
+<li>编译 (工具链)：开发者使用一个特殊的编译器（如 Emscripten），不把 C++ 代码编译成 .exe。而是把它编译成一种平台无关的、高度优化的二进制文件，扩展名为 .wasm。</li>
+<li>运行 (浏览器)：浏览器（如 Chrome, Firefox）加载这个 .wasm 文件。浏览器内部的 JavaScript 引擎（它也是一个虚拟机）能极快地解析和执行这种二进制格式，速度远超解析 JavaScript 文本。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Basic Concept</category>
+      </categories>
+      <tags>
+        <tag>Rendering</tag>
+        <tag>Basic Concept</tag>
+        <tag>WASM</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Tools</title>
+    <url>/2025/09/04/Tools/Tools/</url>
+    <content><![CDATA[<h1 id="妙妙工具合集"><a href="#妙妙工具合集" class="headerlink" title="妙妙工具合集"></a>妙妙工具合集</h1><p><a href="https://realfavicongenerator.net/">https://realfavicongenerator.net/</a> 上传一张图片，生成浏览器图片所需的图片格式</p>
+]]></content>
+      <tags>
+        <tag>Tools</tag>
       </tags>
   </entry>
   <entry>
@@ -840,32 +1009,6 @@
         <tag>Basic Concept</tag>
         <tag>Computer Shader</tag>
         <tag>BBSO</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>WASM</title>
-    <url>/2025/10/29/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/WASM/</url>
-    <content><![CDATA[<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>WASM (WebAssembly) 是一种“网页汇编”技术。</p>
-<p>是一种低级 (low-level) 的、高性能的“二进制指令格式”，专门设计用于在网页浏览器中运行。对标exe。</p>
-<p>可以理解为一种让 C++、C#、Rust、Go 等高性能语言编写的代码，能够以接近原生的速度在浏览器里运行的方式。</p>
-<h1 id="出现原因"><a href="#出现原因" class="headerlink" title="出现原因"></a>出现原因</h1><p>JavaScript 是唯一能在浏览器中运行的编程语言。</p>
-<p>JavaScript 是一种很棒的脚本语言，但它在执行非常繁重的计算任务时（比如 3D 游戏引擎、视频编辑、物理模拟、图像识别）会非常吃力，速度跟不上。</p>
-<p>开发者们渴望能用 C++ 或 Rust 这种高性能语言来编写程序，因为它们运行速度极快。</p>
-<p>但 C++ 编译出来的程序是 .exe (Windows) 或 .app (Mac)，它们无法在浏览器这个“沙盒”里运行。</p>
-<p>WASM就是用来做这种翻译的，工作流如下：</p>
-<ul>
-<li>编写 (开发者)：开发者使用 C++ 或 Rust 编写了一个高性能的程序（例如一个 3D 游戏的物理引擎）。</li>
-<li>编译 (工具链)：开发者使用一个特殊的编译器（如 Emscripten），不把 C++ 代码编译成 .exe。而是把它编译成一种平台无关的、高度优化的二进制文件，扩展名为 .wasm。</li>
-<li>运行 (浏览器)：浏览器（如 Chrome, Firefox）加载这个 .wasm 文件。浏览器内部的 JavaScript 引擎（它也是一个虚拟机）能极快地解析和执行这种二进制格式，速度远超解析 JavaScript 文本。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>Basic Concept</category>
-      </categories>
-      <tags>
-        <tag>Rendering</tag>
-        <tag>Basic Concept</tag>
-        <tag>WASM</tag>
       </tags>
   </entry>
 </search>
