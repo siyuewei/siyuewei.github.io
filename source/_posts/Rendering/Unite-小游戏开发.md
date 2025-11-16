@@ -1,7 +1,10 @@
 ---
 title: Unite_小游戏开发
 date: 2025-10-29 16:16:51
-tags:
+tags: 
+  - Rendering
+  - Basic Concept
+categories: Rendering
 ---
 
 # 移动平台的图形引擎
