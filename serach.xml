@@ -193,97 +193,6 @@
       </tags>
   </entry>
   <entry>
-    <title>虚函数和CRTP</title>
-    <url>/2025/10/18/C++/%E8%99%9A%E5%87%BD%E6%95%B0%E5%92%8CCRTP/</url>
-    <content><![CDATA[<h1 id="虚函数"><a href="#虚函数" class="headerlink" title="虚函数"></a>虚函数</h1><h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>虚函数是C++实现运行时多态的核心机制。通过在基类中使用<code>virtual</code>关键字声明函数，可以让派生类重写（override）该函数，从而在运行时根据对象的实际类型调用相应的函数实现。</p>
-<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><ul>
-<li><strong>动态绑定</strong>：函数调用在运行时根据对象的实际类型确定，而不是编译时的静态类型</li>
-<li><strong>虚函数表（vtable）</strong>：编译器为每个包含虚函数的类生成一个虚函数表，通过虚指针（vptr）指向该表</li>
-<li><strong>性能开销</strong>：由于需要通过虚指针查找虚函数表，存在一定的运行时开销</li>
-<li><strong>灵活性</strong>：派生类可以选择性地重写虚函数，未重写时使用基类的默认实现</li>
-</ul>
-<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><p>当你需要通过基类指针或引用操作不同派生类对象，并根据对象的实际类型执行不同行为时，虚函数是最佳选择。</p>
-<h2 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#include &lt;iostream&gt;</span><br><span class="line">#include &lt;memory&gt;</span><br><span class="line"></span><br><span class="line">// 基类</span><br><span class="line">class Animal &#123;</span><br><span class="line">public:</span><br><span class="line">    virtual ~Animal() = default;  // 虚析构函数</span><br><span class="line">    </span><br><span class="line">    virtual void makeSound() const &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Animal makes a sound&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    virtual void move() const &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Animal moves&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// 派生类：狗</span><br><span class="line">class Dog : public Animal &#123;</span><br><span class="line">public:</span><br><span class="line">    void makeSound() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Dog barks: Woof! Woof!&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    void move() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Dog runs on four legs&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// 派生类：猫</span><br><span class="line">class Cat : public Animal &#123;</span><br><span class="line">public:</span><br><span class="line">    void makeSound() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Cat meows: Meow! Meow!&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    void move() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Cat walks gracefully&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// 派生类：鸟</span><br><span class="line">class Bird : public Animal &#123;</span><br><span class="line">public:</span><br><span class="line">    void makeSound() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Bird chirps: Tweet! Tweet!&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    void move() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Bird flies in the sky&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// 使用多态</span><br><span class="line">void demonstratePolymorphism(const Animal&amp; animal) &#123;</span><br><span class="line">    animal.makeSound();</span><br><span class="line">    animal.move();</span><br><span class="line">    std::cout &lt;&lt; &quot;---&quot; &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    Dog dog;</span><br><span class="line">    Cat cat;</span><br><span class="line">    Bird bird;</span><br><span class="line">    </span><br><span class="line">    std::cout &lt;&lt; &quot;=== 运行时多态演示 ===&quot; &lt;&lt; std::endl;</span><br><span class="line">    demonstratePolymorphism(dog);</span><br><span class="line">    demonstratePolymorphism(cat);</span><br><span class="line">    demonstratePolymorphism(bird);</span><br><span class="line">    </span><br><span class="line">    // 使用指针</span><br><span class="line">    std::cout &lt;&lt; &quot;=== 使用指针 ===&quot; &lt;&lt; std::endl;</span><br><span class="line">    Animal* animals[] = &#123;&amp;dog, &amp;cat, &amp;bird&#125;;</span><br><span class="line">    for (auto* animal : animals) &#123;</span><br><span class="line">        animal-&gt;makeSound();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="CRTP"><a href="#CRTP" class="headerlink" title="CRTP"></a>CRTP</h1><h2 id="概念-1"><a href="#概念-1" class="headerlink" title="概念"></a>概念</h2><p>CRTP（Curiously Recurring Template Pattern，奇异递归模板模式）是一种编译时多态技术。其核心思想是让派生类作为模板参数传递给基类模板，使得基类可以在编译时访问派生类的成员。</p>
-<h2 id="特点-1"><a href="#特点-1" class="headerlink" title="特点"></a>特点</h2><ul>
-<li><strong>静态多态</strong>：函数调用在编译时就已确定，无需运行时查找</li>
-<li><strong>零开销</strong>：不需要虚函数表和虚指针，没有运行时性能损耗</li>
-<li><strong>编译期类型检查</strong>：如果派生类没有实现所需的函数，会在编译时报错</li>
-<li><strong>代码膨胀</strong>：每个派生类都会生成独立的代码，可能导致二进制文件增大</li>
-</ul>
-<h2 id="使用场景-1"><a href="#使用场景-1" class="headerlink" title="使用场景"></a>使用场景</h2><p>当你需要在编译期实现多态，追求零开销抽象，且类型关系在编译期就能确定时，CRTP是理想选择。常用于性能敏感的场景，如模板库、数学库等。</p>
-<h2 id="示例代码-1"><a href="#示例代码-1" class="headerlink" title="示例代码"></a>示例代码</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">template &lt;typename Derived&gt;</span><br><span class="line">class Base &#123;</span><br><span class="line">public:</span><br><span class="line">    void interface() &#123;</span><br><span class="line">        // 调用派生类的实现</span><br><span class="line">        static_cast&lt;Derived*&gt;(this)-&gt;implementation();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">class Derived : public Base&lt;Derived&gt; &#123;</span><br><span class="line">public:</span><br><span class="line">    void implementation() &#123;</span><br><span class="line">        // 具体实现</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-
-<h1 id="虚函数-vs-CRTP-对比"><a href="#虚函数-vs-CRTP-对比" class="headerlink" title="虚函数 vs CRTP 对比"></a>虚函数 vs CRTP 对比</h1><h2 id="主要区别"><a href="#主要区别" class="headerlink" title="主要区别"></a>主要区别</h2><table>
-<thead>
-<tr>
-<th>特性</th>
-<th>虚函数</th>
-<th>CRTP</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>多态类型</td>
-<td>运行时多态</td>
-<td>编译时多态</td>
-</tr>
-<tr>
-<td>性能开销</td>
-<td>有（虚函数表查找）</td>
-<td>无（编译期展开）</td>
-</tr>
-<tr>
-<td>灵活性</td>
-<td>可选择性重写</td>
-<td>必须实现所需函数</td>
-</tr>
-<tr>
-<td>内存开销</td>
-<td>每个对象有虚指针</td>
-<td>无额外指针开销</td>
-</tr>
-<tr>
-<td>代码大小</td>
-<td>较小</td>
-<td>可能较大（模板展开）</td>
-</tr>
-<tr>
-<td>类型安全</td>
-<td>运行时</td>
-<td>编译时</td>
-</tr>
-<tr>
-<td>异构容器</td>
-<td>支持（可用基类指针容器）</td>
-<td>不支持（类型不同）</td>
-</tr>
-</tbody></table>
-<h2 id="选择建议"><a href="#选择建议" class="headerlink" title="选择建议"></a>选择建议</h2><p><strong>使用虚函数的情况：</strong></p>
-<ul>
-<li>需要在运行时动态确定对象类型</li>
-<li>需要将不同类型的对象放在同一个容器中</li>
-<li>派生类可以选择性地实现某些功能</li>
-<li>性能开销可以接受</li>
-</ul>
-<p><strong>使用CRTP的情况：</strong></p>
-<ul>
-<li>追求极致性能，无法接受虚函数开销</li>
-<li>类型关系在编译期就已确定</li>
-<li>需要编译期类型检查和错误提示</li>
-<li>所有派生类都必须实现相同的接口</li>
-</ul>
-<h2 id="个人理解"><a href="#个人理解" class="headerlink" title="个人理解"></a>个人理解</h2><p>如果虚函数基类中的某一个<code>virtual</code>函数会被所有子类<code>override</code>，那其实就可以用CRTP平替。CRTP要求所有子类都必须实现被调用的函数（否则编译错误），而虚函数的子类可以选择不实现某个虚函数（使用基类的默认实现）。因此，虚函数更灵活，CRTP更高效。</p>
-]]></content>
-      <categories>
-        <category>C++</category>
-      </categories>
-      <tags>
-        <tag>C++</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Delegate以及延申</title>
     <url>/2025/11/14/C#/Delegate%E4%BB%A5%E5%8F%8A%E5%BB%B6%E7%94%B3/</url>
     <content><![CDATA[<h1 id="基本关系介绍"><a href="#基本关系介绍" class="headerlink" title="基本关系介绍"></a>基本关系介绍</h1><p>Delegate类似一个函数的类型声明，与之相关的内容有Func，Action，Event，UnityEvent。</p>
@@ -420,246 +329,94 @@
       </tags>
   </entry>
   <entry>
-    <title>SSHLink</title>
-    <url>/2025/10/24/Tools/SSHLink/</url>
-    <content><![CDATA[<h1 id="SSH-Link"><a href="#SSH-Link" class="headerlink" title="SSH Link"></a>SSH Link</h1><p>在用vscode连接远端服务器，账号之前删除过，现在重现创建后连不上了。很可能是以前连的本地密钥没删，重装后连不上了。</p>
-<p>当你用 VS Code (或其他任何 SSH 客户端) 连接服务器时，主要涉及两个地方的”信任”：</p>
-<ul>
-<li><p>服务器信任你（你的电脑）：通过authorized_keys文件。</p>
-</li>
-<li><p>你（你的电脑）信任服务器：通过known_hosts文件。</p>
-</li>
+    <title>虚函数和CRTP</title>
+    <url>/2025/10/18/C++/%E8%99%9A%E5%87%BD%E6%95%B0%E5%92%8CCRTP/</url>
+    <content><![CDATA[<h1 id="虚函数"><a href="#虚函数" class="headerlink" title="虚函数"></a>虚函数</h1><h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>虚函数是C++实现运行时多态的核心机制。通过在基类中使用<code>virtual</code>关键字声明函数，可以让派生类重写（override）该函数，从而在运行时根据对象的实际类型调用相应的函数实现。</p>
+<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><ul>
+<li><strong>动态绑定</strong>：函数调用在运行时根据对象的实际类型确定，而不是编译时的静态类型</li>
+<li><strong>虚函数表（vtable）</strong>：编译器为每个包含虚函数的类生成一个虚函数表，通过虚指针（vptr）指向该表</li>
+<li><strong>性能开销</strong>：由于需要通过虚指针查找虚函数表，存在一定的运行时开销</li>
+<li><strong>灵活性</strong>：派生类可以选择性地重写虚函数，未重写时使用基类的默认实现</li>
 </ul>
-<p>情况一：一般报错Permission denied (publickey)，需要在服务器上重新添加自己的公钥</p>
-<p>情况二：一般报错REMOTE HOST IDENTIFICATION HAS CHANGED 或 OFFENDING_KEY_IN_KNOWN_HOSTS，需要修改自己本地的~&#x2F;.ssh&#x2F;known_hosts 文件</p>
-]]></content>
-      <tags>
-        <tag>Tips</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Tools</title>
-    <url>/2025/09/04/Tools/Tools/</url>
-    <content><![CDATA[<h1 id="妙妙工具合集"><a href="#妙妙工具合集" class="headerlink" title="妙妙工具合集"></a>妙妙工具合集</h1><p><a href="https://realfavicongenerator.net/">https://realfavicongenerator.net/</a> 上传一张图片，生成浏览器图片所需的图片格式</p>
-]]></content>
-      <tags>
-        <tag>Tools</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Hexo</title>
-    <url>/2025/09/04/Tools/Hexo/</url>
-    <content><![CDATA[<h1 id="Hexo-静态博客框架使用指南"><a href="#Hexo-静态博客框架使用指南" class="headerlink" title="Hexo 静态博客框架使用指南"></a>Hexo 静态博客框架使用指南</h1><p>Hexo 是一个快速、简洁且高效的博客框架，基于 Node.js 构建。它可以将 Markdown 文件渲染成静态网页，支持多种主题和插件。</p>
-<h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><h3 id="基础命令"><a href="#基础命令" class="headerlink" title="基础命令"></a>基础命令</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建新文章</span></span><br><span class="line">hexo new <span class="string">&quot;文章标题&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建新页面</span></span><br><span class="line">hexo new page <span class="string">&quot;页面名称&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建草稿</span></span><br><span class="line">hexo new draft <span class="string">&quot;草稿标题&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成静态文件</span></span><br><span class="line">hexo generate</span><br><span class="line"><span class="comment"># 或简写</span></span><br><span class="line">hexo g</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动本地服务器</span></span><br><span class="line">hexo server</span><br><span class="line"><span class="comment"># 或简写</span></span><br><span class="line">hexo s</span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署到服务器</span></span><br><span class="line">hexo deploy</span><br><span class="line"><span class="comment"># 或简写</span></span><br><span class="line">hexo d</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理缓存和生成的文件</span></span><br><span class="line">hexo clean</span><br><span class="line"></span><br><span class="line"><span class="comment"># 一键生成并部署</span></span><br><span class="line">hexo g -d</span><br></pre></td></tr></table></figure>
+<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><p>当你需要通过基类指针或引用操作不同派生类对象，并根据对象的实际类型执行不同行为时，虚函数是最佳选择。</p>
+<h2 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#include &lt;iostream&gt;</span><br><span class="line">#include &lt;memory&gt;</span><br><span class="line"></span><br><span class="line">// 基类</span><br><span class="line">class Animal &#123;</span><br><span class="line">public:</span><br><span class="line">    virtual ~Animal() = default;  // 虚析构函数</span><br><span class="line">    </span><br><span class="line">    virtual void makeSound() const &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Animal makes a sound&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    virtual void move() const &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Animal moves&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// 派生类：狗</span><br><span class="line">class Dog : public Animal &#123;</span><br><span class="line">public:</span><br><span class="line">    void makeSound() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Dog barks: Woof! Woof!&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    void move() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Dog runs on four legs&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// 派生类：猫</span><br><span class="line">class Cat : public Animal &#123;</span><br><span class="line">public:</span><br><span class="line">    void makeSound() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Cat meows: Meow! Meow!&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    void move() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Cat walks gracefully&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// 派生类：鸟</span><br><span class="line">class Bird : public Animal &#123;</span><br><span class="line">public:</span><br><span class="line">    void makeSound() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Bird chirps: Tweet! Tweet!&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    void move() const override &#123;</span><br><span class="line">        std::cout &lt;&lt; &quot;Bird flies in the sky&quot; &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// 使用多态</span><br><span class="line">void demonstratePolymorphism(const Animal&amp; animal) &#123;</span><br><span class="line">    animal.makeSound();</span><br><span class="line">    animal.move();</span><br><span class="line">    std::cout &lt;&lt; &quot;---&quot; &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    Dog dog;</span><br><span class="line">    Cat cat;</span><br><span class="line">    Bird bird;</span><br><span class="line">    </span><br><span class="line">    std::cout &lt;&lt; &quot;=== 运行时多态演示 ===&quot; &lt;&lt; std::endl;</span><br><span class="line">    demonstratePolymorphism(dog);</span><br><span class="line">    demonstratePolymorphism(cat);</span><br><span class="line">    demonstratePolymorphism(bird);</span><br><span class="line">    </span><br><span class="line">    // 使用指针</span><br><span class="line">    std::cout &lt;&lt; &quot;=== 使用指针 ===&quot; &lt;&lt; std::endl;</span><br><span class="line">    Animal* animals[] = &#123;&amp;dog, &amp;cat, &amp;bird&#125;;</span><br><span class="line">    for (auto* animal : animals) &#123;</span><br><span class="line">        animal-&gt;makeSound();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="草稿相关命令"><a href="#草稿相关命令" class="headerlink" title="草稿相关命令"></a>草稿相关命令</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 发布草稿</span></span><br><span class="line">hexo publish <span class="string">&quot;草稿文件名&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 预览草稿</span></span><br><span class="line">hexo server --draft</span><br></pre></td></tr></table></figure>
-
-<h3 id="主题管理"><a href="#主题管理" class="headerlink" title="主题管理"></a>主题管理</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装主题</span></span><br><span class="line">git <span class="built_in">clone</span> &lt;theme-repository-url&gt; themes/&lt;theme-name&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新主题</span></span><br><span class="line"><span class="built_in">cd</span> themes/&lt;theme-name&gt;</span><br><span class="line">git pull</span><br></pre></td></tr></table></figure>
-
-<h2 id="配置文件说明"><a href="#配置文件说明" class="headerlink" title="配置文件说明"></a>配置文件说明</h2><h3 id="config-yml-主要配置项"><a href="#config-yml-主要配置项" class="headerlink" title="_config.yml 主要配置项"></a>_config.yml 主要配置项</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 网站基本信息</span></span><br><span class="line"><span class="attr">title:</span> <span class="string">网站标题</span></span><br><span class="line"><span class="attr">subtitle:</span> <span class="string">网站副标题</span></span><br><span class="line"><span class="attr">description:</span> <span class="string">网站描述</span></span><br><span class="line"><span class="attr">keywords:</span> <span class="string">关键词</span></span><br><span class="line"><span class="attr">author:</span> <span class="string">作者名</span></span><br><span class="line"><span class="attr">language:</span> <span class="string">zh-CN</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># URL 设置</span></span><br><span class="line"><span class="attr">url:</span> <span class="string">https://your-domain.com</span></span><br><span class="line"><span class="attr">permalink:</span> <span class="string">:year/:month/:day/:title/</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 目录设置</span></span><br><span class="line"><span class="attr">source_dir:</span> <span class="string">source</span></span><br><span class="line"><span class="attr">public_dir:</span> <span class="string">public</span></span><br><span class="line"><span class="attr">skip_render:</span> []</span><br><span class="line"></span><br><span class="line"><span class="comment"># 写作设置</span></span><br><span class="line"><span class="attr">new_post_name:</span> <span class="string">:title.md</span></span><br><span class="line"><span class="attr">default_layout:</span> <span class="string">post</span></span><br><span class="line"><span class="attr">auto_spacing:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">titlecase:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 分类和标签</span></span><br><span class="line"><span class="attr">default_category:</span> <span class="string">uncategorized</span></span><br><span class="line"><span class="attr">category_map:</span></span><br><span class="line"><span class="attr">tag_map:</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 日期格式</span></span><br><span class="line"><span class="attr">date_format:</span> <span class="string">YYYY-MM-DD</span></span><br><span class="line"><span class="attr">time_format:</span> <span class="string">HH:mm:ss</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 分页设置</span></span><br><span class="line"><span class="attr">per_page:</span> <span class="number">10</span></span><br><span class="line"><span class="attr">pagination_dir:</span> <span class="string">page</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 主题设置</span></span><br><span class="line"><span class="attr">theme:</span> <span class="string">next</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署设置</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repo:</span> <span class="string">&lt;repository-url&gt;</span></span><br><span class="line">  <span class="attr">branch:</span> <span class="string">main</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="文章写作"><a href="#文章写作" class="headerlink" title="文章写作"></a>文章写作</h2><h3 id="Front-matter-格式"><a href="#Front-matter-格式" class="headerlink" title="Front-matter 格式"></a>Front-matter 格式</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">title:</span> <span class="string">文章标题</span></span><br><span class="line"><span class="attr">date:</span> <span class="number">2025-09-04 00:35:50</span></span><br><span class="line"><span class="attr">updated:</span> <span class="number">2025-09-04 00:35:50</span></span><br><span class="line"><span class="attr">tags:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">标签1</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">标签2</span></span><br><span class="line"><span class="attr">categories:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">分类1</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">分类2</span></span><br><span class="line"><span class="attr">comments:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">toc:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">toc_number:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">toc_style_simple:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">mathjax:</span> <span class="literal">true</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="string">文章内容...</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="常用标签语法"><a href="#常用标签语法" class="headerlink" title="常用标签语法"></a>常用标签语法</h3><figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line"><span class="section"># 图片</span></span><br><span class="line">![<span class="string">图片描述</span>](<span class="link">图片链接</span>)</span><br><span class="line"></span><br><span class="line"><span class="section"># 链接</span></span><br><span class="line">[<span class="string">链接文字</span>](<span class="link">链接地址</span>)</span><br><span class="line"></span><br><span class="line"><span class="section"># 代码块</span></span><br><span class="line"><span class="code">```javascript</span></span><br><span class="line"><span class="code">console.log(&#x27;Hello World&#x27;);</span></span><br></pre></td></tr></table></figure>
-
-<!-- # 引用
-> 引用内容
-
-# 表格
-| 列1 | 列2 | 列3 |
-|-----|-----|-----|
-| 内容1 | 内容2 | 内容3 | -->
-
-
-<h2 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h2><h3 id="Next-主题常用配置"><a href="#Next-主题常用配置" class="headerlink" title="Next 主题常用配置"></a>Next 主题常用配置</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 主题设置</span></span><br><span class="line"><span class="attr">theme:</span> <span class="string">next</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 菜单设置</span></span><br><span class="line"><span class="attr">menu:</span></span><br><span class="line">  <span class="attr">home:</span> <span class="string">/</span> <span class="string">||</span> <span class="string">home</span></span><br><span class="line">  <span class="attr">archives:</span> <span class="string">/archives/</span> <span class="string">||</span> <span class="string">archive</span></span><br><span class="line">  <span class="attr">categories:</span> <span class="string">/categories/</span> <span class="string">||</span> <span class="string">th</span></span><br><span class="line">  <span class="attr">tags:</span> <span class="string">/tags/</span> <span class="string">||</span> <span class="string">tags</span></span><br><span class="line">  <span class="attr">about:</span> <span class="string">/about/</span> <span class="string">||</span> <span class="string">about</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 侧边栏设置</span></span><br><span class="line"><span class="attr">sidebar:</span></span><br><span class="line">  <span class="attr">position:</span> <span class="string">left</span></span><br><span class="line">  <span class="attr">display:</span> <span class="string">always</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 社交链接</span></span><br><span class="line"><span class="attr">social:</span></span><br><span class="line">  <span class="attr">github:</span> <span class="string">https://github.com/yourname</span></span><br><span class="line">  <span class="attr">twitter:</span> <span class="string">https://twitter.com/yourname</span></span><br><span class="line">  <span class="attr">email:</span> <span class="string">your-email@example.com</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 评论系统</span></span><br><span class="line"><span class="attr">comments:</span></span><br><span class="line">  <span class="attr">active:</span> <span class="string">disqus</span></span><br><span class="line">  <span class="attr">shortname:</span> <span class="string">your-disqus-shortname</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="部署配置"><a href="#部署配置" class="headerlink" title="部署配置"></a>部署配置</h2><h3 id="GitHub-Pages-部署"><a href="#GitHub-Pages-部署" class="headerlink" title="GitHub Pages 部署"></a>GitHub Pages 部署</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repo:</span> <span class="string">https://github.com/username/username.github.io.git</span></span><br><span class="line">  <span class="attr">branch:</span> <span class="string">main</span></span><br><span class="line">  <span class="attr">message:</span> <span class="string">&quot;Site updated: <span class="template-variable">&#123;&#123; now(&#x27;YYYY-MM-DD HH:mm:ss&#x27;) &#125;&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="其他部署方式"><a href="#其他部署方式" class="headerlink" title="其他部署方式"></a>其他部署方式</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 部署到服务器</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">rsync</span></span><br><span class="line">  <span class="attr">host:</span> <span class="string">your-server.com</span></span><br><span class="line">  <span class="attr">user:</span> <span class="string">username</span></span><br><span class="line">  <span class="attr">root:</span> <span class="string">/var/www/</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">blog/</span></span><br><span class="line">  <span class="attr">delete:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署到腾讯云 COS</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">cos</span></span><br><span class="line">  <span class="attr">bucket:</span> <span class="string">your-bucket-name</span></span><br><span class="line">  <span class="attr">region:</span> <span class="string">ap-beijing</span></span><br><span class="line">  <span class="attr">secretId:</span> <span class="string">your-secret-id</span></span><br><span class="line">  <span class="attr">secretKey:</span> <span class="string">your-secret-key</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="插件推荐"><a href="#插件推荐" class="headerlink" title="插件推荐"></a>插件推荐</h2><h3 id="常用插件"><a href="#常用插件" class="headerlink" title="常用插件"></a>常用插件</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 搜索插件</span></span><br><span class="line">npm install hexo-generator-search --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 站点地图</span></span><br><span class="line">npm install hexo-generator-sitemap --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># RSS 订阅</span></span><br><span class="line">npm install hexo-generator-feed --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 文章阅读时间统计</span></span><br><span class="line">npm install hexo-reading-time --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 图片懒加载</span></span><br><span class="line">npm install hexo-lazyload-image --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 代码高亮</span></span><br><span class="line">npm install hexo-prism-plugin --save</span><br></pre></td></tr></table></figure>
-
-<h2 id="性能优化"><a href="#性能优化" class="headerlink" title="性能优化"></a>性能优化</h2><h3 id="图片优化"><a href="#图片优化" class="headerlink" title="图片优化"></a>图片优化</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装图片压缩插件</span></span><br><span class="line">npm install hexo-image-min --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置图片懒加载</span></span><br><span class="line">lazyload:</span><br><span class="line">  <span class="built_in">enable</span>: <span class="literal">true</span></span><br><span class="line">  onlypost: <span class="literal">false</span></span><br><span class="line">  loadingImg: /images/loading.gif</span><br></pre></td></tr></table></figure>
-
-<h3 id="代码压缩"><a href="#代码压缩" class="headerlink" title="代码压缩"></a>代码压缩</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装压缩插件</span></span><br><span class="line">npm install hexo-html-minifier --save</span><br><span class="line">npm install hexo-clean-css --save</span><br><span class="line">npm install hexo-uglify --save</span><br></pre></td></tr></table></figure>
-
-
-<hr>
-<!-- *本文档会持续更新，如有问题欢迎交流讨论。* -->
-]]></content>
-      <tags>
-        <tag>Hexo</tag>
-        <tag>博客</tag>
-        <tag>静态网站</tag>
-        <tag>教程</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>GPGPU概念与实现</title>
-    <url>/2025/10/29/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/GPGPU%E6%A6%82%E5%BF%B5%E4%B8%8E%E5%AE%9E%E7%8E%B0/</url>
-    <content><![CDATA[<h1 id="Computer-Shader"><a href="#Computer-Shader" class="headerlink" title="Computer Shader"></a>Computer Shader</h1><h2 id="概念区分"><a href="#概念区分" class="headerlink" title="概念区分"></a>概念区分</h2><p>GPGPU (General-Purpose computing on Graphics Processing Units)：这是一个概念或领域。它指的是“使用 GPU 强大的并行处理能力来执行传统上由 CPU 负责的通用计算任务”（如图形渲染之外的科学计算、物理模拟、AI 训练等）。</p>
-<p>Compute Shader (计算着色器)：这是一种具体的技术实现。它是一种程序（ HLSL, GLSL, MSL 等语言编写），它允许开发者在 GPU 上执行通用的计算。它最大的特点是它独立于传统的“渲染管线”（即独立于顶点着色器和片段着色器）。</p>
-<h2 id="为什么说“它独立于传统的渲染管线”"><a href="#为什么说“它独立于传统的渲染管线”" class="headerlink" title="为什么说“它独立于传统的渲染管线”"></a>为什么说“它独立于传统的渲染管线”</h2><p>Computer Shader与VS，FS都叫“着色器”(Shader)，都使用 HLSL 或 GLSL 这样的语言编写，并且都运行在 GPU 内部完全相同的“统一着色器核心”上。</p>
-<p>而“独立于顶点着色器和片段着色器”是在说：传统的渲染管线工序严格定义为顶点处理(VS) -&gt; 光栅化 -&gt; 像素处理(FS) -&gt; 输出图像，但是Computer Shader并不直接在这条管线里面工作，不关心什么顶点和像素，它的输入可以是任何数据，输出也可以是任何数据。在应用上，它的逻辑其实就类似在GPU上运行的代码，只不过是这一块代码是在GPU上运行的，并且由GPU统一管控。</p>
-<h2 id="使用例子"><a href="#使用例子" class="headerlink" title="使用例子"></a>使用例子</h2><p>举个例子，让一张 100 万像素的图片全部变亮。</p>
-<p>CPU 逻辑：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">for (int i = 0; i &lt; 1000000; ++i) &#123;</span><br><span class="line">    pixels[i] = pixels[i] * 1.1; // 串行执行 100 万次</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>GPGPU 逻辑 (伪代码)：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 只写这个函数，它只处理一个像素</span><br><span class="line">void BrightenKernel(int i) &#123;</span><br><span class="line">    pixels[i] = pixels[i] * 1.1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// (在 CPU 端) 调用：</span><br><span class="line">// “GPU，请在 100 万个核心上同时运行 BrightenKernel 函数”</span><br><span class="line">Dispatch(1000000);</span><br></pre></td></tr></table></figure>
-
-<h2 id="Compute-Shader如何助力渲染过程"><a href="#Compute-Shader如何助力渲染过程" class="headerlink" title="Compute Shader如何助力渲染过程"></a>Compute Shader如何助力渲染过程</h2><p>Compute Shader助力渲染过程不是直接插入渲染管线，而是使用多步骤，也即Pass。</p>
-<p>第一步，先运行一个 Compute Pass，让 Compute Shader 这个“通用车间”去完成所有繁重的计算（比如模拟成千上万个粒子的运动位置），并把计算结果存放到一块“仓库”（如 Buffer 或 Texture）里。</p>
-<p>第二步，再运行一个 Render Pass，启动那条“渲染管线”，此时你的 VS 和 FS 程序不再需要自己去苦苦计算，它们可以直接去“仓库”里读取 Compute Shader 算好的现成数据，然后轻松地把它们画在屏幕上。</p>
-<h1 id="SSBO"><a href="#SSBO" class="headerlink" title="SSBO"></a>SSBO</h1><h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>SSBO (Shader Storage Buffer Object，着色器存储缓冲对象) 是一种在 GPU 上分配的<strong>通用内存缓冲区</strong>。</p>
-<p>你可以把它想象成一块“大容量、可读写的 GPU 内存”，所有类型的着色器（尤其是 Compute Shader）都可以自由地从中读取和写入数据。</p>
-<p>SSBO 是现代图形 API (如 OpenGL 4.3+, Vulkan, Metal, WebGPU) 中的一个核心功能，它的出现<strong>是 GPGPU 和 Compute Shader 得以普及的关键基石</strong>。</p>
-<hr>
-<h2 id="SSBO-的核心特性"><a href="#SSBO-的核心特性" class="headerlink" title="SSBO 的核心特性"></a>SSBO 的核心特性</h2><ol>
-<li><p><strong>读写能力 (Read&#x2F;Write Access)</strong></p>
-<ul>
-<li>这是 SSBO <strong>最重要</strong>的特性。在 SSBO 出现之前，GPU 上的大多数数据缓冲区（比如 UBO）对 Shader 来说都是“只读”的。</li>
-<li>有了 SSBO，你的 Compute Shader <strong>不仅可以读取数据，还可以把计算结果写回去</strong>。</li>
-<li>它甚至支持<strong>原子操作</strong>（Atomics），这允许多个 GPU 线程同时读写同一块内存区域而不会导致数据错乱，这对于并行计数、构建列表等高级算法至关重要。</li>
+<h1 id="CRTP"><a href="#CRTP" class="headerlink" title="CRTP"></a>CRTP</h1><h2 id="概念-1"><a href="#概念-1" class="headerlink" title="概念"></a>概念</h2><p>CRTP（Curiously Recurring Template Pattern，奇异递归模板模式）是一种编译时多态技术。其核心思想是让派生类作为模板参数传递给基类模板，使得基类可以在编译时访问派生类的成员。</p>
+<h2 id="特点-1"><a href="#特点-1" class="headerlink" title="特点"></a>特点</h2><ul>
+<li><strong>静态多态</strong>：函数调用在编译时就已确定，无需运行时查找</li>
+<li><strong>零开销</strong>：不需要虚函数表和虚指针，没有运行时性能损耗</li>
+<li><strong>编译期类型检查</strong>：如果派生类没有实现所需的函数，会在编译时报错</li>
+<li><strong>代码膨胀</strong>：每个派生类都会生成独立的代码，可能导致二进制文件增大</li>
 </ul>
-</li>
-<li><p><strong>超大容量 (Very Large Size)</strong></p>
-<ul>
-<li>在 SSBO 之前，我们有 <strong>UBO (Uniform Buffer Object)</strong>，它用于向 Shader 传递常量（比如摄像机矩阵）。但 UBO 的容量<strong>非常小</strong>（例如，通常限制在 64KB）。</li>
-<li>SSBO 的容量限制<strong>非常大</strong>，通常只受限于你显卡的<strong>总显存大小</strong>（可能是几百 MB 甚至几个 GB）。</li>
-</ul>
-</li>
-<li><p><strong>灵活的结构 (Flexible Structure)</strong></p>
-<ul>
-<li>SSBO 就是一块原始内存。你可以在其中定义<strong>任意的数据结构</strong>，最常见的就是定义一个 <code>struct</code>（结构体），然后创建一个由这个结构体组成的<strong>巨大数组</strong>。</li>
-</ul>
-</li>
-<li><p><strong>通用性 (General Purpose)</strong></p>
-<ul>
-<li>SSBO 不仅可以被 <strong>Compute Shader</strong> 访问，也可以在<strong>顶点着色器 (VS)</strong> 和<strong>片段着色器 (FS)</strong> 中访问。这使得在不同管线阶段共享海量数据成为可能。</li>
-</ul>
-</li>
-</ol>
-<hr>
-<h2 id="为什么-SSBO-如此重要？"><a href="#为什么-SSBO-如此重要？" class="headerlink" title="为什么 SSBO 如此重要？"></a>为什么 SSBO 如此重要？</h2><p><strong>一句话：没有 SSBO，Compute Shader 就几乎毫无用处。</strong></p>
-<p>Compute Shader (GPGPU) 的目标是处理大规模并行计算。这些计算需要满足两个条件：</p>
-<ol>
-<li>需要<strong>输入</strong>海量数据。</li>
-<li>需要<strong>输出</strong>海量数据。</li>
-</ol>
-<p>UBO 太小了，根本无法承载这些数据。而 SSBO 完美地解决了这两个问题。</p>
-<hr>
-<h2 id="一个生动的例子：100-万个粒子的物理模拟"><a href="#一个生动的例子：100-万个粒子的物理模拟" class="headerlink" title="一个生动的例子：100 万个粒子的物理模拟"></a>一个生动的例子：100 万个粒子的物理模拟</h2><p>假设你想在 GPU 上模拟 100 万个粒子的运动。</p>
-<ul>
-<li><p><strong>数据：</strong> 你需要存储每个粒子的 <code>位置 (vec3)</code>、<code>速度 (vec3)</code>、<code>生命周期 (float)</code> 等。这 100 万个粒子的数据量会非常大（例如 <code>(12+12+4) * 1,000,000 = 28MB</code>），UBO 根本放不下。</p>
-</li>
-<li><p><strong>SSBO 的解决方案：</strong></p>
-<ol>
-<li><strong>创建 (CPU端)：</strong> 在 CPU 上创建一个 SSBO，其大小足以容纳 100 万个 <code>Particle</code> 结构体。</li>
-<li><strong>计算 (GPU - Compute Pass)：</strong><ul>
-<li>启动一个 <strong>Compute Shader</strong>，并让 GPU 开启 100 万个线程。</li>
-<li><strong>绑定 SSBO</strong>，让 Compute Shader 可以<strong>读写</strong>它。</li>
-<li><strong>每个线程</strong>负责<strong>读取</strong>一个粒子的当前位置和速度，计算它下一帧的新位置和新速度，然后<strong>写回</strong> SSBO 中<strong>同一个粒子</strong>的数据。</li>
-</ul>
-</li>
-<li><strong>渲染 (GPU - Render Pass)：</strong><ul>
-<li>启动<strong>渲染管线</strong> (VS + FS)。</li>
-<li><strong>绑定同一个 SSBO</strong>（这次是作为只读）。</li>
-<li><strong>顶点着色器 (VS)</strong> 也启动 100 万次，它从 SSBO 中<strong>读取</strong>每个粒子的（已被 Compute Shader 更新过的）位置，然后把它们画在屏幕上。</li>
-</ul>
-</li>
-</ol>
-</li>
-</ul>
-<hr>
-<h2 id="总结对比：SSBO-vs-UBO"><a href="#总结对比：SSBO-vs-UBO" class="headerlink" title="总结对比：SSBO vs. UBO"></a>总结对比：SSBO vs. UBO</h2><p>为了帮你更好地区分，这里有一个表格：</p>
-<table>
+<h2 id="使用场景-1"><a href="#使用场景-1" class="headerlink" title="使用场景"></a>使用场景</h2><p>当你需要在编译期实现多态，追求零开销抽象，且类型关系在编译期就能确定时，CRTP是理想选择。常用于性能敏感的场景，如模板库、数学库等。</p>
+<h2 id="示例代码-1"><a href="#示例代码-1" class="headerlink" title="示例代码"></a>示例代码</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">template &lt;typename Derived&gt;</span><br><span class="line">class Base &#123;</span><br><span class="line">public:</span><br><span class="line">    void interface() &#123;</span><br><span class="line">        // 调用派生类的实现</span><br><span class="line">        static_cast&lt;Derived*&gt;(this)-&gt;implementation();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">class Derived : public Base&lt;Derived&gt; &#123;</span><br><span class="line">public:</span><br><span class="line">    void implementation() &#123;</span><br><span class="line">        // 具体实现</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="虚函数-vs-CRTP-对比"><a href="#虚函数-vs-CRTP-对比" class="headerlink" title="虚函数 vs CRTP 对比"></a>虚函数 vs CRTP 对比</h1><h2 id="主要区别"><a href="#主要区别" class="headerlink" title="主要区别"></a>主要区别</h2><table>
 <thead>
 <tr>
-<th align="left">特性</th>
-<th align="left"><strong>SSBO (Shader Storage Buffer Object)</strong></th>
-<th align="left"><strong>UBO (Uniform Buffer Object)</strong></th>
+<th>特性</th>
+<th>虚函数</th>
+<th>CRTP</th>
 </tr>
 </thead>
 <tbody><tr>
-<td align="left"><strong>主要用途</strong></td>
-<td align="left"><strong>通用计算存储 (GPGPU)</strong>、海量数据</td>
-<td align="left"><strong>常量数据</strong> (如变换矩阵、灯光设置)</td>
+<td>多态类型</td>
+<td>运行时多态</td>
+<td>编译时多态</td>
 </tr>
 <tr>
-<td align="left"><strong>Shader 访问</strong></td>
-<td align="left"><strong>可读 &#x2F; 可写</strong> (Read&#x2F;Write)</td>
-<td align="left"><strong>只读</strong> (Read-Only)</td>
+<td>性能开销</td>
+<td>有（虚函数表查找）</td>
+<td>无（编译期展开）</td>
 </tr>
 <tr>
-<td align="left"><strong>大小限制</strong></td>
-<td align="left"><strong>非常大</strong> (GB 级别，受显存限制)</td>
-<td align="left"><strong>非常小</strong> (KB 级别，如 64KB)</td>
+<td>灵活性</td>
+<td>可选择性重写</td>
+<td>必须实现所需函数</td>
 </tr>
 <tr>
-<td align="left"><strong>主要搭档</strong></td>
-<td align="left"><strong>Compute Shader</strong></td>
-<td align="left">Vertex Shader, Fragment Shader</td>
+<td>内存开销</td>
+<td>每个对象有虚指针</td>
+<td>无额外指针开销</td>
+</tr>
+<tr>
+<td>代码大小</td>
+<td>较小</td>
+<td>可能较大（模板展开）</td>
+</tr>
+<tr>
+<td>类型安全</td>
+<td>运行时</td>
+<td>编译时</td>
+</tr>
+<tr>
+<td>异构容器</td>
+<td>支持（可用基类指针容器）</td>
+<td>不支持（类型不同）</td>
 </tr>
 </tbody></table>
-<p><strong>一句话总结：</strong></p>
+<h2 id="选择建议"><a href="#选择建议" class="headerlink" title="选择建议"></a>选择建议</h2><p><strong>使用虚函数的情况：</strong></p>
 <ul>
-<li><strong>UBO</strong> 是 GPU 的一块“<strong>只读小黑板</strong>”，用于告诉所有线程“今天的规则是什么”（比如摄像机在哪）。</li>
-<li><strong>SSBO</strong> 是 GPU 的一个“<strong>巨大共享仓库</strong>”，所有线程都可以进去拿货（读取）和放货（写入），是 GPGPU 的核心数据中枢。</li>
+<li>需要在运行时动态确定对象类型</li>
+<li>需要将不同类型的对象放在同一个容器中</li>
+<li>派生类可以选择性地实现某些功能</li>
+<li>性能开销可以接受</li>
 </ul>
-<h1 id="Indirect-Draw"><a href="#Indirect-Draw" class="headerlink" title="Indirect Draw"></a>Indirect Draw</h1><h2 id="概念-1"><a href="#概念-1" class="headerlink" title="概念"></a>概念</h2><p>Indirect Draw指绘制数据不再由CPU告诉GPU，而是GPU自己去读SSBO，获取绘制数据。CPU要做的事情只是发送一条指令，告诉GPU去哪里读取数据，并进行绘制。</p>
-<p>同时，Indirect Draw也有一个对应的API，vkCmdDrawIndirect，是GPU用来给CPU发消息的。</p>
-<h2 id="样例"><a href="#样例" class="headerlink" title="样例"></a>样例</h2><h3 id="直接绘制-Direct-Draw"><a href="#直接绘制-Direct-Draw" class="headerlink" title="直接绘制 (Direct Draw)"></a>直接绘制 (Direct Draw)</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// CPU 必须在“调用时”就明确知道要画多少个顶点</span><br><span class="line">int vertexCount = 6000;</span><br><span class="line">int instanceCount = 1000;</span><br><span class="line">int firstVertex = 0;</span><br><span class="line">int firstInstance = 0;</span><br><span class="line"></span><br><span class="line">// CPU 将这些“参数”直接打包成命令</span><br><span class="line">// &quot;画 6000 个顶点, 1000 个实例, ...&quot;</span><br><span class="line">vkCmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);</span><br></pre></td></tr></table></figure>
-
-<h3 id="间接绘制（Indirect-Draw）"><a href="#间接绘制（Indirect-Draw）" class="headerlink" title="间接绘制（Indirect Draw）"></a>间接绘制（Indirect Draw）</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// CPU 不知道要画多少个。它只知道“绘制参数”被存在了哪个 GPU 缓冲区里。</span><br><span class="line">VkBuffer drawArgumentsBuffer = ...; // 这是一个 SSBO</span><br><span class="line">uint32_t bufferOffset = 0;</span><br><span class="line"></span><br><span class="line">// CPU 发送一个“间接”命令</span><br><span class="line">// &quot;去 drawArgumentsBuffer 的 0 偏移处，自己读取参数，然后按那个参数画&quot;</span><br><span class="line">vkCmdDrawIndirect(commandBuffer, drawArgumentsBuffer, bufferOffset, 1, ...);</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>Basic Concept</category>
-      </categories>
-      <tags>
-        <tag>Rendering</tag>
-        <tag>Basic Concept</tag>
-        <tag>Computer Shader</tag>
-        <tag>BBSO</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>WASM</title>
-    <url>/2025/10/29/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/WASM/</url>
-    <content><![CDATA[<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>WASM (WebAssembly) 是一种“网页汇编”技术。</p>
-<p>是一种低级 (low-level) 的、高性能的“二进制指令格式”，专门设计用于在网页浏览器中运行。对标exe。</p>
-<p>可以理解为一种让 C++、C#、Rust、Go 等高性能语言编写的代码，能够以接近原生的速度在浏览器里运行的方式。</p>
-<h1 id="出现原因"><a href="#出现原因" class="headerlink" title="出现原因"></a>出现原因</h1><p>JavaScript 是唯一能在浏览器中运行的编程语言。</p>
-<p>JavaScript 是一种很棒的脚本语言，但它在执行非常繁重的计算任务时（比如 3D 游戏引擎、视频编辑、物理模拟、图像识别）会非常吃力，速度跟不上。</p>
-<p>开发者们渴望能用 C++ 或 Rust 这种高性能语言来编写程序，因为它们运行速度极快。</p>
-<p>但 C++ 编译出来的程序是 .exe (Windows) 或 .app (Mac)，它们无法在浏览器这个“沙盒”里运行。</p>
-<p>WASM就是用来做这种翻译的，工作流如下：</p>
+<p><strong>使用CRTP的情况：</strong></p>
 <ul>
-<li>编写 (开发者)：开发者使用 C++ 或 Rust 编写了一个高性能的程序（例如一个 3D 游戏的物理引擎）。</li>
-<li>编译 (工具链)：开发者使用一个特殊的编译器（如 Emscripten），不把 C++ 代码编译成 .exe。而是把它编译成一种平台无关的、高度优化的二进制文件，扩展名为 .wasm。</li>
-<li>运行 (浏览器)：浏览器（如 Chrome, Firefox）加载这个 .wasm 文件。浏览器内部的 JavaScript 引擎（它也是一个虚拟机）能极快地解析和执行这种二进制格式，速度远超解析 JavaScript 文本。</li>
+<li>追求极致性能，无法接受虚函数开销</li>
+<li>类型关系在编译期就已确定</li>
+<li>需要编译期类型检查和错误提示</li>
+<li>所有派生类都必须实现相同的接口</li>
 </ul>
+<h2 id="个人理解"><a href="#个人理解" class="headerlink" title="个人理解"></a>个人理解</h2><p>如果虚函数基类中的某一个<code>virtual</code>函数会被所有子类<code>override</code>，那其实就可以用CRTP平替。CRTP要求所有子类都必须实现被调用的函数（否则编译错误），而虚函数的子类可以选择不实现某个虚函数（使用基类的默认实现）。因此，虚函数更灵活，CRTP更高效。</p>
 ]]></content>
       <categories>
-        <category>Basic Concept</category>
+        <category>C++</category>
       </categories>
       <tags>
-        <tag>Rendering</tag>
-        <tag>Basic Concept</tag>
-        <tag>WASM</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Rendering ToolTips</title>
-    <url>/2025/09/03/Rendering/Rendering/</url>
-    <content><![CDATA[<h1 id="常用软件"><a href="#常用软件" class="headerlink" title="常用软件"></a>常用软件</h1><ul>
-<li>renderDoc：支持对应用截帧分析</li>
-</ul>
-]]></content>
-      <categories>
-        <category>Rendering</category>
-      </categories>
-      <tags>
-        <tag>Rendering</tag>
+        <tag>C++</tag>
       </tags>
   </entry>
   <entry>
@@ -761,6 +518,132 @@
 <li>知乎专栏合集：BRDF&#x2F;渲染相关 <a href="https://zhuanlan.zhihu.com/c_1647165706373316609">链接</a></li>
 <li>知识库&#x2F;计算机图形学&#x2F;Cook Torrance BRDF <a href="https://geodoer.github.io/A-%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E5%BD%A2%E5%AD%A6/2-%E6%B8%B2%E6%9F%93%E6%A6%82%E8%BF%B0/%E5%85%89%E7%85%A7%E4%B8%8E%E6%9D%90%E8%B4%A8/PBR/PBR%E5%8E%9F%E7%90%86/BRDF/Cook-Torrance%20BRDF/">链接</a></li>
 <li>PBR渲染: Cook-Torrance的实现与补充 <a href="https://www.blurredcode.com/2021/05/dec701b2/#%e5%87%a0%e4%bd%95%e9%81%ae%e8%94%bd%e9%a1%b9g">链接</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Rendering</category>
+      </categories>
+      <tags>
+        <tag>Rendering</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>RayTracing</title>
+    <url>/2025/09/22/Rendering/RayTracing/</url>
+    <content><![CDATA[<h1 id="RayTracing概述"><a href="#RayTracing概述" class="headerlink" title="RayTracing概述"></a>RayTracing概述</h1><h2 id="渲染方程"><a href="#渲染方程" class="headerlink" title="渲染方程"></a>渲染方程</h2><p>每个点的Radiance &#x3D; 该点的自发光Radiance + 该点反射出的 来自其他光源的Radiance。</p>
+<p>$$L_o(p,\omega_o) &#x3D; L_e(p,\omega_o) + \int_{\Omega} f_r(p,\omega_i,\omega_o) L_i(p,\omega_i) \cos\theta_i d\omega_i$$ </p>
+<p>其中：</p>
+<ul>
+<li>$p$ 是表面上的点（point on surface）</li>
+<li>$\omega_o$ 是出射方向（outgoing direction）</li>
+<li>$\omega_i$ 是入射方向（incoming direction）</li>
+<li>$L_o(p,\omega_o)$ 是从点 $p$ 沿方向 $\omega_o$ 出射的辐射度（outgoing radiance）</li>
+<li>$L_e(p,\omega_o)$ 是点 $p$ 沿方向 $\omega_o$ 的自发光辐射度（emitted radiance）</li>
+<li>$f_r(p,\omega_i,\omega_o)$ 是双向反射分布函数（BRDF - Bidirectional Reflectance Distribution Function）</li>
+<li>$L_i(p,\omega_i)$ 是从方向 $\omega_i$ 入射到点 $p$ 的辐射度（incoming radiance）</li>
+<li>$\cos\theta_i$ 是入射角 $\theta_i$ 的余弦值，表示光线与表面法线的夹角</li>
+<li>$\Omega$ 是半球积分域（hemisphere integration domain）</li>
+<li>$d\omega_i$ 是立体角微元（solid angle differential）</li>
+</ul>
+<h3 id="物理意义解释"><a href="#物理意义解释" class="headerlink" title="物理意义解释"></a>物理意义解释</h3><p>渲染方程描述了光线在表面上的反射行为：</p>
+<ol>
+<li><strong>自发光项</strong> $L_e(p,\omega_o)$：表示表面本身发出的光，如灯泡、火焰等光源</li>
+<li><strong>反射项</strong> $\int_{\Omega} f_r(p,\omega_i,\omega_o) L_i(p,\omega_i) \cos\theta_i d\omega_i$：<ul>
+<li>积分表示对所有可能入射方向的贡献求和</li>
+<li>BRDF $f_r$ 描述材料如何将入射光反射到出射方向</li>
+<li>$\cos\theta_i$ 项体现了朗伯定律（Lambert’s law），入射角越大，贡献越小</li>
+<li>这个积分计算了来自所有方向的光线对出射辐射度的贡献</li>
+</ul>
+</li>
+</ol>
+<h3 id="数学含义"><a href="#数学含义" class="headerlink" title="数学含义"></a>数学含义</h3><ul>
+<li>这是一个<strong>积分方程</strong>，因为 $L_i$ 本身可能依赖于其他表面的 $L_o$</li>
+<li>在全局光照中，这个方程需要递归求解</li>
+<li>在光线追踪中，我们通过采样来近似这个积分</li>
+</ul>
+<h2 id="BRDF（双向反射分布函数）"><a href="#BRDF（双向反射分布函数）" class="headerlink" title="BRDF（双向反射分布函数）"></a>BRDF（双向反射分布函数）</h2><p>BRDF $f_r(p,\omega_i,\omega_o)$ 描述了材料如何将入射光反射到出射方向。它满足以下性质：</p>
+<h3 id="1-能量守恒"><a href="#1-能量守恒" class="headerlink" title="1. 能量守恒"></a>1. 能量守恒</h3><p>$$\int_{\Omega} f_r(p,\omega_i,\omega_o) \cos\theta_i d\omega_i \leq 1$$</p>
+<h3 id="2-互易性（Helmholtz互易性）"><a href="#2-互易性（Helmholtz互易性）" class="headerlink" title="2. 互易性（Helmholtz互易性）"></a>2. 互易性（Helmholtz互易性）</h3><p>$$f_r(p,\omega_i,\omega_o) &#x3D; f_r(p,\omega_o,\omega_i)$$</p>
+<h3 id="3-常见BRDF模型"><a href="#3-常见BRDF模型" class="headerlink" title="3. 常见BRDF模型"></a>3. 常见BRDF模型</h3><p><strong>朗伯反射（Lambertian）</strong>：<br>$$f_r(p,\omega_i,\omega_o) &#x3D; \frac{\rho}{\pi}$$</p>
+<p>其中 $\rho$ 是反射率（albedo）。</p>
+<p><strong>镜面反射（Specular）</strong>：<br>$$f_r(p,\omega_i,\omega_o) &#x3D; \frac{F(\theta_h) D(\theta_h) G(\omega_i,\omega_o)}{4\cos\theta_i\cos\theta_o}$$</p>
+<p>其中：</p>
+<ul>
+<li>$F$ 是菲涅尔反射系数</li>
+<li>$D$ 是法线分布函数</li>
+<li>$G$ 是几何遮蔽函数</li>
+</ul>
+<h2 id="PDF（概率密度函数）解释"><a href="#PDF（概率密度函数）解释" class="headerlink" title="PDF（概率密度函数）解释"></a>PDF（概率密度函数）解释</h2><p>PDF（Probability Density Function）是蒙特卡洛积分中的关键概念：</p>
+<h3 id="什么是PDF？"><a href="#什么是PDF？" class="headerlink" title="什么是PDF？"></a>什么是PDF？</h3><ul>
+<li><strong>定义</strong>：PDF $p(\omega_i)$ 描述在方向 $\omega_i$ 上采样的概率密度</li>
+<li><strong>作用</strong>：告诉我们在哪个方向更可能采样到重要的光线</li>
+<li><strong>归一化</strong>：$\int_{\Omega} p(\omega_i) d\omega_i &#x3D; 1$</li>
+</ul>
+<h3 id="为什么需要PDF？"><a href="#为什么需要PDF？" class="headerlink" title="为什么需要PDF？"></a>为什么需要PDF？</h3><p>在渲染方程中：<br>$$L_o(p,\omega_o) &#x3D; L_e(p,\omega_o) + \int_{\Omega} f_r(p,\omega_i,\omega_o) L_i(p,\omega_i) \cos\theta_i d\omega_i$$</p>
+<p>我们通过随机采样来近似这个积分：<br>$$\approx L_e(p,\omega_o) + \frac{1}{N} \sum_{i&#x3D;1}^{N} \frac{f_r(p,\omega_i,\omega_o) L_i(p,\omega_i) \cos\theta_i}{p(\omega_i)}$$</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">总贡献 = 0</span><br><span class="line">for i = 1 to N:</span><br><span class="line">    ω = 根据PDF随机选择一个方向</span><br><span class="line">    贡献 = fr(ω) * Li(ω) * cos(θ) / pdf(ω)</span><br><span class="line">    总贡献 += 贡献</span><br><span class="line">最终结果 = 总贡献 / N</span><br></pre></td></tr></table></figure>
+
+<h3 id="常见PDF策略"><a href="#常见PDF策略" class="headerlink" title="常见PDF策略"></a>常见PDF策略</h3><ol>
+<li><strong>均匀采样</strong>：$p(\omega_i) &#x3D; \frac{1}{2\pi}$（所有方向等概率）</li>
+<li><strong>余弦加权采样</strong>：$p(\omega_i) &#x3D; \frac{\cos\theta_i}{\pi}$（更可能采样接近法线的方向）</li>
+<li><strong>BRDF采样</strong>：$p(\omega_i) \propto f_r(p,\omega_i,\omega_o)$（根据BRDF形状采样）</li>
+<li><strong>光源采样</strong>：$p(\omega_i) \propto \frac{1}{d^2}$（更可能采样距离近的光源方向）</li>
+</ol>
+<h3 id="光源采样详解"><a href="#光源采样详解" class="headerlink" title="光源采样详解"></a>光源采样详解</h3><p>光源采样是一种重要的优化技术，直接向光源方向采样：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 光源采样伪代码</span><br><span class="line">Vector3 sampleLight(Point p) &#123;</span><br><span class="line">    // 选择光源</span><br><span class="line">    Light light = selectLight();</span><br><span class="line">    </span><br><span class="line">    // 计算从p到光源的方向</span><br><span class="line">    Vector3 lightDir = normalize(light.position - p);</span><br><span class="line">    </span><br><span class="line">    // 计算距离</span><br><span class="line">    float distance = length(light.position - p);</span><br><span class="line">    </span><br><span class="line">    // 计算PDF（考虑距离衰减）</span><br><span class="line">    float pdf = 1.0 / (distance * distance);</span><br><span class="line">    </span><br><span class="line">    return lightDir;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 在shade函数中使用</span><br><span class="line">shade(p, wo) &#123;</span><br><span class="line">    Lo = Le(p, wo)</span><br><span class="line">    </span><br><span class="line">    // 1. 光源采样（直接光照）</span><br><span class="line">    Vector3 wi_light = sampleLight(p);</span><br><span class="line">    Ray shadowRay(p, wi_light);</span><br><span class="line">    if (!intersect(shadowRay)) &#123;</span><br><span class="line">        float cosTheta = dot(normal, wi_light);</span><br><span class="line">        Lo += fr(p,wi_light,wo) * light.intensity * cosTheta / pdf_light;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 2. BRDF采样（间接光照）</span><br><span class="line">    Vector3 wi_brdf = sampleBRDF(wo);</span><br><span class="line">    // ... 递归计算</span><br><span class="line">    </span><br><span class="line">    return Lo;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="多重重要性采样（MIS）"><a href="#多重重要性采样（MIS）" class="headerlink" title="多重重要性采样（MIS）"></a>多重重要性采样（MIS）</h3><p>结合光源采样和BRDF采样，使用权重函数：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 权重函数</span><br><span class="line">float powerHeuristic(float pdf1, float pdf2) &#123;</span><br><span class="line">    float w1 = pdf1 * pdf1;</span><br><span class="line">    float w2 = pdf2 * pdf2;</span><br><span class="line">    return w1 / (w1 + w2);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 在shade函数中</span><br><span class="line">shade(p, wo) &#123;</span><br><span class="line">    Lo = Le(p, wo)</span><br><span class="line">    </span><br><span class="line">    // 光源采样</span><br><span class="line">    Vector3 wi_light = sampleLight(p);</span><br><span class="line">    float pdf_light = lightPdf(wi_light);</span><br><span class="line">    float pdf_brdf = brdfPdf(wi_light, wo);</span><br><span class="line">    float weight_light = powerHeuristic(pdf_light, pdf_brdf);</span><br><span class="line">    </span><br><span class="line">    // BRDF采样  </span><br><span class="line">    Vector3 wi_brdf = sampleBRDF(wo);</span><br><span class="line">    float pdf_brdf2 = brdfPdf(wi_brdf, wo);</span><br><span class="line">    float pdf_light2 = lightPdf(wi_brdf);</span><br><span class="line">    float weight_brdf = powerHeuristic(pdf_brdf2, pdf_light2);</span><br><span class="line">    </span><br><span class="line">    // 加权求和</span><br><span class="line">    Lo += weight_light * evaluateLightContribution(wi_light);</span><br><span class="line">    Lo += weight_brdf * evaluateBRDFContribution(wi_brdf);</span><br><span class="line">    </span><br><span class="line">    return Lo;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="重要性采样"><a href="#重要性采样" class="headerlink" title="重要性采样"></a>重要性采样</h3><ul>
+<li><strong>目标</strong>：减少噪声，提高收敛速度</li>
+<li><strong>原理</strong>：在贡献大的区域多采样，在贡献小的区域少采样</li>
+<li><strong>效果</strong>：相同样本数下获得更准确的结果</li>
+</ul>
+<h2 id="直接光照"><a href="#直接光照" class="headerlink" title="直接光照"></a>直接光照</h2><p>只考虑直接光照的光追，是从屏幕每个pixel发出射线，射线方向是viewpoint-&gt;pixel，计算每条光线上的Radiance。如果光线打到光源，则增加Radiance的值。</p>
+<p>对于直接光照，渲染方程简化为：</p>
+<p>$$L_o(p,\omega_o) &#x3D; L_e(p,\omega_o) + \sum_{i&#x3D;1}^{n} f_r(p,\omega_i,\omega_o) L_i(p,\omega_i) \cos\theta_i$$</p>
+<p>其中：</p>
+<ul>
+<li>$L_o(p,\omega_o)$ 是出射辐射度（outgoing radiance）</li>
+<li>$L_e(p,\omega_o)$ 是自发光辐射度（emitted radiance）</li>
+<li>$f_r(p,\omega_i,\omega_o)$ 是BRDF（双向反射分布函数）</li>
+<li>$L_i(p,\omega_i)$ 是入射辐射度（incoming radiance）</li>
+<li>$\cos\theta_i$ 是入射角余弦值</li>
+<li>$n$ 是光源数量</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">shade(p,w0)</span><br><span class="line">    Lo = Le(p,wo)  // 自发光项</span><br><span class="line">    Randomly sample N directions wi (i=1 to N) based on the pdf</span><br><span class="line">    For each wi</span><br><span class="line">        Trace a ray r(p,wi)</span><br><span class="line">        if ray hit a light</span><br><span class="line">            Lo += (1/N) * fr(p,wi,wo) * Li(p,wi) * cos(θi) / pdf(wi)</span><br><span class="line">    return Lo</span><br></pre></td></tr></table></figure>
+
+<h2 id="全局光照"><a href="#全局光照" class="headerlink" title="全局光照"></a>全局光照</h2><p>不仅仅只考虑打到光源的光线，如果光线打到某个物体上，则把这个物体也当作一个起点，发散$N$条光线，看是否接触到光源，或是别的物体。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">shade(p,w0)</span><br><span class="line">    Lo = Le(p,wo)  // 自发光项</span><br><span class="line">    Randomly sample N directions wi (i=1 to N) based on the pdf</span><br><span class="line">    For each wi</span><br><span class="line">        Trace a ray r(p,wi)</span><br><span class="line">        if ray hit a light</span><br><span class="line">            Lo += (1/N) * fr(p,wi,wo) * Li(p,wi) * cos(θi) / pdf(wi)</span><br><span class="line">        else if ray hit an object at q</span><br><span class="line">            Lo += (1/N) * shade(q, -wi) * f_r * cos(θi) / pdf(wi)</span><br><span class="line">    return Lo</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../Image/RayTracing/RayTracingForGlobal.png" alt="考虑全局光照的光追"></p>
+<p>光线的传播如下图所示，性能爆炸：<br><img src="/../Image/RayTracing/LightTrace.png" alt="光线传播"></p>
+<h2 id="路径追踪（一个具体的光追算法）"><a href="#路径追踪（一个具体的光追算法）" class="headerlink" title="路径追踪（一个具体的光追算法）"></a>路径追踪（一个具体的光追算法）</h2><p>在全局光照中，如果取$N &#x3D; 1$，那么这个算法就被称为路径追踪</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">shade(p,w0)</span><br><span class="line">    Lo = Le(p,wo)  // 自发光项</span><br><span class="line">    Randomly choose ONE direction wi(i=1) base on pdf</span><br><span class="line">    Trace a ray r(p,wi)</span><br><span class="line">    if ray hit a light</span><br><span class="line">        Lo += fr(p,wi,wo) * Li(p,wi) * cos(θi) / pdf(wi)</span><br><span class="line">    else if ray hit an object at q</span><br><span class="line">        Lo += shade(q, -wi) * f_r * cos(θi) / pdf(wi)</span><br><span class="line">    return Lo</span><br></pre></td></tr></table></figure>
+
+<h2 id="Ray-Generation"><a href="#Ray-Generation" class="headerlink" title="Ray Generation"></a>Ray Generation</h2><p>上面讲的是从viewpoint to piexl打出一条光线后，这条光线如何计算。这里讲从viewpoint to piexl的光线是如何生成的，以及如何计算最终的渲染结果。一个pixel也可以打出若干条光线。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ray_generation(camPos，pixel)</span><br><span class="line">    Uniformly choose N sample positions within the pixel</span><br><span class="line">    pixel_radiance = 0.0</span><br><span class="line">    for each sample in the pixel:</span><br><span class="line">        Shoot a ray r(camPos, camPos_to_sample)</span><br><span class="line">        if ray r hit p（object or light）</span><br><span class="line">            pixel_radiance += 1/N * shade(p，sample_to_camPos)</span><br><span class="line">    return pixel_radiance</span><br></pre></td></tr></table></figure>
+<p>这里p不需要区分是光源还是普通物体，因为shade函数已经包含了自发光项$L_e(p,\omega_o)$，能够统一处理两种情况：</p>
+<ul>
+<li>如果p是光源，自发光项会返回光源的辐射度</li>
+<li>如果p是普通物体，自发光项为零，只计算反射光</li>
+</ul>
+<h2 id="算法停止"><a href="#算法停止" class="headerlink" title="算法停止"></a>算法停止</h2><h3 id="俄罗斯轮盘赌（Russian-Roulette）"><a href="#俄罗斯轮盘赌（Russian-Roulette）" class="headerlink" title="俄罗斯轮盘赌（Russian Roulette）"></a>俄罗斯轮盘赌（Russian Roulette）</h3><p>在光线追踪中，递归可能无限进行下去，需要一种机制来停止算法。俄罗斯轮盘赌是一种概率终止方法：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">shade(p, wo, depth) </span><br><span class="line">    // 俄罗斯轮盘赌：设定一个概率值continue_probability，随机取一个[0,1]的random()值</span><br><span class="line">    if random() &gt; continue_probability:</span><br><span class="line">        return 0.0;  // 终止递归</span><br><span class="line">    </span><br><span class="line">    Lo = Le(p, wo)  // 自发光项</span><br><span class="line">    Randomly sample ONE direction wi based on pdf</span><br><span class="line">    Trace a ray r(p, wi)</span><br><span class="line">    if ray hit a light:</span><br><span class="line">        Lo += fr(p,wi,wo) * Li(p,wi) * cos(θi) / pdf(wi)</span><br><span class="line">    else if ray hit an object at q:</span><br><span class="line">        Lo += shade(q, -wi, depth+1) * fr(p,wi,wo) * cos(θi) / pdf(wi)</span><br><span class="line">    </span><br><span class="line">    // 补偿能量：除以继续概率</span><br><span class="line">    return Lo / continue_probability</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Rendering</category>
+      </categories>
+      <tags>
+        <tag>Rendering</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Rendering ToolTips</title>
+    <url>/2025/09/03/Rendering/Rendering/</url>
+    <content><![CDATA[<h1 id="常用软件"><a href="#常用软件" class="headerlink" title="常用软件"></a>常用软件</h1><ul>
+<li>renderDoc：支持对应用截帧分析</li>
 </ul>
 ]]></content>
       <categories>
@@ -900,115 +783,330 @@
       </tags>
   </entry>
   <entry>
-    <title>RayTracing</title>
-    <url>/2025/09/22/Rendering/RayTracing/</url>
-    <content><![CDATA[<h1 id="RayTracing概述"><a href="#RayTracing概述" class="headerlink" title="RayTracing概述"></a>RayTracing概述</h1><h2 id="渲染方程"><a href="#渲染方程" class="headerlink" title="渲染方程"></a>渲染方程</h2><p>每个点的Radiance &#x3D; 该点的自发光Radiance + 该点反射出的 来自其他光源的Radiance。</p>
-<p>$$L_o(p,\omega_o) &#x3D; L_e(p,\omega_o) + \int_{\Omega} f_r(p,\omega_i,\omega_o) L_i(p,\omega_i) \cos\theta_i d\omega_i$$ </p>
-<p>其中：</p>
+    <title>Hexo</title>
+    <url>/2025/09/04/Tools/Hexo/</url>
+    <content><![CDATA[<h1 id="Hexo-静态博客框架使用指南"><a href="#Hexo-静态博客框架使用指南" class="headerlink" title="Hexo 静态博客框架使用指南"></a>Hexo 静态博客框架使用指南</h1><p>Hexo 是一个快速、简洁且高效的博客框架，基于 Node.js 构建。它可以将 Markdown 文件渲染成静态网页，支持多种主题和插件。</p>
+<h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><h3 id="基础命令"><a href="#基础命令" class="headerlink" title="基础命令"></a>基础命令</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建新文章</span></span><br><span class="line">hexo new <span class="string">&quot;文章标题&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建新页面</span></span><br><span class="line">hexo new page <span class="string">&quot;页面名称&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建草稿</span></span><br><span class="line">hexo new draft <span class="string">&quot;草稿标题&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成静态文件</span></span><br><span class="line">hexo generate</span><br><span class="line"><span class="comment"># 或简写</span></span><br><span class="line">hexo g</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动本地服务器</span></span><br><span class="line">hexo server</span><br><span class="line"><span class="comment"># 或简写</span></span><br><span class="line">hexo s</span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署到服务器</span></span><br><span class="line">hexo deploy</span><br><span class="line"><span class="comment"># 或简写</span></span><br><span class="line">hexo d</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理缓存和生成的文件</span></span><br><span class="line">hexo clean</span><br><span class="line"></span><br><span class="line"><span class="comment"># 一键生成并部署</span></span><br><span class="line">hexo g -d</span><br></pre></td></tr></table></figure>
+
+<h3 id="草稿相关命令"><a href="#草稿相关命令" class="headerlink" title="草稿相关命令"></a>草稿相关命令</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 发布草稿</span></span><br><span class="line">hexo publish <span class="string">&quot;草稿文件名&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 预览草稿</span></span><br><span class="line">hexo server --draft</span><br></pre></td></tr></table></figure>
+
+<h3 id="主题管理"><a href="#主题管理" class="headerlink" title="主题管理"></a>主题管理</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装主题</span></span><br><span class="line">git <span class="built_in">clone</span> &lt;theme-repository-url&gt; themes/&lt;theme-name&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新主题</span></span><br><span class="line"><span class="built_in">cd</span> themes/&lt;theme-name&gt;</span><br><span class="line">git pull</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置文件说明"><a href="#配置文件说明" class="headerlink" title="配置文件说明"></a>配置文件说明</h2><h3 id="config-yml-主要配置项"><a href="#config-yml-主要配置项" class="headerlink" title="_config.yml 主要配置项"></a>_config.yml 主要配置项</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 网站基本信息</span></span><br><span class="line"><span class="attr">title:</span> <span class="string">网站标题</span></span><br><span class="line"><span class="attr">subtitle:</span> <span class="string">网站副标题</span></span><br><span class="line"><span class="attr">description:</span> <span class="string">网站描述</span></span><br><span class="line"><span class="attr">keywords:</span> <span class="string">关键词</span></span><br><span class="line"><span class="attr">author:</span> <span class="string">作者名</span></span><br><span class="line"><span class="attr">language:</span> <span class="string">zh-CN</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># URL 设置</span></span><br><span class="line"><span class="attr">url:</span> <span class="string">https://your-domain.com</span></span><br><span class="line"><span class="attr">permalink:</span> <span class="string">:year/:month/:day/:title/</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 目录设置</span></span><br><span class="line"><span class="attr">source_dir:</span> <span class="string">source</span></span><br><span class="line"><span class="attr">public_dir:</span> <span class="string">public</span></span><br><span class="line"><span class="attr">skip_render:</span> []</span><br><span class="line"></span><br><span class="line"><span class="comment"># 写作设置</span></span><br><span class="line"><span class="attr">new_post_name:</span> <span class="string">:title.md</span></span><br><span class="line"><span class="attr">default_layout:</span> <span class="string">post</span></span><br><span class="line"><span class="attr">auto_spacing:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">titlecase:</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 分类和标签</span></span><br><span class="line"><span class="attr">default_category:</span> <span class="string">uncategorized</span></span><br><span class="line"><span class="attr">category_map:</span></span><br><span class="line"><span class="attr">tag_map:</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 日期格式</span></span><br><span class="line"><span class="attr">date_format:</span> <span class="string">YYYY-MM-DD</span></span><br><span class="line"><span class="attr">time_format:</span> <span class="string">HH:mm:ss</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 分页设置</span></span><br><span class="line"><span class="attr">per_page:</span> <span class="number">10</span></span><br><span class="line"><span class="attr">pagination_dir:</span> <span class="string">page</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 主题设置</span></span><br><span class="line"><span class="attr">theme:</span> <span class="string">next</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署设置</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repo:</span> <span class="string">&lt;repository-url&gt;</span></span><br><span class="line">  <span class="attr">branch:</span> <span class="string">main</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="文章写作"><a href="#文章写作" class="headerlink" title="文章写作"></a>文章写作</h2><h3 id="Front-matter-格式"><a href="#Front-matter-格式" class="headerlink" title="Front-matter 格式"></a>Front-matter 格式</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">title:</span> <span class="string">文章标题</span></span><br><span class="line"><span class="attr">date:</span> <span class="number">2025-09-04 00:35:50</span></span><br><span class="line"><span class="attr">updated:</span> <span class="number">2025-09-04 00:35:50</span></span><br><span class="line"><span class="attr">tags:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">标签1</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">标签2</span></span><br><span class="line"><span class="attr">categories:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">分类1</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">分类2</span></span><br><span class="line"><span class="attr">comments:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">toc:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">toc_number:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">toc_style_simple:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">mathjax:</span> <span class="literal">true</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="string">文章内容...</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="常用标签语法"><a href="#常用标签语法" class="headerlink" title="常用标签语法"></a>常用标签语法</h3><figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line"><span class="section"># 图片</span></span><br><span class="line">![<span class="string">图片描述</span>](<span class="link">图片链接</span>)</span><br><span class="line"></span><br><span class="line"><span class="section"># 链接</span></span><br><span class="line">[<span class="string">链接文字</span>](<span class="link">链接地址</span>)</span><br><span class="line"></span><br><span class="line"><span class="section"># 代码块</span></span><br><span class="line"><span class="code">```javascript</span></span><br><span class="line"><span class="code">console.log(&#x27;Hello World&#x27;);</span></span><br></pre></td></tr></table></figure>
+
+<!-- # 引用
+> 引用内容
+
+# 表格
+| 列1 | 列2 | 列3 |
+|-----|-----|-----|
+| 内容1 | 内容2 | 内容3 | -->
+
+
+<h2 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h2><h3 id="Next-主题常用配置"><a href="#Next-主题常用配置" class="headerlink" title="Next 主题常用配置"></a>Next 主题常用配置</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 主题设置</span></span><br><span class="line"><span class="attr">theme:</span> <span class="string">next</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 菜单设置</span></span><br><span class="line"><span class="attr">menu:</span></span><br><span class="line">  <span class="attr">home:</span> <span class="string">/</span> <span class="string">||</span> <span class="string">home</span></span><br><span class="line">  <span class="attr">archives:</span> <span class="string">/archives/</span> <span class="string">||</span> <span class="string">archive</span></span><br><span class="line">  <span class="attr">categories:</span> <span class="string">/categories/</span> <span class="string">||</span> <span class="string">th</span></span><br><span class="line">  <span class="attr">tags:</span> <span class="string">/tags/</span> <span class="string">||</span> <span class="string">tags</span></span><br><span class="line">  <span class="attr">about:</span> <span class="string">/about/</span> <span class="string">||</span> <span class="string">about</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 侧边栏设置</span></span><br><span class="line"><span class="attr">sidebar:</span></span><br><span class="line">  <span class="attr">position:</span> <span class="string">left</span></span><br><span class="line">  <span class="attr">display:</span> <span class="string">always</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 社交链接</span></span><br><span class="line"><span class="attr">social:</span></span><br><span class="line">  <span class="attr">github:</span> <span class="string">https://github.com/yourname</span></span><br><span class="line">  <span class="attr">twitter:</span> <span class="string">https://twitter.com/yourname</span></span><br><span class="line">  <span class="attr">email:</span> <span class="string">your-email@example.com</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 评论系统</span></span><br><span class="line"><span class="attr">comments:</span></span><br><span class="line">  <span class="attr">active:</span> <span class="string">disqus</span></span><br><span class="line">  <span class="attr">shortname:</span> <span class="string">your-disqus-shortname</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="部署配置"><a href="#部署配置" class="headerlink" title="部署配置"></a>部署配置</h2><h3 id="GitHub-Pages-部署"><a href="#GitHub-Pages-部署" class="headerlink" title="GitHub Pages 部署"></a>GitHub Pages 部署</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repo:</span> <span class="string">https://github.com/username/username.github.io.git</span></span><br><span class="line">  <span class="attr">branch:</span> <span class="string">main</span></span><br><span class="line">  <span class="attr">message:</span> <span class="string">&quot;Site updated: <span class="template-variable">&#123;&#123; now(&#x27;YYYY-MM-DD HH:mm:ss&#x27;) &#125;&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="其他部署方式"><a href="#其他部署方式" class="headerlink" title="其他部署方式"></a>其他部署方式</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 部署到服务器</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">rsync</span></span><br><span class="line">  <span class="attr">host:</span> <span class="string">your-server.com</span></span><br><span class="line">  <span class="attr">user:</span> <span class="string">username</span></span><br><span class="line">  <span class="attr">root:</span> <span class="string">/var/www/</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">blog/</span></span><br><span class="line">  <span class="attr">delete:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署到腾讯云 COS</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">cos</span></span><br><span class="line">  <span class="attr">bucket:</span> <span class="string">your-bucket-name</span></span><br><span class="line">  <span class="attr">region:</span> <span class="string">ap-beijing</span></span><br><span class="line">  <span class="attr">secretId:</span> <span class="string">your-secret-id</span></span><br><span class="line">  <span class="attr">secretKey:</span> <span class="string">your-secret-key</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="插件推荐"><a href="#插件推荐" class="headerlink" title="插件推荐"></a>插件推荐</h2><h3 id="常用插件"><a href="#常用插件" class="headerlink" title="常用插件"></a>常用插件</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 搜索插件</span></span><br><span class="line">npm install hexo-generator-search --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 站点地图</span></span><br><span class="line">npm install hexo-generator-sitemap --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># RSS 订阅</span></span><br><span class="line">npm install hexo-generator-feed --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 文章阅读时间统计</span></span><br><span class="line">npm install hexo-reading-time --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 图片懒加载</span></span><br><span class="line">npm install hexo-lazyload-image --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 代码高亮</span></span><br><span class="line">npm install hexo-prism-plugin --save</span><br></pre></td></tr></table></figure>
+
+<h2 id="性能优化"><a href="#性能优化" class="headerlink" title="性能优化"></a>性能优化</h2><h3 id="图片优化"><a href="#图片优化" class="headerlink" title="图片优化"></a>图片优化</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装图片压缩插件</span></span><br><span class="line">npm install hexo-image-min --save</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置图片懒加载</span></span><br><span class="line">lazyload:</span><br><span class="line">  <span class="built_in">enable</span>: <span class="literal">true</span></span><br><span class="line">  onlypost: <span class="literal">false</span></span><br><span class="line">  loadingImg: /images/loading.gif</span><br></pre></td></tr></table></figure>
+
+<h3 id="代码压缩"><a href="#代码压缩" class="headerlink" title="代码压缩"></a>代码压缩</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装压缩插件</span></span><br><span class="line">npm install hexo-html-minifier --save</span><br><span class="line">npm install hexo-clean-css --save</span><br><span class="line">npm install hexo-uglify --save</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<!-- *本文档会持续更新，如有问题欢迎交流讨论。* -->
+]]></content>
+      <tags>
+        <tag>Hexo</tag>
+        <tag>博客</tag>
+        <tag>静态网站</tag>
+        <tag>教程</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SSHLink</title>
+    <url>/2025/10/24/Tools/SSHLink/</url>
+    <content><![CDATA[<h1 id="SSH-Link"><a href="#SSH-Link" class="headerlink" title="SSH Link"></a>SSH Link</h1><p>在用vscode连接远端服务器，账号之前删除过，现在重现创建后连不上了。很可能是以前连的本地密钥没删，重装后连不上了。</p>
+<p>当你用 VS Code (或其他任何 SSH 客户端) 连接服务器时，主要涉及两个地方的”信任”：</p>
 <ul>
-<li>$p$ 是表面上的点（point on surface）</li>
-<li>$\omega_o$ 是出射方向（outgoing direction）</li>
-<li>$\omega_i$ 是入射方向（incoming direction）</li>
-<li>$L_o(p,\omega_o)$ 是从点 $p$ 沿方向 $\omega_o$ 出射的辐射度（outgoing radiance）</li>
-<li>$L_e(p,\omega_o)$ 是点 $p$ 沿方向 $\omega_o$ 的自发光辐射度（emitted radiance）</li>
-<li>$f_r(p,\omega_i,\omega_o)$ 是双向反射分布函数（BRDF - Bidirectional Reflectance Distribution Function）</li>
-<li>$L_i(p,\omega_i)$ 是从方向 $\omega_i$ 入射到点 $p$ 的辐射度（incoming radiance）</li>
-<li>$\cos\theta_i$ 是入射角 $\theta_i$ 的余弦值，表示光线与表面法线的夹角</li>
-<li>$\Omega$ 是半球积分域（hemisphere integration domain）</li>
-<li>$d\omega_i$ 是立体角微元（solid angle differential）</li>
-</ul>
-<h3 id="物理意义解释"><a href="#物理意义解释" class="headerlink" title="物理意义解释"></a>物理意义解释</h3><p>渲染方程描述了光线在表面上的反射行为：</p>
-<ol>
-<li><strong>自发光项</strong> $L_e(p,\omega_o)$：表示表面本身发出的光，如灯泡、火焰等光源</li>
-<li><strong>反射项</strong> $\int_{\Omega} f_r(p,\omega_i,\omega_o) L_i(p,\omega_i) \cos\theta_i d\omega_i$：<ul>
-<li>积分表示对所有可能入射方向的贡献求和</li>
-<li>BRDF $f_r$ 描述材料如何将入射光反射到出射方向</li>
-<li>$\cos\theta_i$ 项体现了朗伯定律（Lambert’s law），入射角越大，贡献越小</li>
-<li>这个积分计算了来自所有方向的光线对出射辐射度的贡献</li>
-</ul>
+<li><p>服务器信任你（你的电脑）：通过authorized_keys文件。</p>
 </li>
+<li><p>你（你的电脑）信任服务器：通过known_hosts文件。</p>
+</li>
+</ul>
+<p>情况一：一般报错Permission denied (publickey)，需要在服务器上重新添加自己的公钥</p>
+<p>情况二：一般报错REMOTE HOST IDENTIFICATION HAS CHANGED 或 OFFENDING_KEY_IN_KNOWN_HOSTS，需要修改自己本地的~&#x2F;.ssh&#x2F;known_hosts 文件</p>
+]]></content>
+      <tags>
+        <tag>Tips</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Tools</title>
+    <url>/2025/09/04/Tools/Tools/</url>
+    <content><![CDATA[<h1 id="妙妙工具合集"><a href="#妙妙工具合集" class="headerlink" title="妙妙工具合集"></a>妙妙工具合集</h1><p><a href="https://realfavicongenerator.net/">https://realfavicongenerator.net/</a> 上传一张图片，生成浏览器图片所需的图片格式</p>
+]]></content>
+      <tags>
+        <tag>Tools</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>VulkanLearn</title>
+    <url>/2025/12/22/Vulkan/VulkanLearn/</url>
+    <content><![CDATA[<h1 id="Vulkan基础概念"><a href="#Vulkan基础概念" class="headerlink" title="Vulkan基础概念"></a>Vulkan基础概念</h1><p>学习Vulkan的时候觉得概念太多太杂了，需要自定义的东西非常多。下面做一个框架的梳理。</p>
+<h2 id="一、基建部门-Initialization"><a href="#一、基建部门-Initialization" class="headerlink" title="一、基建部门 (Initialization)"></a>一、基建部门 (Initialization)</h2><p>这部分代码写一次基本就不动了，属于公司注册和厂房搭建阶段。</p>
+<h3 id="VulkanInstance"><a href="#VulkanInstance" class="headerlink" title="VulkanInstance"></a>VulkanInstance</h3><p><strong>公司营业执照</strong>。<br>初始化 Vulkan 的第一步，告诉驱动程序你是谁，你要用什么扩展功能（比如是否开启调试层）。没有这个实例，后续一切免谈。</p>
+<h3 id="VulkanSurface"><a href="#VulkanSurface" class="headerlink" title="VulkanSurface"></a>VulkanSurface</h3><p><strong>展示橱窗</strong>。<br>Vulkan 本身是个纯粹的计算和绘图 API，它不负责和 Windows&#x2F;Linux 系统打交道。Surface 就是连接 Vulkan 内核与桌面窗口系统的桥梁。</p>
+<h3 id="VulkanPhysicalDevice"><a href="#VulkanPhysicalDevice" class="headerlink" title="VulkanPhysicalDevice"></a>VulkanPhysicalDevice</h3><p><strong>选购设备</strong>。<br>电脑上可能集显和独显都有。这一步是遍历硬件，挑出那个最适合干活的显卡（通常选独显）。</p>
+<h3 id="VulkanLogicalDevice"><a href="#VulkanLogicalDevice" class="headerlink" title="VulkanLogicalDevice"></a>VulkanLogicalDevice</h3><p><strong>雇佣操作员</strong>。<br>选中显卡后，我们需要创建一个逻辑上的接口来操作它。在这里开启我们需要用到的特性（比如几何着色器、各向异性过滤等）。</p>
+<h3 id="VulkanQueue-VulkanQueue-Family"><a href="#VulkanQueue-VulkanQueue-Family" class="headerlink" title="VulkanQueue &amp; VulkanQueue Family"></a>VulkanQueue &amp; VulkanQueue Family</h3><p><strong>传送带</strong>。<br>显卡不听口头指挥，只认传送带。我们把命令提交到 Queue 上，显卡会排队执行。一般有图形队列（画画）和呈现队列（显示）两种。</p>
+<p><strong>Queue Family</strong>就是这些Queue的组合，一个Queue Family里面有很多个相同的Queue，类似由很多相同流水线组成的车间。显卡内部有不同的电路负责不同的事情：</p>
+<ul>
+<li>Graphics Queue Family (图形部门)：擅长画画（画三角形、光栅化）。</li>
+<li>Compute Queue Family (计算部门)：擅长纯算数（科学计算、AI 推理，不涉及画画）。</li>
+<li>Transfer Queue Family (物流部门)：擅长搬运数据（内存拷贝），画画能力为 0。</li>
+</ul>
+<p>有的显卡（如高端 N 卡）：有一个全能部门（Graphics + Compute + Transfer 都在一个 Family 里）。</p>
+<p>有的显卡：分得很细，画画的只能画画，搬运的只能搬运。</p>
+<p>在初始化时遍历 Queue Family，其实是在问显卡：“请问哪一个部门（Family）懂画画？把它找出来，我以后把画画的任务发给这个部门下面的传送带（Queue）。”</p>
+<h2 id="二、画布供应部门-SwapChain"><a href="#二、画布供应部门-SwapChain" class="headerlink" title="二、画布供应部门 (SwapChain)"></a>二、画布供应部门 (SwapChain)</h2><p>基建搞定后，需要准备画纸，并确立“画完怎么展示”的机制。</p>
+<h3 id="VulkanSwapChain"><a href="#VulkanSwapChain" class="headerlink" title="VulkanSwapChain"></a>VulkanSwapChain</h3><p><strong>轮播画架</strong>。<br>屏幕刷新率通常是 60Hz。如果我们直接在屏幕显示的这张纸上画，画到一半屏幕刷新了，就会产生画面撕裂。<br>SwapChain 建立了一个缓冲池（通常 2-3 张图）。显卡在后台画好一张，直接把画架转过来给屏幕看，这就是“交换”的概念。</p>
+<h3 id="VulkanImage-VulkanImageView"><a href="#VulkanImage-VulkanImageView" class="headerlink" title="VulkanImage &amp; VulkanImageView"></a>VulkanImage &amp; VulkanImageView</h3><p><strong>裸纸与相框</strong>。</p>
+<ul>
+<li><strong>Image</strong>：是显存里真正的像素数据，但它只是一堆 RAW 数据。</li>
+<li><strong>ImageView</strong>：Vulkan 比较死板，不能直接用 Image，必须给它加个“相框”或者“说明书”，告诉管线：“这是一张 2D 的 RGB 图片，请按这个格式去读”。</li>
+</ul>
+<h3 id="VulkanFrameBuffer"><a href="#VulkanFrameBuffer" class="headerlink" title="VulkanFrameBuffer"></a>VulkanFrameBuffer</h3><p><strong>综合画板</strong>。<br>它是一个容器，把具体的 ImageView（画纸）和 RenderPass（流程）绑定在一起。它明确了：“这一帧，我到底要画在哪几张特定的纸上”。</p>
+<h2 id="三、绘画规则部门-Pipeline"><a href="#三、绘画规则部门-Pipeline" class="headerlink" title="三、绘画规则部门 (Pipeline)"></a>三、绘画规则部门 (Pipeline)</h2><p>这是最复杂的部分，Vulkan 要求在动笔前把所有规则定死。</p>
+<h3 id="Shader-着色器"><a href="#Shader-着色器" class="headerlink" title="Shader (着色器)"></a>Shader (着色器)</h3><p><strong>绘画技巧</strong>。</p>
+<ul>
+<li>Vertex Shader：告诉显卡点在哪里（定形状）。</li>
+<li>Fragment Shader：告诉显卡颜色是什么（上色）。</li>
+</ul>
+<h3 id="RenderPass-渲染流程"><a href="#RenderPass-渲染流程" class="headerlink" title="RenderPass (渲染流程)"></a>RenderPass (渲染流程)</h3><p><strong>施工蓝图</strong>。<br>它不关心具体画什么物体，它关心的是宏观流程：</p>
+<ul>
+<li>开始画之前要不要清空画布？（比如涂黑）。</li>
+<li>画完之后画纸要去哪？（是存起来给下一帧用，还是直接送去显示）。</li>
+<li>多张图（颜色图、深度图）怎么配合？</li>
+</ul>
+<h3 id="Pipeline-管线"><a href="#Pipeline-管线" class="headerlink" title="Pipeline (管线)"></a>Pipeline (管线)</h3><p><strong>全自动流水线机器</strong>。<br>这是大总管。它把 Shader、视口大小、线框模式、深度测试开关等所有配置熔铸成一个不可修改的对象。（后文详细解释）。</p>
+<h2 id="四、数据中心-Buffers"><a href="#四、数据中心-Buffers" class="headerlink" title="四、数据中心 (Buffers)"></a>四、数据中心 (Buffers)</h2><p>这里存放绘画所需的原材料。</p>
+<h3 id="VertexBuffer-顶点缓冲"><a href="#VertexBuffer-顶点缓冲" class="headerlink" title="VertexBuffer (顶点缓冲)"></a>VertexBuffer (顶点缓冲)</h3><p><strong>模型仓库</strong>。<br>存放物体的几何数据，比如三角形的三个角坐标、颜色、纹理坐标。</p>
+<h3 id="IndexBuffer-索引缓冲"><a href="#IndexBuffer-索引缓冲" class="headerlink" title="IndexBuffer (索引缓冲)"></a>IndexBuffer (索引缓冲)</h3><p><strong>目录索引</strong>。<br>为了省空间，顶点可以复用。这里存放“0-1-2”这样的连接序号，告诉显卡按什么顺序把点连成线。</p>
+<h3 id="UniformBuffer-统一缓冲"><a href="#UniformBuffer-统一缓冲" class="headerlink" title="UniformBuffer (统一缓冲)"></a>UniformBuffer (统一缓冲)</h3><p><strong>全局参数</strong>。<br>存放那种每一帧都在变的少量数据，比如 MVP 变换矩阵（控制物体旋转、缩放、移动）、光照参数等。显卡里的 Shader 就像一个函数，UBO 就是传给它的“全局变量”。</p>
+<h3 id="Descriptor-Set-Layout-描述符布局"><a href="#Descriptor-Set-Layout-描述符布局" class="headerlink" title="Descriptor Set Layout (描述符布局)"></a>Descriptor Set Layout (描述符布局)</h3><p><strong>接口&#x2F;插座设计图 (模具)</strong>。<br>Pipeline（管线）虽然是写死的机器，但它预留了一些<strong>接口</strong>用来接数据。Layout 就是告诉管线：“这里有一个三孔插座（UBO），那里有一个两孔插座（纹理）”。只有定义了 Layout，管线才知道去哪里读数据。它是<strong>只读的模板</strong>。</p>
+<ul>
+<li><strong>VkDescriptorSetLayoutBinding (单个插座描述)</strong>：<br>描述<strong>某一种特定插座</strong>的规格。</li>
+<li><code>descriptorType</code>：插座类型（是插 UBO 的还是插纹理的？）。</li>
+<li><code>descriptorCount</code>：<strong>排插数量</strong>。如果设为 1，就是一个单孔插座；如果设为 10，说明这是一个有 10 个孔的排插，但每个孔插的东西类型都一样（比如 <code>uniform vec4 lights[10]</code>）。</li>
+<li><strong>VkDescriptorSetLayoutCreateInfo (整体施工图)</strong>：<br>描述<strong>整面墙上所有的插座</strong>。</li>
+<li><code>pBindings</code>：把上面定义好的各种 Binding 列个表传进去。</li>
+<li><code>bindingCount</code>：<strong>插座种类数</strong>。比如墙上既有 UBO 插座，又有纹理插座，那这里就是 2。它统计的是你有多少个不同的 <code>Binding</code> 定义。</li>
+</ul>
+<h3 id="VkDescriptorSet-描述符集"><a href="#VkDescriptorSet-描述符集" class="headerlink" title="VkDescriptorSet (描述符集)"></a>VkDescriptorSet (描述符集)</h3><p><strong>真实的插排&#x2F;具体的卡片 (实例)</strong>。<br>Layout 只是图纸，不占显存，也不能存数据。Set 才是真正按照图纸造出来的<strong>实物</strong>。</p>
+<ul>
+<li><p><strong>区别</strong>：</p>
+</li>
+<li><p><strong>Layout (模具)</strong>：规定了卡上有“姓名”、“照片”两个框。（全公司只有一种工牌模板）。</p>
+</li>
+<li><p><strong>Set (实例)</strong>：是具体的卡片，里面填了“张三”、“张三的照片”。（每个人都有一张不同的卡，但结构都一样）。</p>
+</li>
+<li><p><strong>用法</strong>：</p>
+</li>
+</ul>
+<ol>
+<li>拿着 Layout (图纸) 向显卡申请创建一个 Set (实物)。</li>
+<li>把真正的 Buffer (数据) 或 Image (图片) <strong>更新 (Update)</strong> 到 Set 里面。</li>
+<li>在画画时，把这个 Set <strong>绑定 (Bind)</strong> 到管线上。</li>
 </ol>
-<h3 id="数学含义"><a href="#数学含义" class="headerlink" title="数学含义"></a>数学含义</h3><ul>
-<li>这是一个<strong>积分方程</strong>，因为 $L_i$ 本身可能依赖于其他表面的 $L_o$</li>
-<li>在全局光照中，这个方程需要递归求解</li>
-<li>在光线追踪中，我们通过采样来近似这个积分</li>
-</ul>
-<h2 id="BRDF（双向反射分布函数）"><a href="#BRDF（双向反射分布函数）" class="headerlink" title="BRDF（双向反射分布函数）"></a>BRDF（双向反射分布函数）</h2><p>BRDF $f_r(p,\omega_i,\omega_o)$ 描述了材料如何将入射光反射到出射方向。它满足以下性质：</p>
-<h3 id="1-能量守恒"><a href="#1-能量守恒" class="headerlink" title="1. 能量守恒"></a>1. 能量守恒</h3><p>$$\int_{\Omega} f_r(p,\omega_i,\omega_o) \cos\theta_i d\omega_i \leq 1$$</p>
-<h3 id="2-互易性（Helmholtz互易性）"><a href="#2-互易性（Helmholtz互易性）" class="headerlink" title="2. 互易性（Helmholtz互易性）"></a>2. 互易性（Helmholtz互易性）</h3><p>$$f_r(p,\omega_i,\omega_o) &#x3D; f_r(p,\omega_o,\omega_i)$$</p>
-<h3 id="3-常见BRDF模型"><a href="#3-常见BRDF模型" class="headerlink" title="3. 常见BRDF模型"></a>3. 常见BRDF模型</h3><p><strong>朗伯反射（Lambertian）</strong>：<br>$$f_r(p,\omega_i,\omega_o) &#x3D; \frac{\rho}{\pi}$$</p>
-<p>其中 $\rho$ 是反射率（albedo）。</p>
-<p><strong>镜面反射（Specular）</strong>：<br>$$f_r(p,\omega_i,\omega_o) &#x3D; \frac{F(\theta_h) D(\theta_h) G(\omega_i,\omega_o)}{4\cos\theta_i\cos\theta_o}$$</p>
-<p>其中：</p>
-<ul>
-<li>$F$ 是菲涅尔反射系数</li>
-<li>$D$ 是法线分布函数</li>
-<li>$G$ 是几何遮蔽函数</li>
-</ul>
-<h2 id="PDF（概率密度函数）解释"><a href="#PDF（概率密度函数）解释" class="headerlink" title="PDF（概率密度函数）解释"></a>PDF（概率密度函数）解释</h2><p>PDF（Probability Density Function）是蒙特卡洛积分中的关键概念：</p>
-<h3 id="什么是PDF？"><a href="#什么是PDF？" class="headerlink" title="什么是PDF？"></a>什么是PDF？</h3><ul>
-<li><strong>定义</strong>：PDF $p(\omega_i)$ 描述在方向 $\omega_i$ 上采样的概率密度</li>
-<li><strong>作用</strong>：告诉我们在哪个方向更可能采样到重要的光线</li>
-<li><strong>归一化</strong>：$\int_{\Omega} p(\omega_i) d\omega_i &#x3D; 1$</li>
-</ul>
-<h3 id="为什么需要PDF？"><a href="#为什么需要PDF？" class="headerlink" title="为什么需要PDF？"></a>为什么需要PDF？</h3><p>在渲染方程中：<br>$$L_o(p,\omega_o) &#x3D; L_e(p,\omega_o) + \int_{\Omega} f_r(p,\omega_i,\omega_o) L_i(p,\omega_i) \cos\theta_i d\omega_i$$</p>
-<p>我们通过随机采样来近似这个积分：<br>$$\approx L_e(p,\omega_o) + \frac{1}{N} \sum_{i&#x3D;1}^{N} \frac{f_r(p,\omega_i,\omega_o) L_i(p,\omega_i) \cos\theta_i}{p(\omega_i)}$$</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">总贡献 = 0</span><br><span class="line">for i = 1 to N:</span><br><span class="line">    ω = 根据PDF随机选择一个方向</span><br><span class="line">    贡献 = fr(ω) * Li(ω) * cos(θ) / pdf(ω)</span><br><span class="line">    总贡献 += 贡献</span><br><span class="line">最终结果 = 总贡献 / N</span><br></pre></td></tr></table></figure>
-
-<h3 id="常见PDF策略"><a href="#常见PDF策略" class="headerlink" title="常见PDF策略"></a>常见PDF策略</h3><ol>
-<li><strong>均匀采样</strong>：$p(\omega_i) &#x3D; \frac{1}{2\pi}$（所有方向等概率）</li>
-<li><strong>余弦加权采样</strong>：$p(\omega_i) &#x3D; \frac{\cos\theta_i}{\pi}$（更可能采样接近法线的方向）</li>
-<li><strong>BRDF采样</strong>：$p(\omega_i) \propto f_r(p,\omega_i,\omega_o)$（根据BRDF形状采样）</li>
-<li><strong>光源采样</strong>：$p(\omega_i) \propto \frac{1}{d^2}$（更可能采样距离近的光源方向）</li>
+<h3 id="StagingBuffer-中转缓冲"><a href="#StagingBuffer-中转缓冲" class="headerlink" title="StagingBuffer (中转缓冲)"></a>StagingBuffer (中转缓冲)</h3><p><strong>搬运车</strong>。<br>显卡最核心的高速显存（Device Local）CPU 进不去。所以数据流通常是：CPU -&gt; StagingBuffer (中转) -&gt; GPU 内部指令搬运 -&gt; VertexBuffer (高速显存)。</p>
+<h2 id="五、调度中心-Command-Sync"><a href="#五、调度中心-Command-Sync" class="headerlink" title="五、调度中心 (Command &amp; Sync)"></a>五、调度中心 (Command &amp; Sync)</h2><p>负责录制命令，并防止 CPU 和 GPU 打架。</p>
+<h3 id="CommandPool-CommandBuffer"><a href="#CommandPool-CommandBuffer" class="headerlink" title="CommandPool &amp; CommandBuffer"></a>CommandPool &amp; CommandBuffer</h3><p><strong>指令池与指令本</strong>。<br>Vulkan 的操作不是立即执行的，而是先录制在 CommandBuffer 上，然后一次性提交。Pool 是用来分配管理这些内存的。</p>
+<h3 id="Semaphore-信号量"><a href="#Semaphore-信号量" class="headerlink" title="Semaphore (信号量)"></a>Semaphore (信号量)</h3><p><strong>GPU 内部红绿灯</strong>。<br>CPU 看不到它。这是显卡内部流水线之间的暗号。例如：“画画队列”告诉“显示队列”：我画完了，你可以拿去显示了。</p>
+<h3 id="Fence-栅栏"><a href="#Fence-栅栏" class="headerlink" title="Fence (栅栏)"></a>Fence (栅栏)</h3><p><strong>CPU&#x2F;GPU 对讲机</strong>。<br>防止 CPU 跑太快把 GPU 撑死。CPU 每帧提交完任务就在栅栏这等着，直到 GPU 发信号说“我这一帧搞定了”，CPU 才会放行下一帧的逻辑。</p>
+<hr>
+<h1 id="补充与答疑"><a href="#补充与答疑" class="headerlink" title="补充与答疑"></a>补充与答疑</h1><h3 id="Q1-为什么-Command-需要一个-Command-Pool？Pool-到底是什么概念？"><a href="#Q1-为什么-Command-需要一个-Command-Pool？Pool-到底是什么概念？" class="headerlink" title="Q1: 为什么 Command 需要一个 Command Pool？Pool 到底是什么概念？"></a>Q1: 为什么 Command 需要一个 Command Pool？Pool 到底是什么概念？</h3><p><strong>通俗解释：</strong><br>想象你在拍电影，Command Buffer 是“胶卷”，而录制的指令就是胶卷上的画面。<br>Command Pool 就是“胶卷仓库”。</p>
+<p><strong>技术原因：</strong></p>
+<ol>
+<li><strong>内存管理</strong>：在底层，频繁地向操作系统申请和释放零碎的内存（创建&#x2F;销毁 CommandBuffer）是非常昂贵且低效的。Pool 会一次性申请一大块内存，然后当你需要 CommandBuffer 时，直接从这个池子里切一块给你。</li>
+<li><strong>线程绑定</strong>：Vulkan 中，Pool 是和特定的 Queue Family（队列族）绑定的。图形队列有图形队列的池子，计算队列有计算队列的池子。这保证了多线程录制命令时互不干扰，无需加锁，性能极高。</li>
 </ol>
-<h3 id="光源采样详解"><a href="#光源采样详解" class="headerlink" title="光源采样详解"></a>光源采样详解</h3><p>光源采样是一种重要的优化技术，直接向光源方向采样：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 光源采样伪代码</span><br><span class="line">Vector3 sampleLight(Point p) &#123;</span><br><span class="line">    // 选择光源</span><br><span class="line">    Light light = selectLight();</span><br><span class="line">    </span><br><span class="line">    // 计算从p到光源的方向</span><br><span class="line">    Vector3 lightDir = normalize(light.position - p);</span><br><span class="line">    </span><br><span class="line">    // 计算距离</span><br><span class="line">    float distance = length(light.position - p);</span><br><span class="line">    </span><br><span class="line">    // 计算PDF（考虑距离衰减）</span><br><span class="line">    float pdf = 1.0 / (distance * distance);</span><br><span class="line">    </span><br><span class="line">    return lightDir;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 在shade函数中使用</span><br><span class="line">shade(p, wo) &#123;</span><br><span class="line">    Lo = Le(p, wo)</span><br><span class="line">    </span><br><span class="line">    // 1. 光源采样（直接光照）</span><br><span class="line">    Vector3 wi_light = sampleLight(p);</span><br><span class="line">    Ray shadowRay(p, wi_light);</span><br><span class="line">    if (!intersect(shadowRay)) &#123;</span><br><span class="line">        float cosTheta = dot(normal, wi_light);</span><br><span class="line">        Lo += fr(p,wi_light,wo) * light.intensity * cosTheta / pdf_light;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    // 2. BRDF采样（间接光照）</span><br><span class="line">    Vector3 wi_brdf = sampleBRDF(wo);</span><br><span class="line">    // ... 递归计算</span><br><span class="line">    </span><br><span class="line">    return Lo;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="多重重要性采样（MIS）"><a href="#多重重要性采样（MIS）" class="headerlink" title="多重重要性采样（MIS）"></a>多重重要性采样（MIS）</h3><p>结合光源采样和BRDF采样，使用权重函数：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 权重函数</span><br><span class="line">float powerHeuristic(float pdf1, float pdf2) &#123;</span><br><span class="line">    float w1 = pdf1 * pdf1;</span><br><span class="line">    float w2 = pdf2 * pdf2;</span><br><span class="line">    return w1 / (w1 + w2);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 在shade函数中</span><br><span class="line">shade(p, wo) &#123;</span><br><span class="line">    Lo = Le(p, wo)</span><br><span class="line">    </span><br><span class="line">    // 光源采样</span><br><span class="line">    Vector3 wi_light = sampleLight(p);</span><br><span class="line">    float pdf_light = lightPdf(wi_light);</span><br><span class="line">    float pdf_brdf = brdfPdf(wi_light, wo);</span><br><span class="line">    float weight_light = powerHeuristic(pdf_light, pdf_brdf);</span><br><span class="line">    </span><br><span class="line">    // BRDF采样  </span><br><span class="line">    Vector3 wi_brdf = sampleBRDF(wo);</span><br><span class="line">    float pdf_brdf2 = brdfPdf(wi_brdf, wo);</span><br><span class="line">    float pdf_light2 = lightPdf(wi_brdf);</span><br><span class="line">    float weight_brdf = powerHeuristic(pdf_brdf2, pdf_light2);</span><br><span class="line">    </span><br><span class="line">    // 加权求和</span><br><span class="line">    Lo += weight_light * evaluateLightContribution(wi_light);</span><br><span class="line">    Lo += weight_brdf * evaluateBRDFContribution(wi_brdf);</span><br><span class="line">    </span><br><span class="line">    return Lo;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="重要性采样"><a href="#重要性采样" class="headerlink" title="重要性采样"></a>重要性采样</h3><ul>
-<li><strong>目标</strong>：减少噪声，提高收敛速度</li>
-<li><strong>原理</strong>：在贡献大的区域多采样，在贡献小的区域少采样</li>
-<li><strong>效果</strong>：相同样本数下获得更准确的结果</li>
-</ul>
-<h2 id="直接光照"><a href="#直接光照" class="headerlink" title="直接光照"></a>直接光照</h2><p>只考虑直接光照的光追，是从屏幕每个pixel发出射线，射线方向是viewpoint-&gt;pixel，计算每条光线上的Radiance。如果光线打到光源，则增加Radiance的值。</p>
-<p>对于直接光照，渲染方程简化为：</p>
-<p>$$L_o(p,\omega_o) &#x3D; L_e(p,\omega_o) + \sum_{i&#x3D;1}^{n} f_r(p,\omega_i,\omega_o) L_i(p,\omega_i) \cos\theta_i$$</p>
-<p>其中：</p>
+<h3 id="Q2-Pipeline-到底是个什么概念？它规划了多少内容？"><a href="#Q2-Pipeline-到底是个什么概念？它规划了多少内容？" class="headerlink" title="Q2: Pipeline 到底是个什么概念？它规划了多少内容？"></a>Q2: Pipeline 到底是个什么概念？它规划了多少内容？</h3><p><strong>通俗解释：</strong><br>如果 OpenGL 是一个有很多开关的**“控制台”<strong>（你可以随时按下开关，改变状态），那么 Vulkan 的 Pipeline 就是一个</strong>“模具”<strong>或者</strong>“铸造好的机器”**。</p>
+<p><strong>它规划了多少内容？</strong><br>几乎所有和“怎么画”有关的细节都被<strong>焊死</strong>在 Pipeline 里了。一旦创建，完全不可修改（Immutable）。如果你想换一种画法（比如从实心变成线框模式），你必须切换到另一个 Pipeline。</p>
+<p>它具体包含（但不限于）以下内容，可以说是事无巨细：</p>
+<ol>
+<li><strong>Shader 阶段</strong>：用哪个顶点着色器，用哪个片段着色器。</li>
+<li><strong>顶点输入</strong>：数据结构长什么样（比如 <code>vec2 pos</code>, <code>vec3 color</code>）。</li>
+<li><strong>输入装配</strong>：画点、画线还是画三角形？</li>
+<li><strong>视口与剪裁</strong>：画在屏幕的哪个区域？（这部分也就是 Dynamic State 唯一允许微调的地方）。</li>
+<li><strong>光栅化器</strong>：是画实心还是线框？要不要剔除背面？线条多宽？</li>
+<li><strong>多重采样</strong>：抗锯齿怎么搞？</li>
+<li><strong>深度与模板测试</strong>：近处的物体遮挡远处的物体，规则是什么？</li>
+<li><strong>颜色混合</strong>：画半透明物体时，新颜色和旧颜色怎么叠加？</li>
+<li><strong>Pipeline Layout</strong>：在这个管线上留了几个“插座”（Uniform 接口）给外部传数据？</li>
+</ol>
+<p><strong>总结</strong>：Pipeline 就是一份及其详尽的<strong>生产标准书</strong>。显卡拿到这个对象，不需要做任何检查，直接全速运行，这就是 Vulkan 高效的原因。</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>WASM</title>
+    <url>/2025/10/29/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/WASM/</url>
+    <content><![CDATA[<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>WASM (WebAssembly) 是一种“网页汇编”技术。</p>
+<p>是一种低级 (low-level) 的、高性能的“二进制指令格式”，专门设计用于在网页浏览器中运行。对标exe。</p>
+<p>可以理解为一种让 C++、C#、Rust、Go 等高性能语言编写的代码，能够以接近原生的速度在浏览器里运行的方式。</p>
+<h1 id="出现原因"><a href="#出现原因" class="headerlink" title="出现原因"></a>出现原因</h1><p>JavaScript 是唯一能在浏览器中运行的编程语言。</p>
+<p>JavaScript 是一种很棒的脚本语言，但它在执行非常繁重的计算任务时（比如 3D 游戏引擎、视频编辑、物理模拟、图像识别）会非常吃力，速度跟不上。</p>
+<p>开发者们渴望能用 C++ 或 Rust 这种高性能语言来编写程序，因为它们运行速度极快。</p>
+<p>但 C++ 编译出来的程序是 .exe (Windows) 或 .app (Mac)，它们无法在浏览器这个“沙盒”里运行。</p>
+<p>WASM就是用来做这种翻译的，工作流如下：</p>
 <ul>
-<li>$L_o(p,\omega_o)$ 是出射辐射度（outgoing radiance）</li>
-<li>$L_e(p,\omega_o)$ 是自发光辐射度（emitted radiance）</li>
-<li>$f_r(p,\omega_i,\omega_o)$ 是BRDF（双向反射分布函数）</li>
-<li>$L_i(p,\omega_i)$ 是入射辐射度（incoming radiance）</li>
-<li>$\cos\theta_i$ 是入射角余弦值</li>
-<li>$n$ 是光源数量</li>
+<li>编写 (开发者)：开发者使用 C++ 或 Rust 编写了一个高性能的程序（例如一个 3D 游戏的物理引擎）。</li>
+<li>编译 (工具链)：开发者使用一个特殊的编译器（如 Emscripten），不把 C++ 代码编译成 .exe。而是把它编译成一种平台无关的、高度优化的二进制文件，扩展名为 .wasm。</li>
+<li>运行 (浏览器)：浏览器（如 Chrome, Firefox）加载这个 .wasm 文件。浏览器内部的 JavaScript 引擎（它也是一个虚拟机）能极快地解析和执行这种二进制格式，速度远超解析 JavaScript 文本。</li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">shade(p,w0)</span><br><span class="line">    Lo = Le(p,wo)  // 自发光项</span><br><span class="line">    Randomly sample N directions wi (i=1 to N) based on the pdf</span><br><span class="line">    For each wi</span><br><span class="line">        Trace a ray r(p,wi)</span><br><span class="line">        if ray hit a light</span><br><span class="line">            Lo += (1/N) * fr(p,wi,wo) * Li(p,wi) * cos(θi) / pdf(wi)</span><br><span class="line">    return Lo</span><br></pre></td></tr></table></figure>
-
-<h2 id="全局光照"><a href="#全局光照" class="headerlink" title="全局光照"></a>全局光照</h2><p>不仅仅只考虑打到光源的光线，如果光线打到某个物体上，则把这个物体也当作一个起点，发散$N$条光线，看是否接触到光源，或是别的物体。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">shade(p,w0)</span><br><span class="line">    Lo = Le(p,wo)  // 自发光项</span><br><span class="line">    Randomly sample N directions wi (i=1 to N) based on the pdf</span><br><span class="line">    For each wi</span><br><span class="line">        Trace a ray r(p,wi)</span><br><span class="line">        if ray hit a light</span><br><span class="line">            Lo += (1/N) * fr(p,wi,wo) * Li(p,wi) * cos(θi) / pdf(wi)</span><br><span class="line">        else if ray hit an object at q</span><br><span class="line">            Lo += (1/N) * shade(q, -wi) * f_r * cos(θi) / pdf(wi)</span><br><span class="line">    return Lo</span><br></pre></td></tr></table></figure>
-
-<p><img src="/../Image/RayTracing/RayTracingForGlobal.png" alt="考虑全局光照的光追"></p>
-<p>光线的传播如下图所示，性能爆炸：<br><img src="/../Image/RayTracing/LightTrace.png" alt="光线传播"></p>
-<h2 id="路径追踪（一个具体的光追算法）"><a href="#路径追踪（一个具体的光追算法）" class="headerlink" title="路径追踪（一个具体的光追算法）"></a>路径追踪（一个具体的光追算法）</h2><p>在全局光照中，如果取$N &#x3D; 1$，那么这个算法就被称为路径追踪</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">shade(p,w0)</span><br><span class="line">    Lo = Le(p,wo)  // 自发光项</span><br><span class="line">    Randomly choose ONE direction wi(i=1) base on pdf</span><br><span class="line">    Trace a ray r(p,wi)</span><br><span class="line">    if ray hit a light</span><br><span class="line">        Lo += fr(p,wi,wo) * Li(p,wi) * cos(θi) / pdf(wi)</span><br><span class="line">    else if ray hit an object at q</span><br><span class="line">        Lo += shade(q, -wi) * f_r * cos(θi) / pdf(wi)</span><br><span class="line">    return Lo</span><br></pre></td></tr></table></figure>
-
-<h2 id="Ray-Generation"><a href="#Ray-Generation" class="headerlink" title="Ray Generation"></a>Ray Generation</h2><p>上面讲的是从viewpoint to piexl打出一条光线后，这条光线如何计算。这里讲从viewpoint to piexl的光线是如何生成的，以及如何计算最终的渲染结果。一个pixel也可以打出若干条光线。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ray_generation(camPos，pixel)</span><br><span class="line">    Uniformly choose N sample positions within the pixel</span><br><span class="line">    pixel_radiance = 0.0</span><br><span class="line">    for each sample in the pixel:</span><br><span class="line">        Shoot a ray r(camPos, camPos_to_sample)</span><br><span class="line">        if ray r hit p（object or light）</span><br><span class="line">            pixel_radiance += 1/N * shade(p，sample_to_camPos)</span><br><span class="line">    return pixel_radiance</span><br></pre></td></tr></table></figure>
-<p>这里p不需要区分是光源还是普通物体，因为shade函数已经包含了自发光项$L_e(p,\omega_o)$，能够统一处理两种情况：</p>
-<ul>
-<li>如果p是光源，自发光项会返回光源的辐射度</li>
-<li>如果p是普通物体，自发光项为零，只计算反射光</li>
-</ul>
-<h2 id="算法停止"><a href="#算法停止" class="headerlink" title="算法停止"></a>算法停止</h2><h3 id="俄罗斯轮盘赌（Russian-Roulette）"><a href="#俄罗斯轮盘赌（Russian-Roulette）" class="headerlink" title="俄罗斯轮盘赌（Russian Roulette）"></a>俄罗斯轮盘赌（Russian Roulette）</h3><p>在光线追踪中，递归可能无限进行下去，需要一种机制来停止算法。俄罗斯轮盘赌是一种概率终止方法：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">shade(p, wo, depth) </span><br><span class="line">    // 俄罗斯轮盘赌：设定一个概率值continue_probability，随机取一个[0,1]的random()值</span><br><span class="line">    if random() &gt; continue_probability:</span><br><span class="line">        return 0.0;  // 终止递归</span><br><span class="line">    </span><br><span class="line">    Lo = Le(p, wo)  // 自发光项</span><br><span class="line">    Randomly sample ONE direction wi based on pdf</span><br><span class="line">    Trace a ray r(p, wi)</span><br><span class="line">    if ray hit a light:</span><br><span class="line">        Lo += fr(p,wi,wo) * Li(p,wi) * cos(θi) / pdf(wi)</span><br><span class="line">    else if ray hit an object at q:</span><br><span class="line">        Lo += shade(q, -wi, depth+1) * fr(p,wi,wo) * cos(θi) / pdf(wi)</span><br><span class="line">    </span><br><span class="line">    // 补偿能量：除以继续概率</span><br><span class="line">    return Lo / continue_probability</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
-        <category>Rendering</category>
+        <category>Basic Concept</category>
       </categories>
       <tags>
         <tag>Rendering</tag>
+        <tag>Basic Concept</tag>
+        <tag>WASM</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>GPGPU概念与实现</title>
+    <url>/2025/10/29/%E5%9B%BE%E5%BD%A2%E5%AD%A6%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/GPGPU%E6%A6%82%E5%BF%B5%E4%B8%8E%E5%AE%9E%E7%8E%B0/</url>
+    <content><![CDATA[<h1 id="Computer-Shader"><a href="#Computer-Shader" class="headerlink" title="Computer Shader"></a>Computer Shader</h1><h2 id="概念区分"><a href="#概念区分" class="headerlink" title="概念区分"></a>概念区分</h2><p>GPGPU (General-Purpose computing on Graphics Processing Units)：这是一个概念或领域。它指的是“使用 GPU 强大的并行处理能力来执行传统上由 CPU 负责的通用计算任务”（如图形渲染之外的科学计算、物理模拟、AI 训练等）。</p>
+<p>Compute Shader (计算着色器)：这是一种具体的技术实现。它是一种程序（ HLSL, GLSL, MSL 等语言编写），它允许开发者在 GPU 上执行通用的计算。它最大的特点是它独立于传统的“渲染管线”（即独立于顶点着色器和片段着色器）。</p>
+<h2 id="为什么说“它独立于传统的渲染管线”"><a href="#为什么说“它独立于传统的渲染管线”" class="headerlink" title="为什么说“它独立于传统的渲染管线”"></a>为什么说“它独立于传统的渲染管线”</h2><p>Computer Shader与VS，FS都叫“着色器”(Shader)，都使用 HLSL 或 GLSL 这样的语言编写，并且都运行在 GPU 内部完全相同的“统一着色器核心”上。</p>
+<p>而“独立于顶点着色器和片段着色器”是在说：传统的渲染管线工序严格定义为顶点处理(VS) -&gt; 光栅化 -&gt; 像素处理(FS) -&gt; 输出图像，但是Computer Shader并不直接在这条管线里面工作，不关心什么顶点和像素，它的输入可以是任何数据，输出也可以是任何数据。在应用上，它的逻辑其实就类似在GPU上运行的代码，只不过是这一块代码是在GPU上运行的，并且由GPU统一管控。</p>
+<h2 id="使用例子"><a href="#使用例子" class="headerlink" title="使用例子"></a>使用例子</h2><p>举个例子，让一张 100 万像素的图片全部变亮。</p>
+<p>CPU 逻辑：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">for (int i = 0; i &lt; 1000000; ++i) &#123;</span><br><span class="line">    pixels[i] = pixels[i] * 1.1; // 串行执行 100 万次</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>GPGPU 逻辑 (伪代码)：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 只写这个函数，它只处理一个像素</span><br><span class="line">void BrightenKernel(int i) &#123;</span><br><span class="line">    pixels[i] = pixels[i] * 1.1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// (在 CPU 端) 调用：</span><br><span class="line">// “GPU，请在 100 万个核心上同时运行 BrightenKernel 函数”</span><br><span class="line">Dispatch(1000000);</span><br></pre></td></tr></table></figure>
+
+<h2 id="Compute-Shader如何助力渲染过程"><a href="#Compute-Shader如何助力渲染过程" class="headerlink" title="Compute Shader如何助力渲染过程"></a>Compute Shader如何助力渲染过程</h2><p>Compute Shader助力渲染过程不是直接插入渲染管线，而是使用多步骤，也即Pass。</p>
+<p>第一步，先运行一个 Compute Pass，让 Compute Shader 这个“通用车间”去完成所有繁重的计算（比如模拟成千上万个粒子的运动位置），并把计算结果存放到一块“仓库”（如 Buffer 或 Texture）里。</p>
+<p>第二步，再运行一个 Render Pass，启动那条“渲染管线”，此时你的 VS 和 FS 程序不再需要自己去苦苦计算，它们可以直接去“仓库”里读取 Compute Shader 算好的现成数据，然后轻松地把它们画在屏幕上。</p>
+<h1 id="SSBO"><a href="#SSBO" class="headerlink" title="SSBO"></a>SSBO</h1><h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>SSBO (Shader Storage Buffer Object，着色器存储缓冲对象) 是一种在 GPU 上分配的<strong>通用内存缓冲区</strong>。</p>
+<p>你可以把它想象成一块“大容量、可读写的 GPU 内存”，所有类型的着色器（尤其是 Compute Shader）都可以自由地从中读取和写入数据。</p>
+<p>SSBO 是现代图形 API (如 OpenGL 4.3+, Vulkan, Metal, WebGPU) 中的一个核心功能，它的出现<strong>是 GPGPU 和 Compute Shader 得以普及的关键基石</strong>。</p>
+<hr>
+<h2 id="SSBO-的核心特性"><a href="#SSBO-的核心特性" class="headerlink" title="SSBO 的核心特性"></a>SSBO 的核心特性</h2><ol>
+<li><p><strong>读写能力 (Read&#x2F;Write Access)</strong></p>
+<ul>
+<li>这是 SSBO <strong>最重要</strong>的特性。在 SSBO 出现之前，GPU 上的大多数数据缓冲区（比如 UBO）对 Shader 来说都是“只读”的。</li>
+<li>有了 SSBO，你的 Compute Shader <strong>不仅可以读取数据，还可以把计算结果写回去</strong>。</li>
+<li>它甚至支持<strong>原子操作</strong>（Atomics），这允许多个 GPU 线程同时读写同一块内存区域而不会导致数据错乱，这对于并行计数、构建列表等高级算法至关重要。</li>
+</ul>
+</li>
+<li><p><strong>超大容量 (Very Large Size)</strong></p>
+<ul>
+<li>在 SSBO 之前，我们有 <strong>UBO (Uniform Buffer Object)</strong>，它用于向 Shader 传递常量（比如摄像机矩阵）。但 UBO 的容量<strong>非常小</strong>（例如，通常限制在 64KB）。</li>
+<li>SSBO 的容量限制<strong>非常大</strong>，通常只受限于你显卡的<strong>总显存大小</strong>（可能是几百 MB 甚至几个 GB）。</li>
+</ul>
+</li>
+<li><p><strong>灵活的结构 (Flexible Structure)</strong></p>
+<ul>
+<li>SSBO 就是一块原始内存。你可以在其中定义<strong>任意的数据结构</strong>，最常见的就是定义一个 <code>struct</code>（结构体），然后创建一个由这个结构体组成的<strong>巨大数组</strong>。</li>
+</ul>
+</li>
+<li><p><strong>通用性 (General Purpose)</strong></p>
+<ul>
+<li>SSBO 不仅可以被 <strong>Compute Shader</strong> 访问，也可以在<strong>顶点着色器 (VS)</strong> 和<strong>片段着色器 (FS)</strong> 中访问。这使得在不同管线阶段共享海量数据成为可能。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="为什么-SSBO-如此重要？"><a href="#为什么-SSBO-如此重要？" class="headerlink" title="为什么 SSBO 如此重要？"></a>为什么 SSBO 如此重要？</h2><p><strong>一句话：没有 SSBO，Compute Shader 就几乎毫无用处。</strong></p>
+<p>Compute Shader (GPGPU) 的目标是处理大规模并行计算。这些计算需要满足两个条件：</p>
+<ol>
+<li>需要<strong>输入</strong>海量数据。</li>
+<li>需要<strong>输出</strong>海量数据。</li>
+</ol>
+<p>UBO 太小了，根本无法承载这些数据。而 SSBO 完美地解决了这两个问题。</p>
+<hr>
+<h2 id="一个生动的例子：100-万个粒子的物理模拟"><a href="#一个生动的例子：100-万个粒子的物理模拟" class="headerlink" title="一个生动的例子：100 万个粒子的物理模拟"></a>一个生动的例子：100 万个粒子的物理模拟</h2><p>假设你想在 GPU 上模拟 100 万个粒子的运动。</p>
+<ul>
+<li><p><strong>数据：</strong> 你需要存储每个粒子的 <code>位置 (vec3)</code>、<code>速度 (vec3)</code>、<code>生命周期 (float)</code> 等。这 100 万个粒子的数据量会非常大（例如 <code>(12+12+4) * 1,000,000 = 28MB</code>），UBO 根本放不下。</p>
+</li>
+<li><p><strong>SSBO 的解决方案：</strong></p>
+<ol>
+<li><strong>创建 (CPU端)：</strong> 在 CPU 上创建一个 SSBO，其大小足以容纳 100 万个 <code>Particle</code> 结构体。</li>
+<li><strong>计算 (GPU - Compute Pass)：</strong><ul>
+<li>启动一个 <strong>Compute Shader</strong>，并让 GPU 开启 100 万个线程。</li>
+<li><strong>绑定 SSBO</strong>，让 Compute Shader 可以<strong>读写</strong>它。</li>
+<li><strong>每个线程</strong>负责<strong>读取</strong>一个粒子的当前位置和速度，计算它下一帧的新位置和新速度，然后<strong>写回</strong> SSBO 中<strong>同一个粒子</strong>的数据。</li>
+</ul>
+</li>
+<li><strong>渲染 (GPU - Render Pass)：</strong><ul>
+<li>启动<strong>渲染管线</strong> (VS + FS)。</li>
+<li><strong>绑定同一个 SSBO</strong>（这次是作为只读）。</li>
+<li><strong>顶点着色器 (VS)</strong> 也启动 100 万次，它从 SSBO 中<strong>读取</strong>每个粒子的（已被 Compute Shader 更新过的）位置，然后把它们画在屏幕上。</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+<hr>
+<h2 id="总结对比：SSBO-vs-UBO"><a href="#总结对比：SSBO-vs-UBO" class="headerlink" title="总结对比：SSBO vs. UBO"></a>总结对比：SSBO vs. UBO</h2><p>为了帮你更好地区分，这里有一个表格：</p>
+<table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left"><strong>SSBO (Shader Storage Buffer Object)</strong></th>
+<th align="left"><strong>UBO (Uniform Buffer Object)</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>主要用途</strong></td>
+<td align="left"><strong>通用计算存储 (GPGPU)</strong>、海量数据</td>
+<td align="left"><strong>常量数据</strong> (如变换矩阵、灯光设置)</td>
+</tr>
+<tr>
+<td align="left"><strong>Shader 访问</strong></td>
+<td align="left"><strong>可读 &#x2F; 可写</strong> (Read&#x2F;Write)</td>
+<td align="left"><strong>只读</strong> (Read-Only)</td>
+</tr>
+<tr>
+<td align="left"><strong>大小限制</strong></td>
+<td align="left"><strong>非常大</strong> (GB 级别，受显存限制)</td>
+<td align="left"><strong>非常小</strong> (KB 级别，如 64KB)</td>
+</tr>
+<tr>
+<td align="left"><strong>主要搭档</strong></td>
+<td align="left"><strong>Compute Shader</strong></td>
+<td align="left">Vertex Shader, Fragment Shader</td>
+</tr>
+</tbody></table>
+<p><strong>一句话总结：</strong></p>
+<ul>
+<li><strong>UBO</strong> 是 GPU 的一块“<strong>只读小黑板</strong>”，用于告诉所有线程“今天的规则是什么”（比如摄像机在哪）。</li>
+<li><strong>SSBO</strong> 是 GPU 的一个“<strong>巨大共享仓库</strong>”，所有线程都可以进去拿货（读取）和放货（写入），是 GPGPU 的核心数据中枢。</li>
+</ul>
+<h1 id="Indirect-Draw"><a href="#Indirect-Draw" class="headerlink" title="Indirect Draw"></a>Indirect Draw</h1><h2 id="概念-1"><a href="#概念-1" class="headerlink" title="概念"></a>概念</h2><p>Indirect Draw指绘制数据不再由CPU告诉GPU，而是GPU自己去读SSBO，获取绘制数据。CPU要做的事情只是发送一条指令，告诉GPU去哪里读取数据，并进行绘制。</p>
+<p>同时，Indirect Draw也有一个对应的API，vkCmdDrawIndirect，是GPU用来给CPU发消息的。</p>
+<h2 id="样例"><a href="#样例" class="headerlink" title="样例"></a>样例</h2><h3 id="直接绘制-Direct-Draw"><a href="#直接绘制-Direct-Draw" class="headerlink" title="直接绘制 (Direct Draw)"></a>直接绘制 (Direct Draw)</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// CPU 必须在“调用时”就明确知道要画多少个顶点</span><br><span class="line">int vertexCount = 6000;</span><br><span class="line">int instanceCount = 1000;</span><br><span class="line">int firstVertex = 0;</span><br><span class="line">int firstInstance = 0;</span><br><span class="line"></span><br><span class="line">// CPU 将这些“参数”直接打包成命令</span><br><span class="line">// &quot;画 6000 个顶点, 1000 个实例, ...&quot;</span><br><span class="line">vkCmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);</span><br></pre></td></tr></table></figure>
+
+<h3 id="间接绘制（Indirect-Draw）"><a href="#间接绘制（Indirect-Draw）" class="headerlink" title="间接绘制（Indirect Draw）"></a>间接绘制（Indirect Draw）</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// CPU 不知道要画多少个。它只知道“绘制参数”被存在了哪个 GPU 缓冲区里。</span><br><span class="line">VkBuffer drawArgumentsBuffer = ...; // 这是一个 SSBO</span><br><span class="line">uint32_t bufferOffset = 0;</span><br><span class="line"></span><br><span class="line">// CPU 发送一个“间接”命令</span><br><span class="line">// &quot;去 drawArgumentsBuffer 的 0 偏移处，自己读取参数，然后按那个参数画&quot;</span><br><span class="line">vkCmdDrawIndirect(commandBuffer, drawArgumentsBuffer, bufferOffset, 1, ...);</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>Basic Concept</category>
+      </categories>
+      <tags>
+        <tag>Rendering</tag>
+        <tag>Basic Concept</tag>
+        <tag>Computer Shader</tag>
+        <tag>BBSO</tag>
       </tags>
   </entry>
 </search>
